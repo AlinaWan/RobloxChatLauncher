@@ -108,6 +108,23 @@ This design complements passthrough input and the fake caret, creating a seamles
 * Server Instance ID will ensure chat is scoped only to players in the same Roblox server.
 * No friend lists, no persistent identifiers — communication will remain ephemeral.
 
+#### Preventing Abuse and Ensuring Data Integrity
+
+To maintain stability and prevent malicious use:
+
+* **Message Validation:**
+
+  * Only allow messages of the expected type (text).
+  * Enforce maximum message size to prevent huge payloads.
+  * Reject invalid or malformed messages before storing or broadcasting.
+  * Filter messages for illegal or harmful content using an API (may allow profanities based on user preference).
+  * Implement rate limiting to prevent spamming.
+
+* **Network-Level Protections:**
+
+  * Integrate with PaaS or cloud provider features (e.g., Cloudflare) to mitigate DoS/DDoS attacks (IP throttling, connection limits, firewall rules).
+  * Optionally include CAPTCHA or lightweight proof-of-work token issuance to make automated attacks expensive.
+
 ---
 
 ## Prerequisites
