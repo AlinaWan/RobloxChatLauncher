@@ -49,6 +49,67 @@ As Roblox moves toward Facial Age Estimation and restricted chat categories, man
 
 ---
 
+## Technical Overview (Proof of Concept)
+
+This project is a **proof of concept**. Its goal is to demonstrate the **feasibility** of a lightweight, **native-feel** Roblox chat overlay as a **bypass** for communication being removed or restricted, not to provide a complete networking system.  
+
+### What the PoC Does
+
+* Registers itself as the `roblox-player:` URI handler so launching Roblox also opens the chat overlay.
+* Launches Roblox without modifying the game or its files.
+* Displays a topmost WinForms chat window that overlays Roblox.
+* Captures keyboard input globally to replicate native Roblox chat behavior (`/` to start typing, `Enter` to send).
+* Synchronizes the overlay’s visibility with the Roblox window (minimized/restored state).
+* Implements a custom-painted input box with a blinking caret for a native-feel typing experience.
+
+### What the PoC Does **Not** Do
+
+* ❌ No Roblox injection or memory modification.
+* ❌ No reading or manipulating Roblox process memory.
+* ❌ No network traffic interception.
+* ❌ No chat networking yet (messages are local only).
+* ❌ No persistent user accounts or data tracking.
+
+### Input Handling Details
+
+* Uses [`Gma.System.MouseKeyHook`](https://www.nuget.org/packages/MouseKeyHook/) for a global keyboard hook.
+* Converts keys into text using `ToUnicodeEx` for layout-correct, shift-aware input.
+* Ensures a seamless typing experience while the game is running.
+
+### Passthrough Input
+
+One of the key design choices in this PoC is **passthrough input**, meaning you can type in the chat overlay without ever having to focus it, then continue playing Roblox seamlessly.  
+
+* Traditional overlays require you to click or focus the input box, type your message, press Enter, and then manually return focus to the game. This interrupts gameplay, risks mis-clicks, and can cause lag or unintended inputs.  
+* The launcher captures keyboard input globally, mirrors it in the overlay, and sends it locally (currently just to the chat window).  
+* This preserves **muscle memory** and the natural feel of Roblox’s native chat: `/` to start, `Enter` to send, and you never leave the game window.  
+
+Because the overlay never receives focus, the **Win32 caret is hidden** and a **custom "fake" caret** is drawn inside the input box to indicate typing. This allows the overlay to remain fully non-intrusive while still giving visual feedback exactly like Roblox’s native chat.
+
+### Overlay Opacity & Fade
+
+The chat overlay adjusts its **opacity dynamically** to indicate its current state:
+
+* When chat input is active (after pressing `/`), the overlay becomes fully opaque so typing is clear and readable.
+* When idle, the overlay is semi-transparent (default ~70%) to remain unobtrusive while you play.
+* Opacity changes are **smoothly animated**, providing a natural fade in/out rather than an abrupt jump, which mimics native UI behavior and keeps focus on the game.
+
+This design complements passthrough input and the fake caret, creating a seamless, non-intrusive chat experience that feels integrated with Roblox itself.
+
+### Registry Modification
+
+* Updates `HKEY_CLASSES_ROOT\roblox-player\shell\open\command` to point to this launcher on first run.
+* This allows Roblox to launch the chat overlay automatically.
+* Can be reverted by reinstalling Roblox or restoring the key to `RobloxPlayerBeta.exe`.
+
+### Future Architecture (Planned)
+
+* Messages will eventually synchronize through a stateless relay or PaaS.
+* Server Instance ID will ensure chat is scoped only to players in the same Roblox server.
+* No friend lists, no persistent identifiers — communication will remain ephemeral.
+
+---
+
 ## Prerequisites
 
 * Windows 10 or newer
@@ -66,7 +127,7 @@ git clone https://github.com/AlinaWan/RobloxChatLauncher
 cd RobloxChatLauncher
 ```
 
-The project already references **Gma.System.MouseKeyHook** in the `.csproj`, but if you need to install it manually, the command is:
+The project already references [**Gma.System.MouseKeyHook**](https://www.nuget.org/packages/MouseKeyHook/) in the `.csproj`, but if you need to install it manually, the command is:
 
 ```powershell
 dotnet add package MouseKeyHook --version 5.7.1
