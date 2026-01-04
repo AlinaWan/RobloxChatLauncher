@@ -60,6 +60,7 @@ class Program
         chatThread.Start();
     }
 
+    /*
     static string ResolveRobloxPlayerPath()
     {
         string versionsDir = Path.Combine(
@@ -75,6 +76,22 @@ class Program
         }
 
         return null;
+    }
+    */
+
+    static string ResolveRobloxPlayerPath()
+    {
+        using var key = Registry.ClassesRoot.OpenSubKey(@"roblox-player\shell\open\command");
+        if (key == null) return null;
+    
+        var versionFolder = key.GetValue("version") as string;
+        if (string.IsNullOrEmpty(versionFolder)) return null;
+    
+        string exePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Roblox", "Versions", versionFolder, "RobloxPlayerBeta.exe");
+    
+        return File.Exists(exePath) ? exePath : null;
     }
 
     static void RegisterAsRobloxLauncher()
