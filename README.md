@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Roblox Chat Launcher](#roblox-chat-launcher)
+  - [Why Not Just Use Discord?](#why-not-just-use-discord)
+  - [Features](#features)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [First Run (Important)](#first-run-important)
+  - [Usage](#usage)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Roblox Chat Launcher
 
 > [!WARNING]
