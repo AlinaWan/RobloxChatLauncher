@@ -158,7 +158,7 @@ To maintain stability and prevent malicious use:
 ## Prerequisites
 
 * Windows 10 or newer
-* [.NET 7.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-7.0.20-windows-x64-installer)
+* [.NET 10.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-10.0.1-windows-x64-installer)
 * Roblox installed on the system
 
 ---
