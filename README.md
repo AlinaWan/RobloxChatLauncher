@@ -179,6 +179,31 @@ This step switches the relevant Roblox registry key to point to the launcher. Af
 
 ---
 
+## Contributing & Feedback
+
+This project is an early **proof of concept**. Contributions and feedback are highly appreciated — every bit helps improve usability, polish the overlay, and inform future development.
+
+### How You Can Help
+
+* **Report bugs or UX issues** — let us know if the overlay behaves unexpectedly, or if passthrough input, fake caret, or opacity/fade feel off.  
+* **Suggest improvements** — ideas for smoother animations, input handling, or overlay ergonomics are welcome.  
+* **Documentation & demos** — help make it easier for others to try the launcher safely.  
+* **Code contributions** — small fixes, refactoring, or enhancements to the PoC are appreciated, but the project is still early, so focus on safe, non-invasive improvements.
+
+### Content Creators
+
+If you’re a content creator, your **feedback and exposure** can help the project grow while addressing a problem many Roblox players are frustrated with: the new age-based chat restrictions and privacy requirements.  
+
+Sharing your experience, creating a demo, or reporting insights can:
+
+* Help refine the launcher’s usability and design  
+* Provide players with a safe, privacy-friendly way to communicate in-game  
+* Bring attention to the challenges introduced by Roblox’s recent changes  
+
+Even small contributions or observations are valuable at this stage — your input helps shape the project and its future development.
+
+---
+
 ## License
 
 [GNU General Public License v3.0](LICENSE)
