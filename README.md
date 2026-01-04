@@ -1,19 +1,39 @@
 # Roblox Chat Launcher
 
-
-
 > [!WARNING]
-> This is a proof of concept. You cannot chat with anyone yet. However, the vision is to eventually exchange messages through a PaaS, using the exposed server instance ID to connect only with people in the same Roblox server.
+> **THIS IS A PROOF OF CONCEPT**
+>
+> You cannot chat with anyone yet. However, the vision is to eventually exchange messages through a PaaS, using the exposed server instance ID to connect only with people in the same Roblox server.
 
-A lightweight Windows desktop helper that mirrors the Roblox in‑game chat experience in a separate overlay window. It listens to global keyboard input, respects the user’s keyboard layout (including Shift and non‑US layouts), renders its own blinking caret, and synchronizes minimize/focus state with the Roblox window.
+A lightweight Windows desktop helper that mirrors the Roblox in‑game chat experience in a separate overlay window because Roblox is removing or limiting in-game chat for many users with the Facial Age Estimation/Age Groups update.
 
-This project is primarily intended for experimentation, tooling, and UI behavior research around Roblox chat input.
+This project is primarily intended for experimentation, tooling, and UI behavior research around Roblox chat input and not yet ready for production. Feel free to contribute and open pull requests to improve this launcher!
 
 ---
 
 ## Why Not Just Use Discord?
 
-Roblox is already removing or limiting in-game chat for many users with the Facial Age Estimation/Age Groups update. While this launcher would require both parties to have it to chat, using Discord is no different. This project aims to replace the in-game chat in a more streamlined and integrated way, automatically connecting you only with people in the same Roblox server based on the exposed server instance ID. No extra apps or accounts are required, and the chat experience becomes native to the game environment.
+The most common objection is: "But both people need to download this to talk—why not just use Discord?" While Discord is great for pre-planned groups, it fails the spontaneous player. This launcher isn't just a Discord alternative; it’s a native-feel bypass that solves the "Stranger Friction" Discord can't touch.
+
+1. **Zero-Friction Connection (No "Add Me" Required)**  
+To chat on Discord, you have to stop playing, exchange usernames, send a friend request, and join a call. By then, the round is over.
+
+   **The Launcher Way:** It uses your Server Instance ID to automatically put you in a room with everyone else in your game who has the app. No links, no tags, no friction. You just join the game and start typing.
+
+3. **Context-Aware Intelligence**  
+Discord is a global "everything" app. This is a precision tool for the game you are currently playing.
+
+   **Automatic Filtering:** You only hear from people in your specific server. When you hop to a new game, the chat channel hops with you. You never have to manually switch "servers" or "channels" to keep up with your current teammates.
+
+5. **Integrated "Native" Ergonomics**  
+Using Discord involves a clunky overlay or constant Alt-Tabbing, which can cause Roblox to lag or crash.
+
+   **Seamless Input:** This launcher mirrors the native Roblox experience. Pressing / to start and Enter to send works exactly like the original chat, allowing you to stay focused on the game while using a modern, unrestricted UI.
+
+7. **Reliable Communication in an "Age-Restricted" Era**  
+As Roblox moves toward Facial Age Estimation and restricted chat categories, many players are losing the ability to communicate effectively in-game.
+
+   This project provides a consistent, high-performance communication layer that bypasses UI limitations while remaining 100% compliant with Roblox’s Terms of Service (no injection or memory tampering).
 
 ---
 
