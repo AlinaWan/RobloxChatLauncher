@@ -1,18 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [Roblox Chat Launcher](#roblox-chat-launcher)
-  - [Why Not Just Use Discord?](#why-not-just-use-discord)
-  - [Features](#features)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [First Run (Important)](#first-run-important)
-  - [Usage](#usage)
-  - [License](#license)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Roblox Chat Launcher
 
 > [!WARNING]
@@ -27,6 +12,34 @@ Why?
 Roblox is removing in-game communication unless users provide pictures of their face or government IDs—sensitive information that becomes a major security liability in the event of a data breach. While Roblox claims to "immediately" delete this data after processing it, Roblox's partner Persona can keep copies for up to 30 days.
 
 Furthermore, new age-group filtering often fragments the player base and ruins the cooperative experience. The Roblox Chat Launcher restores this lost social layer with a lightweight Windows overlay that mirrors the native chat experience. By using your keyboard's existing muscle memory and synchronizing directly with the Roblox window, it provides a secure, native-feeling alternative that keeps communication open and co-op gameplay intact without the privacy risks.
+
+---
+
+<!-- npx doctoc README.md --maxlevel 3 -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Why Not Just Use Discord?](#why-not-just-use-discord)
+- [Features](#features)
+- [Technical Overview (Proof of Concept)](#technical-overview-proof-of-concept)
+  - [What the PoC Does](#what-the-poc-does)
+  - [What the PoC Does **Not** Do](#what-the-poc-does-not-do)
+  - [Input Handling Details](#input-handling-details)
+  - [Passthrough Input](#passthrough-input)
+  - [Overlay Opacity & Fade](#overlay-opacity--fade)
+  - [Registry Modification](#registry-modification)
+  - [Future Architecture (Planned)](#future-architecture-planned)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [First Run (Important)](#first-run-important)
+- [Usage](#usage)
+- [Contributing & Feedback](#contributing--feedback)
+  - [How You Can Help](#how-you-can-help)
+  - [Content Creators](#content-creators)
+- [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ---
 
