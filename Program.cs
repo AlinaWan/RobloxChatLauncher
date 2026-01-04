@@ -28,10 +28,12 @@ class Program
 
         string uri = args[0];
 
-        Console.WriteLine("Roblox Launch Detected");
-        Console.WriteLine(uri);
-        Console.WriteLine("Press Enter to continue...");
-        Console.ReadLine();
+        // Console.WriteLine("Roblox Launch Detected");
+        // DEBUG: Print full URI for inspection
+        // Console.WriteLine(uri);
+        // DEBUG: Keep the console open for inspection
+        // Console.WriteLine("Keeping console open for inspection. Press Enter to continue launching Roblox...");
+        // Console.ReadLine();
 
         string robloxExe = ResolveRobloxPlayerPath();
         if (robloxExe == null)
