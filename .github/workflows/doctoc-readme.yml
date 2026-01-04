@@ -1,9 +1,13 @@
 name: DocToc README.md
 
+permissions:
+  contents: write
+
 on:
   push:
     paths:
       - "README.md"
+  workflow_dispatch:
 
 jobs:
   update-toc:
