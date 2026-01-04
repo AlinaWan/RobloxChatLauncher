@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using Gma.System.MouseKeyHook;
 using System.Drawing;
 using System.Text;
+using System.ComponentModel;
 
 class Program
 {
@@ -135,7 +136,9 @@ static class NativeMethods
 // --------------------------------------------------
 class ChatInputBox : TextBox
 {
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool IsChatting { get; set; }
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public string RawText { get; set; } = "";
 
     bool caretVisible = true;
