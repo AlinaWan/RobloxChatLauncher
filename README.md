@@ -32,7 +32,7 @@ Discord is a global "everything" app. This is a precision tool for the game you 
 5. **Integrated "Native" Ergonomics**  
 Using Discord involves a clunky overlay or constant Alt-Tabbing, which can cause Roblox to lag or crash.
 
-   **Seamless Input:** This launcher mirrors the native Roblox experience. Pressing / to start and Enter to send works exactly like the original chat, allowing you to stay focused on the game while using a modern, unrestricted UI.
+   **Seamless Input:** This launcher mirrors the native Roblox experience. Pressing / to start and Enter to send works exactly like the original chat. You never unfocus Roblox, allowing you to stay focused on the game while using a modern, unrestricted UI.
 
 7. **Reliable Communication in an "Age-Restricted" Era**  
 As Roblox moves toward Facial Age Estimation and restricted chat categories, many players are losing the ability to communicate effectively in-game.
