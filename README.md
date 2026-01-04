@@ -158,7 +158,8 @@ To maintain stability and prevent malicious use:
 ## Prerequisites
 
 * Windows 10 or newer
-* [.NET 10.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-10.0.1-windows-x64-installer)
+* [.NET 10.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-10.0.101-windows-x64-installer) (To build the app)
+* [.NET 10.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-10.0.1-windows-x64-installer) (To run the app)
 * Roblox installed on the system
 
 ---
