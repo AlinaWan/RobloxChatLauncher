@@ -5,9 +5,9 @@
 >
 > You cannot chat with anyone yet. However, the vision is to eventually exchange messages through a PaaS, using the exposed server instance ID to connect only with people in the same Roblox server.
 
-A lightweight Windows desktop helper that mirrors the Roblox in‑game chat experience in a separate overlay window because Roblox is removing or limiting in-game chat for many users with the Facial Age Estimation/Age Groups update.
+**A lightweight Windows utility designed to restore and modernize the Roblox social experience.**
 
-This project is primarily intended for experimentation, tooling, and UI behavior research around Roblox chat input and not yet ready for production. Feel free to contribute and open pull requests to improve this launcher!
+Why? Roblox is removing in-game communication unless users provide pictures of their face or government IDs—sensitive information that becomes a major security liability in the event of a data breach. Furthermore, new age-group filtering often fragments the player base and ruins the cooperative experience. The Roblox Chat Launcher restores this lost social layer with a lightweight Windows overlay that mirrors the native chat experience. By using your keyboard's existing muscle memory and synchronizing directly with the Roblox window, it provides a secure, native-feeling alternative that keeps communication open and co-op gameplay intact without the privacy risks.
 
 ---
 
@@ -79,6 +79,10 @@ Run:
 ```powershell
 dotnet run
 ```
+
+> [!WARNING]
+>
+> This will automatically change the registry key without a confirmation. To revert back to the original Roblox launcher, you can re-run the `RobloxPlayerInstaller` or manually change the key value to `RobloxPlayerBeta.exe`'s path.
 
 This step switches the relevant Roblox registry key to point to the launcher. After this, launching Roblox will automatically launch the chat window alongside the client.
 
