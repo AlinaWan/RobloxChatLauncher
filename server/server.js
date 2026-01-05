@@ -10,12 +10,50 @@ const PERSPECTIVE_API_KEY = process.env.PERSPECTIVE_API_KEY;
 const PORT = process.env.PORT || 10000;
 const rateLimit = require('express-rate-limit');
 
+// Queue of messages to be filtered
+const messageQueue = [];
+let processing = false;
+
 // Trust proxy (Render / Heroku / etc.)
 app.set('trust proxy', 1); // trust only the first proxy hop (Render)
 
 // Middleware to parse plain text bodies (sent by C# client)
 // Limit messages to 10kb (more than enough for a chat message)
 app.use(express.text({ limit: '10kb' }));
+
+function enqueueMessage(text) {
+    return new Promise((resolve) => {
+        // Reject immediately if the queue is too long
+        if (messageQueue.length > 100) {
+            resolve({ allowed: false });
+            return;
+        }
+        
+        // Otherwise, add the message to the queue
+        messageQueue.push({ text, resolve });
+        processQueue();
+    });
+}
+
+async function processQueue() {
+    if (processing || messageQueue.length === 0) return;
+
+    processing = true;
+    const { text, resolve } = messageQueue.shift();
+
+    try {
+        const result = await isMessageAllowed(text);
+        resolve(result);
+    } catch (err) {
+        resolve({ allowed: false });
+    }
+
+    // Delay to respect Perspective API limits (1 request per second)
+    setTimeout(() => {
+        processing = false;
+        processQueue();
+    }, 1000); // 1 second delay
+}
 
 // Using Perspective API to filter messages
 // See: https://developers.perspectiveapi.com/s/about-the-api?language=en_US
@@ -59,7 +97,7 @@ async function isMessageAllowed(text) {
             { timeout: 10000 }
         );
 
-        console.dir(response.data, { depth: null }); // Print full response
+        console.dir(response.data, { depth: null }); // Print full response for debugging
 
         const scores = response.data.attributeScores;
 
@@ -70,14 +108,14 @@ async function isMessageAllowed(text) {
             (scores.SEVERE_TOXICITY?.summaryScore?.value || 0) > 0.75 ||
             (scores.THREAT?.summaryScore?.value || 0) > 0.75 ||
             (scores.TOXICITY?.summaryScore?.value || 0) > 0.85 ||
-            (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.85
-            (scores.FLIRTATION?.summaryScore?.value || 0) > 0.85
+            (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.85 ||
+            (scores.FLIRTATION?.summaryScore?.value || 0) > 0.85 ||
 
-                // More lenient on insults, profanity, etc., but still block extreme cases
-                // Again, users will be able to set their own preferences in the future
-                // And block these categories wholly if they want
-                (scores.INSULT?.summaryScore?.value || 0) > 0.90
-                (scores.PROFANITY?.summaryScore?.value || 0) > 0.95
+            // More lenient on insults, profanity, etc., but still block extreme cases
+             // Again, users will be able to set their own preferences in the future
+             // And block these categories wholly if they want
+             (scores.INSULT?.summaryScore?.value || 0) > 0.90 ||
+             (scores.PROFANITY?.summaryScore?.value || 0) > 0.95
         ) {
             return { allowed: false };
         }
@@ -111,7 +149,7 @@ app.post('/echo', async (req, res) => {
     }
 
     try {
-        const moderation = await isMessageAllowed(receivedText);
+        const moderation = await enqueueMessage(receivedText);
 
         if (!moderation.allowed) {
             // IMPORTANT: do NOT log message contents
