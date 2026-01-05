@@ -336,7 +336,7 @@ public ChatForm(Process proc)
                 {
                     // Moderation rejection (expected, non-error)
                     this.Invoke((MethodInvoker)delegate {
-                        chatBox.AppendText("Message not sent as it violates community guidelines\r\n");
+                        chatBox.AppendText("Your last message was not sent as it violates community guidelines.\r\n");
                     });
                 }
                 else

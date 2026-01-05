@@ -64,16 +64,25 @@ async function isMessageAllowed(text) {
         const scores = response.data.attributeScores;
 
         // === Custom policy logic ===
-        // Block high-confidence severe toxicity, threats, sexual explicit
+        // Block severe toxicity, threats, sexual explicit, etc.
         if (
-            (scores.SEVERE_TOXICITY?.summaryScore?.value || 0) > 0.85 ||
+            (scores.IDENTITY_ATTACK?.summaryScore?.value || 0) > 0.70 ||
+            (scores.SEVERE_TOXICITY?.summaryScore?.value || 0) > 0.75 ||
             (scores.THREAT?.summaryScore?.value || 0) > 0.75 ||
+            (scores.TOXICITY?.summaryScore?.value || 0) > 0.85 ||
             (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.85
+            (scores.FLIRTATION?.summaryScore?.value || 0) > 0.85
+
+                // More lenient on insults, profanity, etc., but still block extreme cases
+                // Again, users will be able to set their own preferences in the future
+                // And block these categories wholly if they want
+                (scores.INSULT?.summaryScore?.value || 0) > 0.90
+                (scores.PROFANITY?.summaryScore?.value || 0) > 0.95
         ) {
             return { allowed: false };
         }
 
-        // Mild profanity/insults/flirtation are allowed
+        // Everything else is allowed
         return { allowed: true };
     } catch (err) {
         console.error("Perspective API error:", err.message);
