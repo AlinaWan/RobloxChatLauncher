@@ -1,10 +1,8 @@
 ﻿const express = require('express');
 const app = express();
-const OpenAI = require("openai");
+const axios = require('axios');
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+const PERSPECTIVE_API_KEY = process.env.PERSPECTIVE_API_KEY;
 
 // Render and other PaaS providers usually use port 10000 by default
 const PORT = process.env.PORT || 10000;
@@ -17,8 +15,8 @@ app.set('trust proxy', 1); // trust only the first proxy hop (Render)
 // Limit messages to 10kb (more than enough for a chat message)
 app.use(express.text({ limit: '10kb' }));
 
-// Using OpenAI Moderation API to filter messages
-// See: https://platform.openai.com/docs/guides/moderation
+// Using Perspective API to filter messages
+// See: https://developers.perspectiveapi.com/s/about-the-api?language=en_US
 
 /*
 Future architecture:
@@ -29,49 +27,55 @@ Future architecture:
 */
 
 // In the future, the user will be able to set preferences to block or see the content described above
-function violatesPolicy(result) {
-    const c = result.categories;
-    const s = result.category_scores;
+// Map attributes
+// See: https://developers.perspectiveapi.com/s/about-the-api-attributes-and-languages?language=en_US
+const ATTRIBUTES = {
+    TOXICITY: {},
+    INSULT: {},
+    PROFANITY: {},
+    SEVERE_TOXICITY: {},
+    IDENTITY_ATTACK: {},
+    THREAT: {},
+    SEXUALLY_EXPLICIT: {}, // Experimental attribute
+    FLIRTATION: {} // Experimental attribute 
+};
 
-    // === HARD BLOCKS (never allowed) ===
-    if (c["sexual/minors"]) return true;
-    if (c["hate"] || c["hate/threatening"]) return true;
-    if (c["violence/graphic"]) return true;
-    if (c["self-harm"] || c["self-harm/intent"] || c["self-harm/instructions"]) return true;
-    if (c["illicit"] || c["illicit/violent"]) return true;
-
-    // === THREATS ===
-    if (c["harassment/threatening"]) return true;
-
-    // === SEXUAL CONTENT ===
-    // Allow mild sexual content, block graphic / high-confidence sexual
-    if (c["sexual"] && s["sexual"] > 0.85) return true;
-
-    // === VIOLENCE (non-graphic) ===
-    // Optional: allow mild mentions, block strong violence
-    if (c["violence"] && s["violence"] > 0.75) return true;
-
-    // Everything else is allowed:
-    // - Swearing
-    // - "I hate you"
-    // - Mild insults
-    // - Mild sexual references
-    return false;
-}
-
+// See: https://developers.perspectiveapi.com/s/about-the-api-methods?language=en_US
 async function isMessageAllowed(text) {
-    const response = await openai.moderations.create({
-        model: "omni-moderation-latest",
-        input: text,
-    }, { timeout: 10000 });
+    try {
+        const payload = {
+            comment: { text, type: "PLAIN_TEXT" },
+            requestedAttributes: ATTRIBUTES,
+            languages: ["en"],
+            doNotStore: true
+        };
 
-    console.dir(response, { depth: null }); // Print full response for debugging
+        const response = await axios.post(
+            `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${PERSPECTIVE_API_KEY}`,
+            payload,
+            { timeout: 10000 }
+        );
 
-    const result = response.results[0];
+        console.dir(response.data, { depth: null }); // Print full response
 
-    return {
-        allowed: !violatesPolicy(result),
-    };
+        const scores = response.data.attributeScores;
+
+        // === Custom policy logic ===
+        // Block high-confidence severe toxicity, threats, sexual explicit
+        if (
+            (scores.SEVERE_TOXICITY?.summaryScore?.value || 0) > 0.85 ||
+            (scores.THREAT?.summaryScore?.value || 0) > 0.75 ||
+            (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.85
+        ) {
+            return { allowed: false };
+        }
+
+        // Mild profanity/insults/flirtation are allowed
+        return { allowed: true };
+    } catch (err) {
+        console.error("Perspective API error:", err.message);
+        return { allowed: false }; // Fail closed
+    }
 }
 
 // The Echo Endpoint
