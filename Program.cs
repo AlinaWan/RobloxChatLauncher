@@ -332,6 +332,13 @@ public ChatForm(Process proc)
                         chatBox.AppendText($"Server: {echoResponse}\r\n");
                     });
                 }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    // Moderation rejection (expected, non-error)
+                    this.Invoke((MethodInvoker)delegate {
+                        chatBox.AppendText("Message not sent as it violates community guidelines\r\n");
+                    });
+                }
                 else
                 {
                     this.Invoke((MethodInvoker)delegate {
