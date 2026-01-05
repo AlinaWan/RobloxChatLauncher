@@ -2,6 +2,8 @@
 const app = express();
 const axios = require('axios');
 
+// Perspective users must register for access
+// See: https://developers.perspectiveapi.com/s/docs-get-started?language=en_US
 const PERSPECTIVE_API_KEY = process.env.PERSPECTIVE_API_KEY;
 
 // Render and other PaaS providers usually use port 10000 by default
