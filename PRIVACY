@@ -1,7 +1,7 @@
 Privacy
 -------
 
-To send a message to the demo server, your client's IP address is automatically include in the HTTP request.
+To send a message to the demo server, your client's IP address is automatically included in the HTTP request.
 This is a normal part of how the web works and is required for routing the response back to your device.  
 
 The server temporarily uses your IP only to enforce rate limits and echo the message back to you.  
@@ -11,3 +11,5 @@ Because the server is hosted on Render, the hosting provider may log access meta
 Users are encouraged to review Render's privacy policy at https://render.com/privacy for more information.
 
 No other personal information is collected by this app.
+
+Last Updated: January 4, 2026
