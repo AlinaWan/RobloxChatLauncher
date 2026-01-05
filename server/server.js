@@ -19,6 +19,7 @@ app.use(express.text({ limit: '10kb' }));
 
 // Using Perspective API to filter messages
 // See: https://developers.perspectiveapi.com/s/about-the-api?language=en_US
+// WARNING: Perspective API currently has a 1 QPS limit on free tier
 
 /*
 Future architecture:
@@ -82,6 +83,7 @@ async function isMessageAllowed(text) {
 
 // The Echo Endpoint
 // Rate limiter per real client IP (req.ip trusted)
+// WARNING: Render free tier may be slow to startup as it spins down inactive services
 app.use(
     '/echo',
     rateLimit({
