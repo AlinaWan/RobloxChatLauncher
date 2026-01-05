@@ -13,6 +13,7 @@ const rateLimit = require('express-rate-limit');
 // Queue of messages to be filtered
 const messageQueue = [];
 let processing = false;
+const MAX_QUEUE_SIZE = 100;
 
 // Trust proxy (Render / Heroku / etc.)
 app.set('trust proxy', 1); // trust only the first proxy hop (Render)
@@ -24,8 +25,8 @@ app.use(express.text({ limit: '10kb' }));
 function enqueueMessage(text) {
     return new Promise((resolve) => {
         // Reject immediately if the queue is too long
-        if (messageQueue.length > 100) {
-            resolve({ allowed: false });
+        if (messageQueue.length >= MAX_QUEUE_SIZE) {
+            resolve({ allowed: false, reason: "queue_full" });
             return;
         }
         
@@ -43,16 +44,20 @@ async function processQueue() {
 
     try {
         const result = await isMessageAllowed(text);
-        resolve(result);
+        if (!result.allowed) {
+            resolve({ allowed: false, reason: "moderation" });
+        } else {
+            resolve({ allowed: true });
+        }
     } catch (err) {
-        resolve({ allowed: false });
+        resolve({ allowed: false, reason: "api_error" });
     }
 
     // Delay to respect Perspective API limits (1 request per second)
     setTimeout(() => {
         processing = false;
         processQueue();
-    }, 1000); // 1 second delay
+    }, 1000);
 }
 
 // Using Perspective API to filter messages
@@ -111,7 +116,7 @@ async function isMessageAllowed(text) {
             (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.85 ||
             (scores.FLIRTATION?.summaryScore?.value || 0) > 0.85 ||
 
-            // More lenient on insults, profanity, etc., but still block extreme cases
+             // More lenient on insults, profanity, etc., but still block extreme cases
              // Again, users will be able to set their own preferences in the future
              // And block these categories wholly if they want
              (scores.INSULT?.summaryScore?.value || 0) > 0.90 ||
@@ -153,13 +158,13 @@ app.post('/echo', async (req, res) => {
 
         if (!moderation.allowed) {
             // IMPORTANT: do NOT log message contents
-            console.log(`Message rejected from ${fullChain}`);
+            console.log(`Message rejected from ${fullChain} (reason: ${moderation.reason})`);
             console.log(`Trusted Rate-limit IP: ${req.ip}`);
 
             return res.status(403).json({
                 status: "rejected",
-                reason: "moderation",
-                message: "Message not sent due to community guidelines.",
+                reason: moderation.reason,
+                message: "Message not sent due to community guidelines or server limits."
             });
         }
 
