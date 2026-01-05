@@ -179,10 +179,11 @@ git clone https://github.com/AlinaWan/RobloxChatLauncher
 cd RobloxChatLauncher
 ```
 
-The project already references [**Gma.System.MouseKeyHook**](https://www.nuget.org/packages/MouseKeyHook/) in the `.csproj`, but if you need to install it manually, the command is:
+The project already references [**Gma.System.MouseKeyHook**](https://www.nuget.org/packages/MouseKeyHook/) and [**Newtonsoft.Json**](https://www.nuget.org/packages/newtonsoft.json/) in the `.csproj`, but if you need to install them manually, the commands are:
 
 ```powershell
 dotnet add package MouseKeyHook --version 5.7.1
+dotnet add package Newtonsoft.Json --version 13.0.4
 ```
 
 ---
