@@ -7,11 +7,13 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Web;
 using System.Runtime.InteropServices;
-using Gma.System.MouseKeyHook;
 using System.Drawing;
 using System.Text;
 using System.ComponentModel;
 using System.Net.Http;
+
+using Gma.System.MouseKeyHook;
+using Newtonsoft.Json;
 
 class Program
 {
@@ -334,15 +336,29 @@ public ChatForm(Process proc)
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
                 {
-                    // Moderation rejection (expected, non-error)
+                    var json = await response.Content.ReadAsStringAsync();
+                    dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+                    string reason = data?.reason;
+                
+                    string messageText;
+                    switch (reason)
+                    {
+                        case "moderation":
+                            messageText = "Your last message was not sent as it violates community guidelines.";
+                            break;
+                        case "queue_full":
+                            messageText = "Your last message was rejected because the server queue is full. Please try again shortly.";
+                            break;
+                        case "api_error":
+                            messageText = "Your last message could not be processed due to a server error. Please try again.";
+                            break;
+                        default:
+                            messageText = "Your last message was not sent due to unknown reasons.";
+                            break;
+                    }
+                
                     this.Invoke((MethodInvoker)delegate {
-                        chatBox.AppendText("Your last message was not sent as it violates community guidelines.\r\n");
-                    });
-                }
-                else
-                {
-                    this.Invoke((MethodInvoker)delegate {
-                        chatBox.AppendText($"System: Server returned {response.StatusCode}\r\n");
+                        chatBox.AppendText(messageText + "\r\n");
                     });
                 }
             }
