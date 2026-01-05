@@ -5,8 +5,8 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const rateLimit = require('express-rate-limit');
 
-// Trust first proxy (Render / Heroku / etc.)
-app.set('trust proxy', 1); // '1' = trust the first proxy in front of us
+// Trust proxy (Render / Heroku / etc.)
+app.set('trust proxy', true);
 
 // Middleware to parse plain text bodies (sent by C# client)
 app.use(express.text());
