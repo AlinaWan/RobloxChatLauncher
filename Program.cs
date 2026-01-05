@@ -391,9 +391,13 @@ class ChatKeyboardHandler : IDisposable
 
     void OnKeyDown(object sender, KeyEventArgs e)
     {
+        // Ignore all input if the chat window is minimized
+        if (form.WindowState == FormWindowState.Minimized)
+            return;
+
         if (!chatMode)
         {
-            if (e.KeyCode == Keys.OemQuestion)
+            if (e.KeyCode == Keys.OemQuestion) // slash key
             {
                 chatMode = true;
                 form.StartChatMode();
