@@ -14,7 +14,8 @@ const rateLimit = require('express-rate-limit');
 app.set('trust proxy', 1); // trust only the first proxy hop (Render)
 
 // Middleware to parse plain text bodies (sent by C# client)
-app.use(express.text());
+// Limit messages to 10kb (more than enough for a chat message)
+app.use(express.text({ limit: '10kb' }));
 
 // Using OpenAI Moderation API to filter messages
 // See: https://platform.openai.com/docs/guides/moderation
@@ -62,7 +63,7 @@ async function isMessageAllowed(text) {
     const response = await openai.moderations.create({
         model: "omni-moderation-latest",
         input: text,
-    });
+    }, { timeout: 10000 });
 
     console.dir(response, { depth: null }); // Print full response for debugging
 
