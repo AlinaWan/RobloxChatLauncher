@@ -1,15 +1,26 @@
 Privacy
 -------
 
-To send a message to the demo server, your client's IP address is automatically included in the HTTP request.
-This is a normal part of how the web works and is required for routing the response back to your device.  
-
-The server temporarily uses your IP only to enforce rate limits and echo the message back to you.  
-IP addresses are NEVER stored, shared, or used for any other purpose.  
-
-Because the server is hosted on Render, the hosting provider may log access metadata according to its own policies.
-Users are encouraged to review Render's privacy policy at https://render.com/privacy for more information.
-
-No other personal information is collected by this app.
-
 Last Updated: January 4, 2026
+
+1. Data Transmission & IP Addresses
+    To send a message to the demo server, your client's IP address is automatically included in the HTTP request.
+    This is a fundamental requirement of web communication. The server uses your IP address solely for:
+        Routing: Sending the response back to your device.
+        Security: Enforcing rate limits to prevent service abuse.
+                  IP addresses are NEVER used for any other purpose.
+
+2. Content Moderation (Perspective API)
+    To maintain a safe environment, sent messages are analyzed for harmful content using the Perspective API.
+        Privacy Measure: We specifically enable the "doNotStore" flag, which instructs Google to delete the message
+                         text after analysis rather than using it for model training.
+        Users are encouraged to review Google's Privacy Policy at https://policies.google.com/privacy.
+
+3. Hosting & Infrastructure
+    This service is hosted on Render. As a hosting provider, Render may automatically log access metadata
+    (such as timestamps and IP addresses) for security and operational monitoring.
+    Users are encouraged to review Render's Privacy Policy at https://render.com/privacy.
+
+4. No Personal Data Collection
+    Aside from the transient data mentioned above, this application does not collect, request, or store any personal
+    information, account data, or chat history.
