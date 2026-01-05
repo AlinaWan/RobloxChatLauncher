@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Web;
@@ -10,6 +11,7 @@ using Gma.System.MouseKeyHook;
 using System.Drawing;
 using System.Text;
 using System.ComponentModel;
+using System.Net.Http;
 
 class Program
 {
@@ -206,7 +208,13 @@ class ChatForm : Form
     bool isChatting;
     string rawInputText = "";
 
-    public ChatForm(Process proc)
+    private static readonly HttpClient client = new HttpClient()
+    { 
+    // If the server doesn't respond in x seconds, throw an exception
+    Timeout = TimeSpan.FromSeconds(60) // Set to 60 as Render free-tier may take time to wake up
+    };
+
+public ChatForm(Process proc)
     {
         robloxProcess = proc;
 
@@ -296,20 +304,65 @@ class ChatForm : Form
         SyncInput();
     }
 
-    public void Send()
+    public async Task Send()
     {
         if (!string.IsNullOrWhiteSpace(rawInputText))
         {
-            chatBox.AppendText($"You: {rawInputText}\r\n");
-            chatBox.SelectionStart = chatBox.Text.Length;
-            chatBox.ScrollToCaret();
-            NativeMethods.HideCaret(chatBox.Handle);
-        }
+            string userMessage = rawInputText;
 
-        rawInputText = "";
-        isChatting = false;
-        targetOpacity = 0.7f;
-        SyncInput();
+            // 1. Immediate UI Feedback
+            chatBox.AppendText($"You: {userMessage}\r\n");
+            rawInputText = "";
+            isChatting = false;
+            targetOpacity = 0.7f;
+            SyncInput();
+
+            try
+            {
+                // 2. Network Call
+                var content = new StringContent(userMessage, Encoding.UTF8, "text/plain");
+                // PaaS echo server for POC demo testing
+                var response = await client.PostAsync("https://RobloxChatLauncherDemo.onrender.com/echo", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string echoResponse = await response.Content.ReadAsStringAsync();
+
+                    this.Invoke((MethodInvoker)delegate {
+                        chatBox.AppendText($"Server: {echoResponse}\r\n");
+                    });
+                }
+                else
+                {
+                    this.Invoke((MethodInvoker)delegate {
+                        chatBox.AppendText($"System: Server returned {response.StatusCode}\r\n");
+                    });
+                }
+            }
+            // 3. Catch Timeout Specifically
+            catch (TaskCanceledException)
+            {
+                this.Invoke((MethodInvoker)delegate {
+                    chatBox.AppendText("System: Request timed out. (Render server may be waking up)\r\n");
+                });
+            }
+            // 4. Catch General Errors (DNS, No Internet, etc.)
+            catch (Exception ex)
+            {
+                this.Invoke((MethodInvoker)delegate {
+                    chatBox.AppendText($"System: Connection error: {ex.Message}\r\n");
+                });
+            }
+            finally
+            {
+                // Ensure the chat always scrolls to the bottom and hides caret
+                this.Invoke((MethodInvoker)delegate {
+                    chatBox.SelectionStart = chatBox.Text.Length;
+                    chatBox.ScrollToCaret();
+                    NativeMethods.HideCaret(chatBox.Handle);
+                });
+            }
+        }
     }
 
     void SyncInput()
