@@ -64,6 +64,8 @@ async function isMessageAllowed(text) {
         input: text,
     });
 
+    console.dir(response, { depth: null }); // Print full response for debugging
+
     const result = response.results[0];
 
     return {
