@@ -5,6 +5,11 @@
 >
 > You cannot chat with anyone yet. However, the vision is to eventually exchange messages through a PaaS, using the exposed server instance ID to connect only with people in the same Roblox server.
 
+> [!NOTE]
+> A **demo server is running on Render** for proof-of-concept testing!  
+> Messages you type are sent only to this server and echoed back to you.  
+> **No other users receive your messages** — this is purely for testing the chat overlay functionality.
+
 **A lightweight Windows utility designed to restore and modernize the Roblox social experience.**
 
 Why?
@@ -95,7 +100,7 @@ This project is a **proof of concept**. Its goal is to demonstrate the **feasibi
 * ❌ No Roblox injection or memory modification.
 * ❌ No reading or manipulating Roblox process memory.
 * ❌ No network traffic interception.
-* ❌ No chat networking yet (messages are local only).
+* ❌ No live multiplayer networking yet (messages are only sent to the demo server for POC testing and echoed back to you).
 * ❌ No persistent user accounts or data tracking.
 
 ### Input Handling Details
@@ -109,7 +114,7 @@ This project is a **proof of concept**. Its goal is to demonstrate the **feasibi
 One of the key design choices in this PoC is **passthrough input**, meaning you can type in the chat overlay without ever having to focus it, then continue playing Roblox seamlessly.  
 
 * Traditional overlays require you to click or focus the input box, type your message, press Enter, and then manually return focus to the game. This interrupts gameplay, risks mis-clicks, and can cause lag or unintended inputs.  
-* The launcher captures keyboard input globally, mirrors it in the overlay, and sends it locally (currently just to the chat window).  
+* The launcher captures keyboard input globally, mirrors it in the overlay, and sends it to a **demo server running on Render**, which echoes the message back for testing purposes. Messages are **never sent to any other user**, only to the server and back to you. 
 * This preserves **muscle memory** and the natural feel of Roblox’s native chat: `/` to start, `Enter` to send, and you never leave the game window.  
 
 Because the overlay never receives focus, the **Win32 caret is hidden** and a **custom "fake" caret** is drawn inside the input box to indicate typing. This allows the overlay to remain fully non-intrusive while still giving visual feedback exactly like Roblox’s native chat.
@@ -205,6 +210,11 @@ This step switches the relevant Roblox registry key to point to the launcher. Af
 1. Launch Roblox normally
 2. The chat window will activate
 3. Type as usual, pressing `/` to start typing and `Enter` to send
+
+> [!NOTE]
+>
+> Your message is sent to a demo server running on Render and it gets echoed back to you for POC demo testing.  
+> Messages are **never sent to any other user**, only to the server and back to you.
 
 ---
 
