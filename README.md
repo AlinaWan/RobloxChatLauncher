@@ -94,6 +94,7 @@ This project is a **proof of concept**. Its goal is to demonstrate the **feasibi
 * Captures keyboard input globally to replicate native Roblox chat behavior (`/` to start typing, `Enter` to send).
 * Synchronizes the overlay’s visibility with the Roblox window (minimized/restored state).
 * Implements a custom-painted input box with a blinking caret for a native-feel typing experience.
+* Sends your message to a real PaaS server and echoes it back to you for demo purposes.
 
 ### What the PoC Does **Not** Do
 
