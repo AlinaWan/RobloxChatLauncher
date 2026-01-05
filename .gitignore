@@ -65,3 +65,6 @@ nunit-*.xml
 *.vssscc
 *.dbmdl
 *.sln.docstates
+
+# Node.js
+**/node_modules/

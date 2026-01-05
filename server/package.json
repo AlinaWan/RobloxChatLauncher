@@ -1,0 +1,13 @@
+{
+    "name": "echo-demo-server",
+    "version": "1.0.0",
+    "description": "Simple echo server for chat testing for Roblox Chat Launcher POC",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.22.1",
+        "express-rate-limit": "^8.2.1"
+    }
+}
