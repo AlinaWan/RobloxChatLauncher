@@ -1,6 +1,9 @@
-﻿const express = require('express');
-const app = express();
+﻿const crypto = require('crypto');
+
+const express = require('express');
 const axios = require('axios');
+
+const app = express();
 
 // Perspective users must register for access
 // See: https://developers.perspectiveapi.com/s/docs-get-started?language=en_US
@@ -19,8 +22,12 @@ const MAX_QUEUE_SIZE = 100;
 app.set('trust proxy', 1); // trust only the first proxy hop (Render)
 
 // Middleware to parse plain text bodies (sent by C# client)
-// Limit messages to 10kb (more than enough for a chat message)
-app.use(express.text({ limit: '10kb' }));
+// Limit messages to 1kb (more than enough for a chat message)
+app.use(express.text({ limit: '1kb' }));
+
+function hashIp(ip) {
+    return crypto.createHash('sha256').update(ip).digest('hex');
+}
 
 function enqueueMessage(text) {
     return new Promise((resolve) => {
@@ -158,8 +165,8 @@ app.post('/echo', async (req, res) => {
 
         if (!moderation.allowed) {
             // IMPORTANT: do NOT log message contents
-            console.log(`Message rejected from ${fullChain} (reason: ${moderation.reason})`);
-            console.log(`Trusted Rate-limit IP: ${req.ip}`);
+            console.log(`Message rejected from ${hashIp( fullChain )} (reason: ${moderation.reason})`);
+            console.log(`Trusted Rate-limit IP: ${hashIp( req.ip )}`);
 
             return res.status(403).json({
                 status: "rejected",
@@ -168,8 +175,8 @@ app.post('/echo', async (req, res) => {
             });
         }
 
-        console.log(`Received from ${fullChain}: ${receivedText}`);
-        console.log(`Trusted Rate-limit IP: ${req.ip}`);
+        console.log(`Received from ${hashIp( fullChain )}: ${receivedText}`);
+        console.log(`Trusted Rate-limit IP: ${hashIp( req.ip )}`);
         // Message is allowed → echo it
         res.send(receivedText);
 
