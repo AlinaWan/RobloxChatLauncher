@@ -45,7 +45,7 @@ The service is designed with privacy-by-design principles and minimizes the coll
     GDPR / UK GDPR
         Where applicable, personal data is processed under Article 6(1)(f) (legitimate interests) for ensuring service security, preventing abuse,
         and maintaining system integrity. Pursuant to Article 11 GDPR, we do not require, and do not collect, additional information to identify users.
-            Rights Limitations: We process only hashed identifiers and transient logs, and generally not in a position to identify specific data
+            Rights Limitations: We process only hashed identifiers and transient logs, and are generally not in a position to identify specific data
                                 subjects. Therefore, the rights of access, rectification, erasure, and portability (Articles 15–20) do not apply
                                 unless you provide additional information that enables your identification.
             Right to Complain: Regardless of identification, you maintain the right to lodge a complaint with a supervisory authority.
