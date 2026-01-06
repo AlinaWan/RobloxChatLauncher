@@ -1,15 +1,16 @@
 Privacy
 -------
 
-Last Updated: January 4, 2026
+Last Updated: January 5, 2026
 
 1. Data Transmission & IP Addresses
     To send a message to the demo server, your client's IP address is automatically included in the HTTP request.
     This is a fundamental requirement of web communication. The server uses your IP address solely for:
         Routing: Sending the response back to your device.
         Security: Enforcing rate limits to prevent service abuse.
-                  IP addresses are NEVER used for any other purpose by us. The following third-party services,
-                  however, may use your IP address and other metadata as described below.
+    IP addresses are never used for any other purpose by us. They may be salted and hashed then logged for
+    debugging and moderation purposes (we cannot see or derive your IP address).The following third-party services,
+    however, may use your IP address and other metadata as described below.
 
 2. Content Moderation (Perspective API)
     To maintain a safe environment, sent messages are analyzed for harmful content using the Perspective API.
@@ -19,7 +20,10 @@ Last Updated: January 4, 2026
 
 3. Hosting & Infrastructure
     This service is hosted on Render. As a hosting provider, Render may automatically log access metadata
-    (such as timestamps and IP addresses) for security and operational monitoring.
+    (such as timestamps and IP addresses) for security and operational monitoring. In addition, messages sent 
+    to this service may be logged temporarily by the application for debugging and moderation purposes. 
+    Users should not include personally identifiable information (PII) or sensitive data in messages, 
+    as we cannot guarantee complete privacy of message content.
     Users are encouraged to review Render's Privacy Policy at https://render.com/privacy.
 
 4. No Personal Data Collection

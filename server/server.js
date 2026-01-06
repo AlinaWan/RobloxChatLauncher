@@ -9,6 +9,8 @@ const app = express();
 // See: https://developers.perspectiveapi.com/s/docs-get-started?language=en_US
 const PERSPECTIVE_API_KEY = process.env.PERSPECTIVE_API_KEY;
 
+const USER_SALT = process.env.USER_SALT;
+
 // Render and other PaaS providers usually use port 10000 by default
 const PORT = process.env.PORT || 10000;
 const rateLimit = require('express-rate-limit');
@@ -26,7 +28,7 @@ app.set('trust proxy', 1); // trust only the first proxy hop (Render)
 app.use(express.text({ limit: '1kb' }));
 
 function hashIp(ip) {
-    return crypto.createHash('sha256').update(ip).digest('hex');
+    return crypto.createHash('sha256').update(ip + '||' + USER_SALT).digest('hex');
 }
 
 function enqueueMessage(text) {
@@ -154,7 +156,8 @@ app.use(
 // Echo endpoint
 app.post('/echo', async (req, res) => {
     const receivedText = req.body;
-    const fullChain = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    // const fullChain = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const originIp = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).split(',')[0].trim();
 
     if (typeof receivedText !== 'string' || !receivedText.trim()) {
         return res.status(400).send('Invalid message');
@@ -165,8 +168,8 @@ app.post('/echo', async (req, res) => {
 
         if (!moderation.allowed) {
             // IMPORTANT: do NOT log message contents
-            console.log(`Message rejected from ${hashIp( fullChain )} (reason: ${moderation.reason})`);
-            console.log(`Trusted Rate-limit IP: ${hashIp( req.ip )}`);
+            console.log(`Message rejected from origin ${hashIp( originIp )} (reason: ${moderation.reason})`);
+            /console.log(`Trusted Rate-limit user: ${hashIp( req.ip )}`);
 
             return res.status(403).json({
                 status: "rejected",
@@ -175,8 +178,8 @@ app.post('/echo', async (req, res) => {
             });
         }
 
-        console.log(`Received from ${hashIp( fullChain )}: ${receivedText}`);
-        console.log(`Trusted Rate-limit IP: ${hashIp( req.ip )}`);
+        console.log(`Message received from origin ${hashIp( originIp )}: ${receivedText}`);
+        console.log(`Trusted Rate-limit user: ${hashIp( req.ip )}`);
         // Message is allowed → echo it
         res.send(receivedText);
 
