@@ -8,9 +8,9 @@ Last Updated: January 5, 2026
     This is a fundamental requirement of web communication. The server uses your IP address solely for:
         Routing: Sending the response back to your device.
         Security: Enforcing rate limits to prevent service abuse.
-    IP addresses are never used for any other purpose by us. They may be salted and hashed then logged for
-    debugging and moderation purposes (we cannot see or derive your IP address).The following third-party services,
-    however, may use your IP address and other metadata as described below.
+    We never use your IP address for any other purpose. For debugging and moderation, we transform user IPs into
+    unique, anonymous strings by applying a server-side salt and hashing it. This allows us to detect multiple
+    messages from the same machine, but we cannot see or reverse-engineer your IP address.
 
 2. Content Moderation (Perspective API)
     To maintain a safe environment, sent messages are analyzed for harmful content using the Perspective API.
@@ -21,7 +21,7 @@ Last Updated: January 5, 2026
 3. Hosting & Infrastructure
     This service is hosted on Render. As a hosting provider, Render may automatically log access metadata
     (such as timestamps and IP addresses) for security and operational monitoring. In addition, messages sent 
-    to this service may be logged temporarily by the application for debugging and moderation purposes. 
+    to this service may be logged by the application for debugging and moderation purposes. 
     Users should not include personally identifiable information (PII) or sensitive data in messages, 
     as we cannot guarantee complete privacy of message content.
     Users are encouraged to review Render's Privacy Policy at https://render.com/privacy.
@@ -30,4 +30,4 @@ Last Updated: January 5, 2026
     Aside from the transient data mentioned above, this application does not collect, request, or store any personal
     information, account data, or chat history.
 
-We may update this policy from time to time; changes are effective immediately upon posting.
+We may update this policy from time to time; users are encouraged to check it periodically. Changes are effective immediately upon posting.
