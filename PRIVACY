@@ -11,6 +11,8 @@ Last Updated: January 5, 2026
     We never use your IP address for any other purpose. For debugging and moderation, we transform user IPs into
     unique, anonymous strings by applying a server-side salt and hashing it. This allows us to detect multiple
     messages from the same machine, but we cannot see or reverse-engineer your IP address.
+        Transparency: Our server logic is fully open source. Users are welcome to review the code to see exactly
+        what data is collected and how it is processed at https://github.com/AlinaWan/RobloxChatLauncher.
 
 2. Content Moderation (Perspective API)
     To maintain a safe environment, sent messages are analyzed for harmful content using the Perspective API.
