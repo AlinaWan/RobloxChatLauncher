@@ -33,7 +33,7 @@ class Program
         // Console.WriteLine("Keeping console open for inspection. Press Enter to continue launching Roblox...");
         // Console.ReadLine();
 
-        string robloxExe = utils.ResolveRobloxPlayerPath();
+        string robloxExe = Utils.Utils.ResolveRobloxPlayerPath();
         if (robloxExe == null)
         {
             Console.WriteLine("RobloxPlayerBeta.exe not found.");

@@ -2,7 +2,7 @@ using Microsoft.Win32;
 
 namespace Utils
 {
-    public static class utils
+    public static class Utils
     {
         public static string GetRobloxVersionFolder()
         {
