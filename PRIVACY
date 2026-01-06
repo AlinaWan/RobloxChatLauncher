@@ -1,35 +1,87 @@
-Privacy
--------
+Privacy Policy
+--------------
 
-Last Updated: January 5, 2026
+Last Updated: January 6, 2026
+
+This Privacy Policy explains how this service processes information when users send messages through the application.
+The service is designed with privacy-by-design principles and minimizes the collection and retention of personal data.
 
 1. Data Transmission & IP Addresses
-    To send a message to the demo server, your client's IP address is automatically included in the HTTP request.
-    This is a fundamental requirement of web communication. The server uses your IP address solely for:
-        Routing: Sending the response back to your device.
+    When a message is sent to the server, the user's IP address is automatically included in the HTTP request. This is a
+    fundamental requirement of standard internet communication. IP addresses are used only for the following purposes:
+        Routing: Delivering responses back to the user's device.
         Security: Enforcing rate limits to prevent service abuse.
-    We never use your IP address for any other purpose. For debugging and moderation, we transform user IPs into
-    unique, anonymous strings by applying a server-side salt and hashing it. This allows us to detect multiple
-    messages from the same machine, but we cannot see or reverse-engineer your IP address.
-        Transparency: Our server logic is fully open source. Users are welcome to review the code to see exactly
-        what data is collected and how it is processed at https://github.com/AlinaWan/RobloxChatLauncher.
+    Raw IP addresses are not stored by the application. For debugging and moderation purposes, IP addresses are irreversibly transformed
+    using a cryptographic one-way function with a server-side secret, producing non-reversible identifiers. These identifiers allow the
+    service to detect repeated messages from the same source without reasonably enabling re-identification of the original IP address.
+        Transparency: The server logic responsible for this processing is fully open source. Users may review the code to see exactly
+        what data is processed and how it is handled at https://github.com/AlinaWan/RobloxChatLauncher.
 
-2. Content Moderation (Perspective API)
-    To maintain a safe environment, sent messages are analyzed for harmful content using the Perspective API.
-        Privacy Measure: We specifically enable the "doNotStore" flag, which instructs Google to delete the message
-                         text after analysis rather than using it for model training.
+2. Message Content & Content Moderation
+    Messages submitted to the service are processed for the purpose of maintaining a safe and abuse-free environment. To assist with
+    content moderation, message text is analyzed using the Perspective API. The service enables Google's doNotStore option, which
+    instructs Google not to retain submitted message text or use it for model training after analysis.
     Users are encouraged to review Google's Privacy Policy at https://policies.google.com/privacy.
 
 3. Hosting & Infrastructure
-    This service is hosted on Render. As a hosting provider, Render may automatically log access metadata
-    (such as timestamps and IP addresses) for security and operational monitoring. In addition, messages sent 
-    to this service may be logged temporarily by the application for debugging and moderation purposes. 
-    Users should not include personally identifiable information (PII) or sensitive data in messages, 
-    as we cannot guarantee complete privacy of message content.
+    This service is hosted on Render. As a hosting provider, Render may automatically collect and retain access logs (such as IP addresses and
+    timestamps) for security and operational monitoring. In addition, the application may temporarily log messages and technical metadata for
+    debugging and moderation purposes. Message content may appear transiently within Render’s infrastructure logs as part of normal request handling.
+        Retention: Render automatically deletes infrastructure logs after approximately 7 days. The application itself does not persist or store
+        message content, chat history, or user-submitted messages outside of Render’s standard logging systems. The service does not have the
+        ability to access, retrieve, or restore message content once Render’s logs are deleted.
+    Users should avoid including personally identifiable or sensitive information in messages, as message content is user-submitted
+    and cannot be guaranteed to remain private once transmitted.
     Users are encouraged to review Render's Privacy Policy at https://render.com/privacy.
 
-4. No Personal Data Collection
-    Aside from the transient data mentioned above, this application does not collect, request, or store any personal
-    information, account data, or chat history.
+4. Limited Personal Data Processing
+    The service does not offer user accounts and does not collect names, email addresses, or account credentials.
+        The only personal data processed is:
+            - IP addresses transmitted as part of standard HTTP communication (processed transiently)
+            - Message content voluntarily submitted by users.
+    All processing is limited to what is necessary for service operation, security, and abuse prevention.
 
-We may update this policy from time to time; users are encouraged to check it periodically. Changes are effective immediately upon posting.
+5. Legal Basis & Consent
+    GDPR / UK GDPR
+        Where applicable, personal data is processed under Article 6(1)(f) (legitimate interests) for ensuring service security, preventing abuse,
+        and maintaining system integrity. Pursuant to Article 11 GDPR, we do not require, and do not collect, additional information to identify users.
+            Rights Limitations: We process only hashed identifiers and transient logs, and generally not in a position to identify specific data
+                                subjects. Therefore, the rights of access, rectification, erasure, and portability (Articles 15–20) do not apply
+                                unless you provide additional information that enables your identification.
+            Right to Complain: Regardless of identification, you maintain the right to lodge a complaint with a supervisory authority.
+    PIPEDA (Canada)
+        Personal data is processed with implied consent for the limited purpose of service security. In accordance with PIPEDA's principle of limited
+        collection, we do not associate technical identifiers with specific individuals. We reserve the right to refuse access requests where the
+        information cannot be reasonably associated with the requester without the collection of additional personal data.
+    CCPA / CPRA (California)
+        The service does not sell, rent, or share personal information as defined by the CCPA/CPRA. Personal information is processed solely to operate
+        and secure the service. We do not sell or share your personal information for cross-contextual behavioral advertising.
+            Notice at Collection: We collect identifiers and message content for security purposes. We do not sell or share this information.
+            Verifiable Requests: California residents have the right to request deletion or access. However, we can only fulfill requests that are Verifiable.
+                                 As we do not maintain accounts, names, or emails, we may not be able to verify that the requester is the person who sent a
+                                 specific message. We will not collect additional personal information solely for the purpose of verification.
+
+6. International Data Transfers
+    This service is hosted on servers located in the United States (via Render). When you use the service, your data is transferred to and processed in the
+    U.S. We ensure a similar degree of protection is afforded to it by ensuring that our sub-processors (Render and Google) utilize standard contractual
+    clauses (SCCs) or other legally recognized transfer mechanisms approved by the European Commission.
+
+7. California Privacy Rights
+    California residents have the right to request:
+        - The categories of personal information processed
+        - The purposes for which personal information is used
+        - Access, correction, and deletion of personal information, subject to technical and legal limitations
+    Non-Discrimination: We will not discriminate against you for exercising any of your CCPA rights. To exercise your rights, please contact us at the
+                        email provided in Section 8.
+    The service does not engage in targeted advertising, profiling, or data sales, and therefore does not offer opt-out mechanisms for sale or
+    sharing of personal data. Deletion requests apply to data under the service’s direct control. Certain technical logs managed by infrastructure
+    providers may be retained for a limited period and deleted automatically in accordance with their retention policies.
+
+8. Contact & Privacy Inquiries
+    The Data Controller for this service is the operator of the RobloxChatLauncher project. For the purposes of PIPEDA, the operator also serves as
+    the Privacy Officer. If you have questions or wish to challenge our compliance with these principles, please contact:
+        Email: Xelvanta@proton.me
+
+9. Policy Updates
+    This Privacy Policy may be updated from time to time. Changes take effect immediately upon posting. Users are encouraged to review this
+    policy periodically for updates.
