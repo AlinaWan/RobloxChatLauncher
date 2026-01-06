@@ -169,7 +169,7 @@ app.post('/echo', async (req, res) => {
         if (!moderation.allowed) {
             // IMPORTANT: do NOT log message contents
             console.log(`Message rejected from origin ${hashIp( originIp )} (reason: ${moderation.reason})`);
-            /console.log(`Trusted Rate-limit user: ${hashIp( req.ip )}`);
+            console.log(`Trusted Rate-limit user: ${hashIp( req.ip )}`);
 
             return res.status(403).json({
                 status: "rejected",
