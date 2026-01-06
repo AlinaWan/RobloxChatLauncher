@@ -8,13 +8,14 @@ Last Updated: January 4, 2026
     This is a fundamental requirement of web communication. The server uses your IP address solely for:
         Routing: Sending the response back to your device.
         Security: Enforcing rate limits to prevent service abuse.
-                  IP addresses are NEVER used for any other purpose.
+                  IP addresses are NEVER used for any other purpose by us. The following third-party services,
+                  however, may use your IP address and other metadata as described below.
 
 2. Content Moderation (Perspective API)
     To maintain a safe environment, sent messages are analyzed for harmful content using the Perspective API.
         Privacy Measure: We specifically enable the "doNotStore" flag, which instructs Google to delete the message
                          text after analysis rather than using it for model training.
-        Users are encouraged to review Google's Privacy Policy at https://policies.google.com/privacy.
+    Users are encouraged to review Google's Privacy Policy at https://policies.google.com/privacy.
 
 3. Hosting & Infrastructure
     This service is hosted on Render. As a hosting provider, Render may automatically log access metadata
@@ -24,3 +25,5 @@ Last Updated: January 4, 2026
 4. No Personal Data Collection
     Aside from the transient data mentioned above, this application does not collect, request, or store any personal
     information, account data, or chat history.
+
+We may update this policy from time to time; changes are effective immediately upon posting.
