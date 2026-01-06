@@ -21,7 +21,7 @@ Last Updated: January 5, 2026
 3. Hosting & Infrastructure
     This service is hosted on Render. As a hosting provider, Render may automatically log access metadata
     (such as timestamps and IP addresses) for security and operational monitoring. In addition, messages sent 
-    to this service may be logged by the application for debugging and moderation purposes. 
+    to this service may be logged temporarily by the application for debugging and moderation purposes. 
     Users should not include personally identifiable information (PII) or sensitive data in messages, 
     as we cannot guarantee complete privacy of message content.
     Users are encouraged to review Render's Privacy Policy at https://render.com/privacy.
