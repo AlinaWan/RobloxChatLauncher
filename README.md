@@ -248,3 +248,6 @@ Even small contributions or observations are valuable at this stage — your inp
 ## License
 
 [GNU General Public License v3.0](LICENSE)
+
+## Privacy Policy
+[Privacy Policy](PRIVACY)
