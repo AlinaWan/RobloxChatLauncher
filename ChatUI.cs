@@ -22,6 +22,15 @@ namespace ChatLauncherApp
         [DllImport("user32.dll")]
         public static extern bool IsIconic(IntPtr hWnd);
 
+        // GetForegroundWindow is used to determine which window is currently active (focused)
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        public static extern uint GetWindowThreadProcessId(
+            IntPtr hWnd,
+            out uint lpdwProcessId);
+
         [DllImport("user32.dll")]
         public static extern bool HideCaret(IntPtr hWnd);
 
@@ -176,12 +185,15 @@ namespace ChatLauncherApp
         {
             try
             {
-                // You'll need to ensure your 'utils' class is accessible here
                 string versionFolder = Utils.Utils.GetRobloxVersionFolder();
                 string basePath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "Roblox", "Versions", versionFolder, "content", "textures", "ui", "TopBar");
 
+                // Roblox also has `chatOn@2x.png`, `chatOn@3x.png`, `chatOff@2x.png`, and `chatOff@3x.png`
+                // if needed in the future for higher DPI displays.
+                // There are also voice chat icons in `content/textures/ui/VoiceChat/` if voice chat
+                // support is ever added.
                 string pathOn = Path.Combine(basePath, "chatOn.png");
                 string pathOff = Path.Combine(basePath, "chatOff.png");
 
@@ -232,12 +244,15 @@ namespace ChatLauncherApp
         ChatInputBox inputBox;
         RoundButton toggleBtn;
         bool isWindowHidden = false;
+        bool overlayTopMostActive;
 
         System.Windows.Forms.Timer fadeTimer;
 
         IntPtr winEventHook = IntPtr.Zero;
         NativeMethods.WinEventDelegate winEventDelegate;
 
+        float chatOnOpacity = 1.0f;
+        float chatOffOpacity = 0.7f;
         float targetOpacity = 0.7f;
         const float fadeStep = 0.05f;
 
@@ -274,6 +289,15 @@ namespace ChatLauncherApp
             }));
         }
 
+        public bool IsRobloxForegroundProcess()
+        {
+            IntPtr fg = NativeMethods.GetForegroundWindow();
+            if (fg == IntPtr.Zero)
+                return false;
+
+            NativeMethods.GetWindowThreadProcessId(fg, out uint pid);
+            return pid == (uint)robloxProcess.Id;
+        }
 
         private static readonly HttpClient client = new HttpClient()
         {
@@ -299,6 +323,7 @@ namespace ChatLauncherApp
             robloxProcess.EnableRaisingEvents = true;
             robloxProcess.Exited += RobloxProcess_Exited;
 
+            this.ShowInTaskbar = false; // Hide the GUI process from taskbar
 
             // Form Transparency/Styling
             this.FormBorderStyle = FormBorderStyle.None;
@@ -381,6 +406,23 @@ namespace ChatLauncherApp
 
         void UpdateOpacity(object sender, EventArgs e)
         {
+            // Z-order scoping
+            // The overlay will always stay above Roblox,
+            // but not necessarily above other windows if those windows are above Roblox.
+            bool robloxActive = this.IsRobloxForegroundProcess();
+
+            if (robloxActive && !overlayTopMostActive)
+            {
+                TopMost = true;
+                overlayTopMostActive = true;
+            }
+            else if (!robloxActive && overlayTopMostActive)
+            {
+                TopMost = false;
+                overlayTopMostActive = false;
+            }
+
+            // Fade logic
             if (Math.Abs(Opacity - targetOpacity) < 0.01f)
                 return;
             Opacity += Opacity < targetOpacity ? fadeStep : -fadeStep;
@@ -389,8 +431,9 @@ namespace ChatLauncherApp
         public void StartChatMode()
         {
             isChatting = true;
-            rawInputText = "";
-            targetOpacity = 1.0f;
+            // Don't clear the input bar
+            // rawInputText = "";
+            targetOpacity = chatOnOpacity;
             SyncInput();
         }
 
@@ -407,6 +450,13 @@ namespace ChatLauncherApp
             SyncInput();
         }
 
+        public void CancelChatMode()
+        {
+            isChatting = false;
+            targetOpacity = chatOffOpacity;
+            SyncInput();
+        }
+
         public async Task Send()
         {
             // If empty, just exit chat mode and return
@@ -414,7 +464,7 @@ namespace ChatLauncherApp
             {
                 isChatting = false;
                 rawInputText = "";
-                targetOpacity = 0.7f;
+                targetOpacity = chatOffOpacity;
                 SyncInput();
                 return;
             }
@@ -426,7 +476,7 @@ namespace ChatLauncherApp
                 chatBox.AppendText($"You: {userMessage}\r\n");
                 rawInputText = "";
                 isChatting = false;
-                targetOpacity = 0.7f;
+                targetOpacity = chatOffOpacity;
                 SyncInput();
 
                 try
@@ -531,6 +581,14 @@ namespace ChatLauncherApp
         ChatForm form;
         bool chatMode;
 
+        static bool IsNonTextKey(Keys key) =>
+            key == Keys.Escape ||
+            key == Keys.Enter ||
+            key == Keys.Back ||
+            key == Keys.ControlKey ||
+            key == Keys.ShiftKey ||
+            key == Keys.Menu; // Both alt keys
+
         public ChatKeyboardHandler(ChatForm chatForm)
         {
             form = chatForm;
@@ -540,8 +598,16 @@ namespace ChatLauncherApp
 
         void OnKeyDown(object sender, KeyEventArgs e)
         {
-            // Ignore all input if the chat window is minimized
+            // 1. Ignore all input if the chat window is minimized
+            // This handles cases where the user minimizes Roblox
             if (form.WindowState == FormWindowState.Minimized)
+                return;
+
+            // 2. Ignore all input if Roblox is NOT the active (focused) window
+            // We get the current foreground window and compare it to Roblox's handle
+            // This handles cases where the user alt-tabs away or clicks another window
+            IntPtr foregroundWindow = NativeMethods.GetForegroundWindow();
+            if (!form.IsRobloxForegroundProcess())
                 return;
 
             if (!chatMode)
@@ -559,6 +625,15 @@ namespace ChatLauncherApp
                     form.StartChatMode();
                     e.Handled = true;
                 }
+                return;
+            }
+
+            if (e.KeyCode == Keys.Escape)
+            {
+                chatMode = false;           // Stop intercepting keys in this app
+                form.CancelChatMode();      // Update UI (opacity/caret) but keep text
+                                            // DO NOT set e.Handled = true; 
+                                            // This allows the Escape key to "pass through" to the game/Windows
                 return;
             }
 
@@ -588,6 +663,10 @@ namespace ChatLauncherApp
 
         string TranslateKey(KeyEventArgs e)
         {
+            // Don't translate control keys into text characters
+            if (IsNonTextKey(e.KeyCode))
+                return null;
+
             byte[] state = new byte[256];
             if (!NativeMethods.GetKeyboardState(state))
                 return null;
