@@ -21,9 +21,11 @@
 
 Why?
 
-Roblox is removing in-game communication unless users provide pictures of their face or government IDs—sensitive information that becomes a major security liability in the event of a data breach. While Roblox claims to "immediately" delete this data after processing it, Roblox's partner Persona can keep copies for up to 30 days.
+As of January 7, 2026, Roblox has completely removed in-game communication unless users provide pictures of their face or government IDs—sensitive information that becomes a major security liability in the event of a data breach. While Roblox claims to "immediately" delete this data after processing it, Roblox's partner Persona can keep copies for up to 30 days.
 
 Furthermore, new age-group filtering often fragments the player base and ruins the cooperative experience. The Roblox Chat Launcher restores this lost social layer with a lightweight Windows overlay that mirrors the native chat experience. By using your keyboard's existing muscle memory and synchronizing directly with the Roblox window, it provides a secure, native-feeling alternative that keeps communication open and co-op gameplay intact without the privacy risks.
+
+![Chat Disabled Global Rollout](assets/readme/chat_disabled_global_rollout.jpg)
 
 ---
 
