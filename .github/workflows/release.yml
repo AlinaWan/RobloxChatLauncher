@@ -123,8 +123,6 @@ jobs:
           cosign sign-blob ./installer/Installer.exe `
             --bundle ./installer/Installer.exe.cosign.bundle `
             --yes `
-            --annotation repo=${{ github.repository }} `
-            --annotation commit_sha=${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
