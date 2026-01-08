@@ -18,7 +18,8 @@
 > Messages you type are sent only to this server and echoed back to you.  
 > **No other users receive your messages** — this is purely for testing the chat overlay functionality.
 
-[![GitHub Stars](https://img.shields.io/github/stars/AlinaWan/RobloxChatLauncher?style=social&label=people%20supporting%20free%20chat)](https://github.com/AlinaWan/RobloxChatLauncher/stargazers)
+[![GitHub Stars](https://img.shields.io/github/stars/AlinaWan/RobloxChatLauncher?style=for-the-badge&label=people%20supporting%20free%20chat%20%5Bstars%5D&color=yellow)](https://github.com/AlinaWan/RobloxChatLauncher/stargazers)
+[![GitHub Downloads](https://img.shields.io/github/downloads/AlinaWan/RobloxChatLauncher/Installer.exe?style=for-the-badge&color=green)](https://github.com/AlinaWan/RobloxChatLauncher/releases) <!-- Change the link to `https://github.com/AlinaWan/RobloxChatLauncher/releases/latest/download/Installer.exe` once there's at least one published release without `prerelease: true` -->
 
 <!-- GitHub repo description: A proof-of-concept launcher designed to restore and modernize the Roblox social experience because Roblox is removing in-game communication unless users provide pictures of their face or government IDs. -->
 <!-- GitHub repo tags: nodejs javascript csharp roblox expressjs -->
