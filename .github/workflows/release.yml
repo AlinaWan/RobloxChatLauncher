@@ -12,6 +12,11 @@ on:
       release_name:
         description: "Name of the release (defaults to the tag)"
         required: false
+      prerelease:
+        description: "Is this a prerelease?"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build-release:
@@ -114,6 +119,7 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.tag_name }}
           name: ${{ github.event.inputs.release_name || github.event.inputs.tag_name }}
+          prerelease: ${{ github.event.inputs.prerelease }}
           generate_release_notes: true
           files: |
             installer/Installer*.exe
