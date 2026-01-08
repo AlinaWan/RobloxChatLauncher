@@ -102,7 +102,7 @@ async function isMessageAllowed(text) {
             comment: { text, type: "PLAIN_TEXT" },
             requestedAttributes: ATTRIBUTES,
             languages: ["en"],
-            doNotStore: true
+            doNotStore: true // Important: Tells Google not to store chat logs for training
         };
 
         const response = await axios.post(
