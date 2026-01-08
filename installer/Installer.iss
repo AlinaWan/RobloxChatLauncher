@@ -16,7 +16,7 @@ LicenseFile={#Root}\LICENSE
 [Files]
 Source: "{#Root}\LICENSE"; DestDir: "{app}"
 Source: "{#Root}\PRIVACY"; DestDir: "{app}"
-; Download everything from the publish folder
+; Copy everything from the publish folder
 Source: "{#Root}\bin\Release\net10.0-windows\publish\*"; DestDir: "{app}"
 
 [Run]
