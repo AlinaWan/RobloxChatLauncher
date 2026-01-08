@@ -18,6 +18,8 @@
 > Messages you type are sent only to this server and echoed back to you.  
 > **No other users receive your messages** — this is purely for testing the chat overlay functionality.
 
+[![GitHub Stars](https://img.shields.io/github/stars/AlinaWan/RobloxChatLauncher?style=social&label=people%20supporting%20free%20chat)](https://github.com/AlinaWan/RobloxChatLauncher/stargazers)
+
 **A lightweight Windows utility designed to restore and modernize the Roblox social experience.**
 
 Why?
