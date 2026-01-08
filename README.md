@@ -20,7 +20,10 @@
 
 [![GitHub Stars](https://img.shields.io/github/stars/AlinaWan/RobloxChatLauncher?style=social&label=people%20supporting%20free%20chat)](https://github.com/AlinaWan/RobloxChatLauncher/stargazers)
 
-**A lightweight Windows utility designed to restore and modernize the Roblox social experience.**
+<!-- GitHub repo description: A proof-of-concept launcher designed to restore and modernize the Roblox social experience because Roblox is removing in-game communication unless users provide pictures of their face or government IDs. -->
+<!-- GitHub repo tags: nodejs javascript csharp roblox expressjs -->
+
+**A proof-of-concept launcher designed to restore and modernize the Roblox social experience.**
 
 Why?
 
