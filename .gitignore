@@ -56,6 +56,10 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
+# ------------------------
+# Repository added ignores
+# ------------------------
+
 # Visual Studio
 .vs/
 *.vspscc
@@ -67,4 +71,7 @@ nunit-*.xml
 *.sln.docstates
 
 # Node.js
-**/node_modules/
+node_modules/
+
+# .exe binaries
+*.exe
