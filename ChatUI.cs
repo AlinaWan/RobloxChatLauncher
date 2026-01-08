@@ -117,6 +117,8 @@ namespace ChatLauncherApp
             ReadOnly = true;
             BorderStyle = BorderStyle.FixedSingle;
 
+            // We need to use a fake caret because since we never truly focus the overlay,
+            // the win32 caret doesn't work
             caretTimer = new System.Windows.Forms.Timer { Interval = 500 };
             caretTimer.Tick += (s, e) =>
             {
