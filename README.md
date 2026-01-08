@@ -263,7 +263,14 @@ Even small contributions or observations are valuable at this stage — your inp
 
 ## License
 
-[GNU General Public License v3.0](LICENSE)
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
+
+**Trademark Notice:**  
+"Roblox" is a registered trademark of Roblox Corporation.  
+This project is not, and makes no claims to be, affiliated with or endorsed by Roblox Corporation.
 
 ## Privacy Policy
-[Privacy Policy](PRIVACY)
+
+This project takes steps to protect your privacy and limit data collection.  
+We do not, and are not interested in, selling, sharing, or profiting from your data.  
+See the [Privacy Policy](PRIVACY) for more details.
