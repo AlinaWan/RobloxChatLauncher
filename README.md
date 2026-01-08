@@ -1,6 +1,7 @@
 # Roblox Chat Launcher
 
 [![License](https://img.shields.io/github/license/AlinaWan/RobloxChatLauncher)](LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/AlinaWan/RobloxChatLauncher?include_prereleases&label=Release&color=green)](https://github.com/AlinaWan/RobloxChatLauncher/releases/latest)
 [![Contributors welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](CONTRIBUTING.md)
 [![C#](https://custom-icon-badges.demolab.com/badge/C%23-%23239120.svg?logo=cshrp&logoColor=white)](#)
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000)](#)
