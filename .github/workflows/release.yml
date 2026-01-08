@@ -120,10 +120,10 @@ jobs:
 
       - name: Sign the installer (Blob)
         run: |
-          cosign sign-blob ./installer/Installer.exe \
-            --bundle ./installer/Installer.exe.cosign.bundle \
-            --yes \
-            -a repo=${{ github.repository }} \
+          cosign sign-blob ./installer/Installer.exe `
+            --bundle ./installer/Installer.exe.cosign.bundle `
+            --yes `
+            -a repo=${{ github.repository }} `
             -a commit_sha=${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
