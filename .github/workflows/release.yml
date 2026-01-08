@@ -2,6 +2,7 @@ name: Build & Release Installer
 
 permissions:
   contents: write
+  id-token: write # Required for keyless signing
 
 on:
   workflow_dispatch:
@@ -112,6 +113,22 @@ jobs:
           Set-Content -Encoding ASCII -Path Installer.exe.sha256 -Value $hash
 
       # ---------------------------
+      # Sign and attest the installer
+      # ---------------------------
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.3.0
+
+      - name: Sign the installer (Blob)
+        run: |
+          cosign sign-blob ./installer/Installer.exe --bundle ./installer/Installer.exe.cosign.bundle \
+            --bundle cosign.bundle \
+            --yes \
+            -a repo=${{ github.repository }} \
+            -a commit_sha=${{ github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------
       # Create GitHub Release
       # ---------------------------
       - name: Create GitHub Release and upload artifacts
@@ -124,5 +141,6 @@ jobs:
           files: |
             installer/Installer*.exe
             installer/Installer.exe.sha256
+            installer/Installer.exe.cosign.bundle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
