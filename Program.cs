@@ -27,8 +27,14 @@ class Program
         string uri = args[0];
 
         // Console.WriteLine("Roblox Launch Detected");
+
         // DEBUG: Print full URI for inspection
+        //
+        // The gameId only appears if you join a server directly from the servers tab,
+        // not if you press the play button on the game's main page.
+        //
         // Console.WriteLine(uri);
+
         // DEBUG: Keep the console open for inspection
         // Console.WriteLine("Keeping console open for inspection. Press Enter to continue launching Roblox...");
         // Console.ReadLine();
