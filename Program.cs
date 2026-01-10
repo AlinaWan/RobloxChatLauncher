@@ -33,6 +33,11 @@ class Program
         // The gameId only appears if you join a server directly from the servers tab,
         // not if you press the play button on the game's main page.
         //
+        // If we can't find the gameId frm the URI, we'll just put the user
+        // in a global channel and prompt them to join a server directly to join
+        // a server-scoped channel.
+        // We can also let the user switch channels with `/` commands.
+        //
         // Console.WriteLine(uri);
 
         // DEBUG: Keep the console open for inspection
