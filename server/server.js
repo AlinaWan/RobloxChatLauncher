@@ -42,10 +42,24 @@ function hashIp(ip) {
 
 const userChannelMap = new Map(); // userKey -> channelId
 
+// For HTTP, req.ip is trusted
+// For WebSocket, fallback to the proxy IP (req.socket.remoteAddress)
+//
 // req.ip is the trusted private IP (NOT origin IP/public IP)
 // This is not your home IP address. We never see your origin IP.
-function getUserKeyFromRequest(req) {
-    return hashIp(req.ip);
+function getTrustedIp(req, ws = null) {
+    // HTTP requests
+    if (req.ip) return req.ip;
+
+    // WebSocket: combine proxy IP + remote port
+    if (ws && ws._socket) {
+        const ip = ws._socket.remoteAddress;
+        // Each WS connection gets a unique remotePort even if multiple users connect via the same proxy.
+        const port = ws._socket.remotePort; // unique per connection
+        return `${ip}:${port}`;
+    }
+    
+    return req.socket?.remoteAddress || "unknown";
 }
 
 // --- Message Queueing and Processing ---
@@ -174,7 +188,7 @@ app.use(
 // Echo endpoint
 app.post('/echo', async (req, res) => {
     const receivedText = req.body;
-    const userKey = getUserKeyFromRequest(req);
+    const userKey = getTrustedIp(req);
 
     if (typeof receivedText !== 'string' || !receivedText.trim()) {
         return res.status(400).send('Invalid message');
@@ -185,7 +199,7 @@ app.post('/echo', async (req, res) => {
 
         if (!moderation.allowed) {
             // IMPORTANT: do NOT log message contents if rejected
-            console.log(`Message rejected from ${req.ip} (reason: ${moderation.reason})`);
+            console.log(`Message rejected from ${getTrustedIp(req)} (reason: ${moderation.reason})`);
 
             return res.status(403).json({
                 status: "rejected",
@@ -194,7 +208,7 @@ app.post('/echo', async (req, res) => {
             });
         }
 
-        console.log(`Message received from ${req.ip}: ${receivedText}`);
+        console.log(`Message received from ${getTrustedIp(req)}: ${receivedText}`);
         // Message is allowed → echo it
         res.send(receivedText);
 
@@ -216,7 +230,7 @@ app.post('/echo', async (req, res) => {
 // (The channelId should be the gameId from the URI. If not found, the client should send 'global' as the channelId)
 // Chat: {"type": "message", "text": "Hello world!"}
 wss.on('connection', (ws, req) => {
-    const userKey = getUserKeyFromRequest(req);
+    const userKey = hashIp(getTrustedIp(req, ws));
     let currentChannel = null;
 
     ws.on('message', async (data) => {
@@ -254,7 +268,7 @@ wss.on('connection', (ws, req) => {
                 const moderation = await enqueueMessage(payload.text);
 
                 if (moderation.allowed) {
-                    console.log(`Message received from ${req.ip} on channel ${currentChannel}: ${payload.text}`);
+                    console.log(`Message received from ${getTrustedIp(req, ws)} on channel ${currentChannel}: ${payload.text}`);
                     broadcastToChannel(currentChannel, {
                         type: 'message',
                         text: payload.text,
@@ -262,7 +276,7 @@ wss.on('connection', (ws, req) => {
                     });
                 } else {
                     // IMPORTANT: do NOT log message contents if rejected
-                    console.log(`Message rejected from ${req.ip} on channel ${currentChannel} (reason: ${moderation.reason})`);
+                    console.log(`Message rejected from ${getTrustedIp(req, ws)} on channel ${currentChannel} (reason: ${moderation.reason})`);
                     ws.send(JSON.stringify({
                         status: 'rejected',
                         reason: moderation.reason,
