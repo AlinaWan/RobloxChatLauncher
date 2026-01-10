@@ -546,32 +546,64 @@ namespace ChatLauncherApp
 
         private async Task ReceiveLoop()
         {
-            var buffer = new byte[1024 * 4];
+            var buffer = new byte[4096];
+
             try
             {
                 while (wsClient.State == WebSocketState.Open)
                 {
-                    var result = await wsClient.ReceiveAsync(new ArraySegment<byte>(buffer), wsCts.Token);
+                    var result = await wsClient.ReceiveAsync(
+                        new ArraySegment<byte>(buffer),
+                        wsCts.Token
+                    );
+
                     if (result.MessageType == WebSocketMessageType.Close)
                         break;
 
                     var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
                     dynamic data = JsonConvert.DeserializeObject(message);
 
-                    this.Invoke((MethodInvoker)delegate {
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        // Normal chat message
                         if (data.type == "message")
                         {
                             chatBox.AppendText($"[{data.sender}]: {data.text}\r\n");
                         }
+                        // Rejection handling
                         else if (data.status == "rejected")
                         {
-                            chatBox.AppendText($"[System]: {data.message}\r\n");
+                            string reason = data.reason;
+                            string messageText;
+
+                            switch (reason)
+                            {
+                                case "moderation":
+                                    messageText = "Your message was not sent as it violates community guidelines.";
+                                    break;
+                                case "queue_full":
+                                    messageText = "Your message was rejected because the server queue is full. Please try again shortly.";
+                                    break;
+                                case "api_error":
+                                    messageText = "Your message could not be processed due to a server error. Please try again.";
+                                    break;
+                                default:
+                                    messageText = "Your message was not sent due to unknown reasons.";
+                                    break;
+                            }
+
+                            chatBox.AppendText($"[System]: {messageText}\r\n");
                         }
                     });
                 }
             }
-            catch { /* Handle disconnects */ }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                chatBox.AppendText($"[System]: WS Receive Error: {ex.Message}\r\n");
+            }
         }
+
         public async Task Send()
         {
             // If empty, just exit chat mode and return
@@ -707,46 +739,10 @@ namespace ChatLauncherApp
                 await wsClient.SendAsync(new ArraySegment<byte>(bytes),
                     WebSocketMessageType.Text, true, wsCts.Token);
 
-                // Wait briefly for the server to respond (rejection message)
-                var buffer = new byte[1024];
-                var result = await wsClient.ReceiveAsync(new ArraySegment<byte>(buffer), wsCts.Token);
-
-                if (result.MessageType == WebSocketMessageType.Text)
-                {
-                    string responseJson = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    dynamic response = JsonConvert.DeserializeObject(responseJson);
-
-                    if (response?.status == "rejected")
-                    {
-                        string reason = response.reason;
-                        string messageText;
-
-                        switch (reason)
-                        {
-                            case "moderation":
-                                messageText = "Your message was not sent as it violates community guidelines.";
-                                break;
-                            case "queue_full":
-                                messageText = "Your message was rejected because the server queue is full. Please try again shortly.";
-                                break;
-                            case "api_error":
-                                messageText = "Your message could not be processed due to a server error. Please try again.";
-                                break;
-                            default:
-                                messageText = "Your message was not sent due to unknown reasons.";
-                                break;
-                        }
-
-                        this.Invoke((MethodInvoker)delegate
-                        {
-                            chatBox.AppendText(messageText + "\r\n");
-                        });
-                    }
-                }
             }
             catch (TaskCanceledException)
             {
-                chatBox.AppendText("[System]: WS send timed out. (Render server may be waking up).\r\n");
+                chatBox.AppendText("[System]: WS send timed out. (Render server may be waking up)\r\n");
             }
             catch (Exception ex)
             {
