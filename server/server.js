@@ -225,7 +225,7 @@ app.post('/echo', async (req, res) => {
 
 // WebSocket connection handling
 // Usage:
-// Connect: ws://RobloxChatLauncherDemo.onrender.com/
+// Connect: wss://RobloxChatLauncherDemo.onrender.com/
 // Join: {"type": "join", "channelId": "c91feeaf-ef07-4a39-af05-a88032c358d2"}
 // (The channelId should be the gameId from the URI. If not found, the client should send 'global' as the channelId)
 // Chat: {"type": "message", "text": "Hello world!"}
