@@ -18,7 +18,7 @@
 > [!NOTE]
 > A **demo server is running on Render** for testing!  
 > Messages are broadcast to everyone in the same channel.
-> You can use the `/echo {message}` command to get send your own message without it being broadcast.  
+> You can use the `/echo {message}` command to send your own message without it being broadcast.  
 > The server also enforces moderation, rate limits, and queue handling.
 
 [![GitHub Stars](https://img.shields.io/github/stars/AlinaWan/RobloxChatLauncher?style=for-the-badge&label=people%20supporting%20free%20chat%20%5Bstars%5D&color=yellow)](https://github.com/AlinaWan/RobloxChatLauncher/stargazers)
