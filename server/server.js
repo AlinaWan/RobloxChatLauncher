@@ -1,15 +1,31 @@
 ﻿const crypto = require('crypto');
 
 const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
 const axios = require('axios');
 
+// ----- Express App Setup -----
 const app = express();
+// Trust proxy (Render / Heroku / etc.)
+// Always use proxy from Render as the trusted IP
+app.set('trust proxy', 1); // trust only the first proxy hop (Render)
+// Middleware to parse plain text bodies (sent by C# client)
+// Limit messages to 1kb (more than enough for a chat message)
+app.use(express.text({ limit: '1kb' }));
 
+// ----- Environment Variables -----
 // Perspective users must register for access
 // See: https://developers.perspectiveapi.com/s/docs-get-started?language=en_US
 const PERSPECTIVE_API_KEY = process.env.PERSPECTIVE_API_KEY;
-
 const USER_SALT = process.env.USER_SALT;
+
+// ----- WebSocket Setup -----
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+// Memory-efficient storage for dynamic channels
+// Key: channelId (string), Value: Set of socket objects
+const channels = new Map();
 
 // Render and other PaaS providers usually use port 10000 by default
 const PORT = process.env.PORT || 10000;
@@ -20,17 +36,23 @@ const messageQueue = [];
 let processing = false;
 const MAX_QUEUE_SIZE = 100;
 
-// Trust proxy (Render / Heroku / etc.)
-app.set('trust proxy', 1); // trust only the first proxy hop (Render)
-
-// Middleware to parse plain text bodies (sent by C# client)
-// Limit messages to 1kb (more than enough for a chat message)
-app.use(express.text({ limit: '1kb' }));
-
 function hashIp(ip) {
     return crypto.createHash('sha256').update(ip + '||' + USER_SALT).digest('hex');
 }
 
+const userChannelMap = new Map(); // userKey -> channelId
+
+function getClientIpFromRequest(req) {
+    const xff = req.headers['x-forwarded-for'];
+    if (xff) return xff.split(',')[0].trim();
+    return req.socket.remoteAddress;
+}
+
+function getUserKeyFromRequest(req) {
+    return hashIp(getClientIpFromRequest(req));
+}
+
+// --- Message Queueing and Processing ---
 function enqueueMessage(text) {
     return new Promise((resolve) => {
         // Reject immediately if the queue is too long
@@ -142,7 +164,7 @@ async function isMessageAllowed(text) {
     }
 }
 
-// The Echo Endpoint
+// ----- The Echo Endpoint -----
 // Rate limiter per real client IP (req.ip trusted)
 // WARNING: Render free tier may be slow to startup as it spins down inactive services
 app.use(
@@ -156,8 +178,7 @@ app.use(
 // Echo endpoint
 app.post('/echo', async (req, res) => {
     const receivedText = req.body;
-    // const fullChain = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const originIp = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).split(',')[0].trim();
+    const userKey = getUserKeyFromRequest(req);
 
     if (typeof receivedText !== 'string' || !receivedText.trim()) {
         return res.status(400).send('Invalid message');
@@ -167,9 +188,8 @@ app.post('/echo', async (req, res) => {
         const moderation = await enqueueMessage(receivedText);
 
         if (!moderation.allowed) {
-            // IMPORTANT: do NOT log message contents
-            console.log(`Message rejected from origin ${hashIp( originIp )} (reason: ${moderation.reason})`);
-            console.log(`Trusted Rate-limit user: ${hashIp( req.ip )}`);
+            // IMPORTANT: do NOT log message contents if rejected
+            console.log(`Message rejected from ${userKey} (reason: ${moderation.reason})`);
 
             return res.status(403).json({
                 status: "rejected",
@@ -178,8 +198,7 @@ app.post('/echo', async (req, res) => {
             });
         }
 
-        console.log(`Message received from origin ${hashIp( originIp )}: ${receivedText}`);
-        console.log(`Trusted Rate-limit user: ${hashIp( req.ip )}`);
+        console.log(`Message received from ${userKey}: ${receivedText}`);
         // Message is allowed → echo it
         res.send(receivedText);
 
@@ -194,11 +213,104 @@ app.post('/echo', async (req, res) => {
     }
 });
 
+// WebSocket connection handling
+// Usage:
+// Connect: ws://RobloxChatLauncherDemo.onrender.com/
+// Join: {"type": "join", "channelId": "c91feeaf-ef07-4a39-af05-a88032c358d2"}
+// (The channelId should be the gameId from the URI. If not found, the client should send 'global' as the channelId)
+// Chat: {"type": "message", "text": "Hello world!"}
+wss.on('connection', (ws, req) => {
+    const userKey = getUserKeyFromRequest(req);
+    let currentChannel = null;
+
+    ws.on('message', async (data) => {
+        try {
+            const payload = JSON.parse(data);
+
+            // 1. JOIN LOGIC: Creates channel on the fly if it doesn't exist
+            if (payload.type === 'join') {
+                const { channelId } = payload;
+
+                // If user is already in another channel, remove them
+                const previousChannel = userChannelMap.get(userKey);
+                if (previousChannel && previousChannel !== channelId) {
+                    const prevClients = channels.get(previousChannel);
+                    if (prevClients) {
+                        prevClients.delete(ws);
+                        if (prevClients.size === 0) {
+                            channels.delete(previousChannel);
+                        }
+                    }
+                }
+
+                // Join new channel
+                if (!channels.has(channelId)) {
+                    channels.set(channelId, new Set());
+                }
+
+                channels.get(channelId).add(ws);
+                userChannelMap.set(userKey, channelId);
+                currentChannel = channelId;
+            }
+
+            // 2. CHAT LOGIC: Moderates then broadcasts
+            if (payload.type === 'message' && currentChannel) {
+                const moderation = await enqueueMessage(payload.text);
+
+                if (moderation.allowed) {
+                    console.log(`Message received from ${userKey} in channel ${currentChannel}: ${payload.text}`);
+                    broadcastToChannel(currentChannel, {
+                        type: 'message',
+                        text: payload.text,
+                        sender: userKey
+                    });
+                } else {
+                    // IMPORTANT: do NOT log message contents if rejected
+                    console.log(`Message rejected from ${userKey} in channel ${currentChannel} (reason: ${moderation.reason})`);
+                    ws.send(JSON.stringify({
+                        status: 'rejected',
+                        reason: moderation.reason,
+                        message: "Message not sent due to community guidelines or server limits."
+                    }));
+                }
+            }
+        } catch (e) {
+            console.error("WS Message Error:", e);
+        }
+    });
+
+    // Remove the user mapping on disconnect
+    ws.on('close', () => {
+        const channelId = userChannelMap.get(userKey);
+        if (channelId && channels.has(channelId)) {
+            const clients = channels.get(channelId);
+            clients.delete(ws);
+            if (clients.size === 0) {
+                channels.delete(channelId);
+            }
+        }
+        userChannelMap.delete(userKey);
+    });
+});
+
+// Helper to send to everyone in a specific channel
+function broadcastToChannel(channelId, data) {
+    const clients = channels.get(channelId);
+    if (clients) {
+        const message = JSON.stringify(data);
+        clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
+        });
+    }
+}
+
 // Health check endpoint (Good practice for Render)
 app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Echo server listening on port ${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server listening on port ${PORT}`);
 });
