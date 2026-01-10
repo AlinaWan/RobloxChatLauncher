@@ -9,14 +9,17 @@
 [![Express.js](https://img.shields.io/badge/Express.js-%23404d59.svg?logo=express&logoColor=%2361DAFB)](#)
 
 > [!WARNING]
-> **THIS IS A PROOF OF CONCEPT**
+> **THIS IS STILL A PROOF OF CONCEPT**
 >
-> You cannot chat with anyone yet. However, the vision is to eventually exchange messages through a PaaS, using the exposed server instance ID to connect only with people in the same Roblox server.
+> The chat now supports **multi-user WebSocket communication** within the same Roblox server instance (or a global channel if you don't join a server directly). Messages you send can now reach other users in your game who are connected to the same chat channel.
+>
+> However, the system is still early-stage and may have occasional moderation or network delays.
 
 > [!NOTE]
-> A **demo server is running on Render** for proof-of-concept testing!  
-> Messages you type are sent only to this server and echoed back to you.  
-> **No other users receive your messages** — this is purely for testing the chat overlay functionality.
+> A **demo server is running on Render** for testing!  
+> Messages are broadcast to everyone in the same channel.
+> You can use the `/echo {message}` command to get send your own message without it being broadcast.  
+> The server also enforces moderation, rate limits, and queue handling.
 
 [![GitHub Stars](https://img.shields.io/github/stars/AlinaWan/RobloxChatLauncher?style=for-the-badge&label=people%20supporting%20free%20chat%20%5Bstars%5D&color=yellow)](https://github.com/AlinaWan/RobloxChatLauncher/stargazers)
 [![GitHub Downloads](https://img.shields.io/github/downloads/AlinaWan/RobloxChatLauncher/Installer.exe?style=for-the-badge&color=green)](https://github.com/AlinaWan/RobloxChatLauncher/releases) <!-- Change the link to `https://github.com/AlinaWan/RobloxChatLauncher/releases/latest/download/Installer.exe` once there's at least one published release without `prerelease: true` -->
@@ -71,8 +74,7 @@ The most common objection is: "But both people need to download this to talk—w
 1. **Zero-Friction Connection (No "Add Me" Required)**  
 On Discord, you often need to stop playing, find a Discord server for the game, locate your teammates, and join a channel. This creates friction and interrupts gameplay. It also requires the game to have, well... a Discord server.
 
-   **The Launcher Way:** It uses your Server Instance ID to automatically put you in a room with everyone else in your game who has the app. No links, no multiple servers, no friction. You just join the game and start typing.
-
+   **The Launcher Way:** It uses your Server Instance ID as a channel via WebSockets to automatically put you in a room with everyone else in your game who has the app. No links, no multiple servers, no friction. You just join the game and start typing, and people in your Roblox server see your messages in real time.
 2. **Context-Aware Intelligence**  
 Discord is a global "everything" app. This is a precision tool for the game you are currently playing.
 
@@ -92,9 +94,11 @@ As Roblox moves toward Facial Age Estimation and restricted chat categories, man
 
 ## Features
 
+* Multi-user chat via WebSockets scoped to your Roblox server instance
 * Passthrough input: You do not have to unfocus Roblox to type; pressing `/` and `Enter` is captured and lets you type like native chat
 * Synchronizes minimized/restored state with the Roblox window
 * No Roblox injection or memory modification
+* Server-side moderation, rate limiting, and queue management
 
 ---
 
@@ -105,19 +109,20 @@ This project is a **proof of concept**. Its goal is to demonstrate the **feasibi
 ### What the PoC Does
 
 * Registers itself as the `roblox-player:` URI handler so launching Roblox also opens the chat overlay.
+* Sends your message via **WebSocket to a PaaS server**, which broadcasts it to other users in the same Roblox server instance.  
+* Messages are moderated for community safety and rate-limited to prevent spam.
 * Launches Roblox without modifying the game or its files.
 * Displays a topmost WinForms chat window that overlays Roblox.
 * Captures keyboard input globally to replicate native Roblox chat behavior (`/` to start typing, `Enter` to send).
 * Synchronizes the overlay’s visibility with the Roblox window (minimized/restored state).
 * Implements a custom-painted input box with a blinking caret for a native-feel typing experience.
-* Sends your message to a real PaaS server and echoes it back to you for demo purposes.
 
 ### What the PoC Does **Not** Do
 
 * ❌ No Roblox injection or memory modification.
 * ❌ No reading or manipulating Roblox process memory.
 * ❌ No network traffic interception.
-* ❌ No live multiplayer networking yet (messages are only sent to the demo server for POC testing and echoed back to you).
+* ❌ Not yet fully production-ready: server is still experimental and may have delays or connection issues.  
 * ❌ No persistent user accounts or data tracking.
 
 ### Input Handling Details
@@ -125,6 +130,12 @@ This project is a **proof of concept**. Its goal is to demonstrate the **feasibi
 * Uses [`Gma.System.MouseKeyHook`](https://www.nuget.org/packages/MouseKeyHook/) for a global keyboard hook.
 * Converts keys into text using `ToUnicodeEx` for layout-correct, shift-aware input.
 * Ensures a seamless typing experience while the game is running.
+
+### Multi-User Chat
+
+* **Scoped Channels by Server Instance ID** – Messages are automatically sent only to users in the same Roblox server instance, so you only see messages from people in that server.
+* **WebSocket-Powered Real-Time Messaging** – Communication is fast and near real-time, without leaving Roblox or opening external apps.
+* **Ephemeral, No Account Needed** – Messages exist only in memory; no friend lists, no persistent user IDs, and no personal data stored.
 
 ### Passthrough Input
 
@@ -152,28 +163,11 @@ This design complements passthrough input and the fake caret, creating a seamles
 * This allows Roblox to launch the chat overlay automatically.
 * Can be reverted by reinstalling Roblox or restoring the key to `RobloxPlayerBeta.exe`.
 
-### Future Architecture (Planned)
+### Safety & Moderation
 
-* Messages will eventually synchronize through a stateless relay or PaaS.
-* Server Instance ID will ensure chat is scoped only to players in the same Roblox server.
-* No friend lists, no persistent identifiers — communication will remain ephemeral.
-
-#### Preventing Abuse and Ensuring Data Integrity
-
-To maintain stability and prevent malicious use:
-
-* **Message Validation:**
-
-  * Only allow messages of the expected type (text).
-  * Enforce maximum message size to prevent huge payloads.
-  * Reject invalid or malformed messages before storing or broadcasting.
-  * Filter messages for illegal or harmful content using an API (may allow profanities based on user preference).
-  * Implement rate limiting to prevent spamming.
-
-* **Network-Level Protections:**
-
-  * Integrate with PaaS or cloud provider features (e.g., Cloudflare) to mitigate DoS/DDoS attacks (IP throttling, connection limits, firewall rules).
-  * Optionally include CAPTCHA or lightweight proof-of-work token issuance to make automated attacks expensive.
+* **Message Validation** – Only text messages are allowed, maximum size enforced, malformed messages rejected.
+* **Automated Moderation** – Messages are filtered for abusive or harmful content via an API; mild profanities may be allowed based on settings.
+* **Rate Limiting & Queue Management** – Prevents spam or flooding the server, ensuring smooth performance for all users.
 
 ---
 
@@ -231,8 +225,9 @@ This step switches the relevant Roblox registry key to point to the launcher. Af
 
 > [!NOTE]
 >
-> Your message is sent to a demo server running on Render and it gets echoed back to you for POC demo testing.  
-> Messages are **never sent to any other user**, only to the server and back to you.
+> Your message is sent via **WebSocket to the server** and broadcast to other users in the same Roblox server instance.  
+> Messages are moderated and rate-limited for safety.  
+> You may occasionally see messages rejected with a system notice if content is flagged or the server queue is full.
 
 ---
 
