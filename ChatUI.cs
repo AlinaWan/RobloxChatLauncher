@@ -587,7 +587,7 @@ namespace ChatLauncherApp
             string userMessage = rawInputText;
 
             // 1. Immediate UI Feedback
-            chatBox.AppendText($"You: {userMessage}\r\n");
+            // chatBox.AppendText($"You: {userMessage}\r\n");
             rawInputText = "";
             isChatting = false;
             targetOpacity = chatOffOpacity;
@@ -611,6 +611,7 @@ namespace ChatLauncherApp
         // Echo Logic
         private async Task ExecuteEchoRequest(string userMessage)
         {
+            chatBox.AppendText($"You: {userMessage}\r\n");
             try
             {
                 // 2. Network Call

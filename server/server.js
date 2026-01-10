@@ -42,14 +42,9 @@ function hashIp(ip) {
 
 const userChannelMap = new Map(); // userKey -> channelId
 
-function getClientIpFromRequest(req) {
-    const xff = req.headers['x-forwarded-for'];
-    if (xff) return xff.split(',')[0].trim();
-    return req.socket.remoteAddress;
-}
-
+// req.ip is the trusted private IP (NOT origin IP/public IP)
 function getUserKeyFromRequest(req) {
-    return hashIp(getClientIpFromRequest(req));
+    return hashIp(req.ip);
 }
 
 // --- Message Queueing and Processing ---
@@ -189,7 +184,7 @@ app.post('/echo', async (req, res) => {
 
         if (!moderation.allowed) {
             // IMPORTANT: do NOT log message contents if rejected
-            console.log(`Message rejected from ${userKey} (reason: ${moderation.reason})`);
+            console.log(`Message rejected from ${req.ip} (reason: ${moderation.reason})`);
 
             return res.status(403).json({
                 status: "rejected",
@@ -198,7 +193,7 @@ app.post('/echo', async (req, res) => {
             });
         }
 
-        console.log(`Message received from ${userKey}: ${receivedText}`);
+        console.log(`Message received from ${req.ip}: ${receivedText}`);
         // Message is allowed → echo it
         res.send(receivedText);
 
@@ -258,7 +253,7 @@ wss.on('connection', (ws, req) => {
                 const moderation = await enqueueMessage(payload.text);
 
                 if (moderation.allowed) {
-                    console.log(`Message received from ${userKey} in channel ${currentChannel}: ${payload.text}`);
+                    console.log(`Message received from ${req.ip} on channel ${currentChannel}: ${payload.text}`);
                     broadcastToChannel(currentChannel, {
                         type: 'message',
                         text: payload.text,
@@ -266,7 +261,7 @@ wss.on('connection', (ws, req) => {
                     });
                 } else {
                     // IMPORTANT: do NOT log message contents if rejected
-                    console.log(`Message rejected from ${userKey} in channel ${currentChannel} (reason: ${moderation.reason})`);
+                    console.log(`Message rejected from ${req.ip} on channel ${currentChannel} (reason: ${moderation.reason})`);
                     ws.send(JSON.stringify({
                         status: 'rejected',
                         reason: moderation.reason,
