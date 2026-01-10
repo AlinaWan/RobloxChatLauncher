@@ -11,11 +11,8 @@ The service is designed with privacy-by-design principles and minimizes the coll
     fundamental requirement of standard internet communication. IP addresses are used only for the following purposes:
         Routing: Delivering responses back to the user's device.
         Security: Enforcing rate limits to prevent service abuse.
-    Raw IP addresses are not stored by the application. For debugging and moderation purposes, IP addresses are irreversibly transformed
-    using a cryptographic one-way function with a server-side secret, producing non-reversible identifiers. These identifiers allow the
-    service to detect repeated messages from the same source without reasonably enabling re-identification of the original IP address.
-        Transparency: The server logic responsible for this processing is fully open source. Users may review the code to see exactly
-        what data is processed and how it is handled at https://github.com/AlinaWan/RobloxChatLauncher.
+    Raw IP addresses are not stored by the application. Users may review the code to see exactly what data is processed and
+    how it is handled at https://github.com/AlinaWan/RobloxChatLauncher.
 
 2. Message Content & Content Moderation
     Messages submitted to the service are processed for the purpose of maintaining a safe and abuse-free environment. To assist with
@@ -37,7 +34,7 @@ The service is designed with privacy-by-design principles and minimizes the coll
 4. Limited Personal Data Processing
     The service does not offer user accounts and does not collect names, email addresses, or account credentials.
         The only personal data processed is:
-            - IP addresses transmitted as part of standard HTTP communication (processed transiently)
+            - IP addresses transmitted as part of standard HTTP communication (used only transiently for routing and security; not stored by the service)
             - Message content voluntarily submitted by users.
     All processing is limited to what is necessary for service operation, security, and abuse prevention.
 
@@ -45,7 +42,7 @@ The service is designed with privacy-by-design principles and minimizes the coll
     GDPR / UK GDPR
         Where applicable, personal data is processed under Article 6(1)(f) (legitimate interests) for ensuring service security, preventing abuse,
         and maintaining system integrity. Pursuant to Article 11 GDPR, we do not require, and do not collect, additional information to identify users.
-            Rights Limitations: We process only hashed identifiers and transient logs, and are generally not in a position to identify specific data
+            Rights Limitations: We process only messages and transient logs, and are generally not in a position to identify specific data
                                 subjects. Therefore, the rights of access, rectification, erasure, and portability (Articles 15–20) do not apply
                                 unless you provide additional information that enables your identification.
             Right to Complain: Regardless of identification, you maintain the right to lodge a complaint with a supervisory authority.
@@ -56,7 +53,7 @@ The service is designed with privacy-by-design principles and minimizes the coll
     CCPA / CPRA (California)
         The service does not sell, rent, or share personal information as defined by the CCPA/CPRA. Personal information is processed solely to operate
         and secure the service. We do not sell or share your personal information for cross-contextual behavioral advertising.
-            Notice at Collection: We collect identifiers and message content for security purposes. We do not sell or share this information.
+            Notice at Collection: We collect message content for security purposes. We do not sell or share this information.
             Verifiable Requests: California residents have the right to request deletion or access. However, we can only fulfill requests that are Verifiable.
                                  As we do not maintain accounts, names, or emails, we may not be able to verify that the requester is the person who sent a
                                  specific message. We will not collect additional personal information solely for the purpose of verification.
