@@ -587,7 +587,6 @@ namespace ChatLauncherApp
             string userMessage = rawInputText;
 
             // 1. Immediate UI Feedback
-            // chatBox.AppendText($"You: {userMessage}\r\n");
             rawInputText = "";
             isChatting = false;
             targetOpacity = chatOffOpacity;
@@ -611,7 +610,7 @@ namespace ChatLauncherApp
         // Echo Logic
         private async Task ExecuteEchoRequest(string userMessage)
         {
-            chatBox.AppendText($"You: {userMessage}\r\n");
+            // chatBox.AppendText($"You: {userMessage}\r\n");
             try
             {
                 // 2. Network Call
@@ -625,7 +624,7 @@ namespace ChatLauncherApp
 
                     this.Invoke((MethodInvoker)delegate
                     {
-                        chatBox.AppendText($"Server: {echoResponse}\r\n");
+                        chatBox.AppendText($"[Server]: {echoResponse} (Only you can see this message.)\r\n");
                     });
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
@@ -638,16 +637,16 @@ namespace ChatLauncherApp
                     switch (reason)
                     {
                         case "moderation":
-                            messageText = "Your last message was not sent as it violates community guidelines.";
+                            messageText = "Your message was not sent as it violates community guidelines.";
                             break;
                         case "queue_full":
-                            messageText = "Your last message was rejected because the server queue is full. Please try again shortly.";
+                            messageText = "Your message was rejected because the server queue is full. Please try again shortly.";
                             break;
                         case "api_error":
-                            messageText = "Your last message could not be processed due to a server error. Please try again.";
+                            messageText = "Your message could not be processed due to a server error. Please try again.";
                             break;
                         default:
-                            messageText = "Your last message was not sent due to unknown reasons.";
+                            messageText = "Your message was not sent due to unknown reasons.";
                             break;
                     }
 
@@ -662,7 +661,7 @@ namespace ChatLauncherApp
             {
                 this.Invoke((MethodInvoker)delegate
                 {
-                    chatBox.AppendText("System: Request timed out. (Render server may be waking up)\r\n");
+                    chatBox.AppendText("[System]: Request timed out. (Render server may be waking up)\r\n");
                 });
             }
             // 4. Catch General Errors (DNS, No Internet, etc.)
@@ -670,7 +669,7 @@ namespace ChatLauncherApp
             {
                 this.Invoke((MethodInvoker)delegate
                 {
-                    chatBox.AppendText($"System: Connection error: {ex.Message}\r\n");
+                    chatBox.AppendText($"[System]: Connection error: {ex.Message}\r\n");
                 });
             }
             finally
@@ -688,6 +687,7 @@ namespace ChatLauncherApp
         // WebSocket Sender
         private async Task SendWebSocketMessage(string text)
         {
+            // Don't append the user's own message here; the server will broadcast it back
             if (wsClient == null || wsClient.State != WebSocketState.Open)
             {
                 chatBox.AppendText("[System]: WebSocket not connected. Try /echo for HTTP mode.\r\n");
@@ -706,6 +706,47 @@ namespace ChatLauncherApp
 
                 await wsClient.SendAsync(new ArraySegment<byte>(bytes),
                     WebSocketMessageType.Text, true, wsCts.Token);
+
+                // Wait briefly for the server to respond (rejection message)
+                var buffer = new byte[1024];
+                var result = await wsClient.ReceiveAsync(new ArraySegment<byte>(buffer), wsCts.Token);
+
+                if (result.MessageType == WebSocketMessageType.Text)
+                {
+                    string responseJson = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    dynamic response = JsonConvert.DeserializeObject(responseJson);
+
+                    if (response?.status == "rejected")
+                    {
+                        string reason = response.reason;
+                        string messageText;
+
+                        switch (reason)
+                        {
+                            case "moderation":
+                                messageText = "Your message was not sent as it violates community guidelines.";
+                                break;
+                            case "queue_full":
+                                messageText = "Your message was rejected because the server queue is full. Please try again shortly.";
+                                break;
+                            case "api_error":
+                                messageText = "Your message could not be processed due to a server error. Please try again.";
+                                break;
+                            default:
+                                messageText = "Your message was not sent due to unknown reasons.";
+                                break;
+                        }
+
+                        this.Invoke((MethodInvoker)delegate
+                        {
+                            chatBox.AppendText(messageText + "\r\n");
+                        });
+                    }
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                chatBox.AppendText("[System]: WS send timed out. (Render server may be waking up).\r\n");
             }
             catch (Exception ex)
             {
