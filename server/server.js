@@ -43,6 +43,7 @@ function hashIp(ip) {
 const userChannelMap = new Map(); // userKey -> channelId
 
 // req.ip is the trusted private IP (NOT origin IP/public IP)
+// This is not your home IP address. We never see your origin IP.
 function getUserKeyFromRequest(req) {
     return hashIp(req.ip);
 }
