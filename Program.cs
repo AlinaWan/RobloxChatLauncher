@@ -24,7 +24,9 @@ class Program
             return;
         }
 
-        string uri = args[0];
+        Utils.LaunchData.LaunchUri = args[0];
+        string uri = Utils.LaunchData.LaunchUri;
+        string gameId = Utils.LaunchData.GetGameId();
 
         // Console.WriteLine("Roblox Launch Detected");
 
@@ -39,12 +41,13 @@ class Program
         // We can also let the user switch channels with `/` commands.
         //
         // Console.WriteLine(uri);
+        // Console.WriteLine(gameId);
 
         // DEBUG: Keep the console open for inspection
         // Console.WriteLine("Keeping console open for inspection. Press Enter to continue launching Roblox...");
         // Console.ReadLine();
 
-        string robloxExe = Utils.Utils.ResolveRobloxPlayerPath();
+        string robloxExe = Utils.RobloxLocator.ResolveRobloxPlayerPath();
         if (robloxExe == null)
         {
             Console.WriteLine("RobloxPlayerBeta.exe not found.");

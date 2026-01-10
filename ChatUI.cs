@@ -187,7 +187,7 @@ namespace ChatLauncherApp
         {
             try
             {
-                string versionFolder = Utils.Utils.GetRobloxVersionFolder();
+                string versionFolder = Utils.RobloxLocator.GetRobloxVersionFolder();
                 string basePath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "Roblox", "Versions", versionFolder, "content", "textures", "ui", "TopBar");

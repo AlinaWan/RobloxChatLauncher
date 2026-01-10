@@ -1,8 +1,11 @@
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
+using System;
+using System.Web;
+using System.Text.RegularExpressions;
 
 namespace Utils
 {
-    public static class Utils
+    public static class RobloxLocator
     {
         public static string GetRobloxVersionFolder()
         {
@@ -21,6 +24,49 @@ namespace Utils
                 "Roblox", "Versions", versionFolder, "RobloxPlayerBeta.exe");
 
             return File.Exists(exePath) ? exePath : null;
+        }
+    }
+    public static class LaunchData
+    {
+        public static string LaunchUri
+        {
+            get; set;
+        }
+        public static string GetGameId()
+        {
+            if (string.IsNullOrEmpty(LaunchUri))
+                return null;
+
+            try
+            {
+                // 1. Find the 'placelauncherurl:' section
+                string key = "placelauncherurl:";
+                int startIndex = LaunchUri.IndexOf(key, StringComparison.OrdinalIgnoreCase);
+                if (startIndex == -1)
+                    return null;
+
+                string encodedUrl = LaunchUri.Substring(startIndex + key.Length);
+
+                // Stop at the next '+' which separates segments (if it exists)
+                int plusIndex = encodedUrl.IndexOf('+');
+                if (plusIndex != -1)
+                    encodedUrl = encodedUrl.Substring(0, plusIndex);
+
+                // 2. Decode the URL (converts %3F, %3D, etc.)
+                string decodedUrl = HttpUtility.UrlDecode(encodedUrl);
+
+                // 3. Extract gameId from decoded query string
+                // We decode first, then look for "gameId=" literally
+                Uri uri = new Uri(decodedUrl);
+                var queryParams = HttpUtility.ParseQueryString(uri.Query);
+
+                return string.IsNullOrEmpty(queryParams["gameId"]) ? null : queryParams["gameId"];
+            }
+            catch
+            {
+                // Any parsing errors just return null
+                return null;
+            }
         }
     }
 }
