@@ -154,6 +154,16 @@ One of the key design choices in this PoC is **passthrough input**, meaning you 
 
 Because the overlay never receives focus, the **Win32 caret is hidden** and a **custom "fake" caret** is drawn inside the input box to indicate typing. This allows the overlay to remain fully non-intrusive while still giving visual feedback exactly like Roblox’s native chat.
 
+### Dragging & Resizing
+
+The chat overlay is **fully movable and resizable**, giving you control over where it appears on your screen:
+
+* **Move anywhere:** Hold the **round button** of the overlay until it releases, then drag it to any position you like.
+* **Snap back:** Drag it near its **default position**, and it will automatically snap back into place.
+* **Resize:** Drag the **bottom-right corner** of the overlay to adjust the size of the message window to your preference.
+
+This system ensures the overlay stays flexible, unobtrusive, and adapts to your preferred layout without interrupting gameplay.
+
 ### Overlay Opacity & Fade
 
 The chat overlay adjusts its **opacity dynamically** to indicate its current state:
