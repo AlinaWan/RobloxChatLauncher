@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
@@ -16,87 +16,6 @@ using Utils;
 
 namespace ChatLauncherApp
 {
-    // --------------------------------------------------
-    // Native Win32 helpers
-    // --------------------------------------------------
-    static class NativeMethods
-    {
-        [DllImport("user32.dll")]
-        public static extern bool IsIconic(IntPtr hWnd);
-
-        // GetForegroundWindow is used to determine which window is currently active (focused)
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll")]
-        public static extern uint GetWindowThreadProcessId(
-            IntPtr hWnd,
-            out uint lpdwProcessId);
-
-        [DllImport("user32.dll")]
-        public static extern bool HideCaret(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        public static extern int ToUnicodeEx(
-            uint wVirtKey,
-            uint wScanCode,
-            byte[] lpKeyState,
-            [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszBuff,
-            int cchBuff,
-            uint wFlags,
-            IntPtr dwhkl);
-
-        [DllImport("user32.dll")]
-        public static extern bool GetKeyboardState(byte[] lpKeyState);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetKeyboardLayout(uint idThread);
-
-        public const int GWL_EXSTYLE = -20;
-        public const int WS_EX_TRANSPARENT = 0x00000020;
-        public const int WS_EX_LAYERED = 0x00080000;
-
-        [DllImport("user32.dll")]
-        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-
-        [DllImport("user32.dll")]
-        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
-
-        [DllImport("user32.dll")]
-        public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
-            public int Left, Top, Right, Bottom;
-        }
-
-        public const uint EVENT_OBJECT_LOCATIONCHANGE = 0x800B;
-        public const uint WINEVENT_OUTOFCONTEXT = 0x0000;
-
-        public delegate void WinEventDelegate(
-            IntPtr hWinEventHook,
-            uint eventType,
-            IntPtr hwnd,
-            int idObject,
-            int idChild,
-            uint dwEventThread,
-            uint dwmsEventTime);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr SetWinEventHook(
-            uint eventMin,
-            uint eventMax,
-            IntPtr hmodWinEventProc,
-            WinEventDelegate lpfnWinEventProc,
-            uint idProcess,
-            uint idThread,
-            uint dwFlags);
-
-        [DllImport("user32.dll")]
-        public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
-    }
-
     // --------------------------------------------------
     // Custom input box (fake caret, custom paint)
     // --------------------------------------------------
@@ -130,6 +49,12 @@ namespace ChatLauncherApp
             caretTimer.Start();
         }
 
+        protected override void OnResize(EventArgs e)
+        {
+            this.Invalidate(); // Forces a clean redraw of the text and arrow
+            base.OnResize(e);
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             e.Graphics.Clear(BackColor);
@@ -139,22 +64,30 @@ namespace ChatLauncherApp
 
             if (!IsChatting && string.IsNullOrEmpty(RawText))
             {
-                text = "Press / to type | Ctrl+Shift+C to toggle visibility";
-                color = Color.FromArgb(128, Color.Gray);
+                text = "Press / key | Ctrl+Shift+C to hide";
+                color = Color.FromArgb(180, 200, 200, 200); // Gray placeholder
             }
             else
             {
                 text = RawText + (IsChatting && caretVisible ? "|" : "");
-                color = ForeColor;
+                color = ForeColor; // White text
             }
+
+            // Set a 10px margin so text doesn't hit the edge
+            Rectangle textRect = new Rectangle(10, 0, ClientRectangle.Width - 50, ClientRectangle.Height);
 
             TextRenderer.DrawText(
                 e.Graphics,
                 text,
                 Font,
-                ClientRectangle,
+                textRect,
                 color,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+
+            // Draw the arrow icon on the right
+            TextRenderer.DrawText(e.Graphics, "➤", Font,
+                new Rectangle(Width - 35, 0, 30, Height), color,
+                TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
         }
     }
 
@@ -164,8 +97,15 @@ namespace ChatLauncherApp
     public class RoundButton : Control
     {
         public event EventHandler Clicked;
+        public event EventHandler<Point> Dragged; // Notify form of movement
+        public event EventHandler DragEnded;
+
         private Image imgOn;
         private Image imgOff;
+        private System.Windows.Forms.Timer holdTimer;
+        private bool isDragging = false;
+        private Point lastMousePos;
+        private const int HOLD_THRESHOLD = 500; // Milliseconds to hold before release (for dragging)
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsActive { get; set; } = true;
@@ -175,14 +115,58 @@ namespace ChatLauncherApp
             this.SetStyle(ControlStyles.Selectable, false);
             LoadRobloxIcons();
 
-            // Fix the purple stroke issue
-            this.SizeChanged += (s, e) => {
+            holdTimer = new System.Windows.Forms.Timer { Interval = HOLD_THRESHOLD };
+            holdTimer.Tick += (s, e) =>
+            {
+                holdTimer.Stop();
+                isDragging = true;
+                this.Cursor = Cursors.SizeAll;
+            };
+
+            // Fix the purple issue
+            this.SizeChanged += (s, e) =>
+            {
                 using (var path = new System.Drawing.Drawing2D.GraphicsPath())
                 {
                     path.AddEllipse(0, 0, Width, Height);
                     this.Region = new Region(path);
                 }
             };
+        }
+
+        // Mouse event overrides for dragging behavior
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                lastMousePos = e.Location;
+                holdTimer.Start();
+            }
+            base.OnMouseDown(e);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                // Calculate how much the mouse moved since last frame
+                int deltaX = e.X - lastMousePos.X;
+                int deltaY = e.Y - lastMousePos.Y;
+                Dragged?.Invoke(this, new Point(deltaX, deltaY));
+            }
+            base.OnMouseMove(e);
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            holdTimer.Stop();
+            if (isDragging)
+            {
+                isDragging = false;
+                this.Cursor = Cursors.Hand;
+                DragEnded?.Invoke(this, EventArgs.Empty);
+            }
+            base.OnMouseUp(e);
         }
 
         private void LoadRobloxIcons()
@@ -211,19 +195,20 @@ namespace ChatLauncherApp
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            // Important: Use AntiAlias for smooth circles
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             e.Graphics.Clear(Color.Magenta); // Background transparency key
 
-            // Draw the dark circular background
+            // Draw the dark circular background (Roblox style)
             using (var brush = new SolidBrush(Color.FromArgb(50, 50, 50)))
                 e.Graphics.FillEllipse(brush, 0, 0, Width, Height);
 
-            // Draw the appropriate Roblox icon
+            // Draw the chat icon (imgOn or imgOff)
             Image currentImg = IsActive ? imgOn : imgOff;
 
             if (currentImg != null)
             {
-                // Center the image within the button
+                // Center the icon image inside the circle
                 int x = (Width - currentImg.Width) / 2;
                 int y = (Height - currentImg.Height) / 2;
                 e.Graphics.DrawImage(currentImg, x, y);
@@ -238,9 +223,72 @@ namespace ChatLauncherApp
     }
 
     // --------------------------------------------------
+    // Class for resize grip control
+    // --------------------------------------------------
+    public class ResizeGrip : Control
+    {
+        private Point lastMousePos;
+        private bool isResizing = false;
+        public event EventHandler<Size> ResizeDragged;
+
+        public ResizeGrip()
+        {
+            this.SetStyle(ControlStyles.SupportsTransparentBackColor |
+                          ControlStyles.AllPaintingInWmPaint |
+                          ControlStyles.OptimizedDoubleBuffer, true);
+            this.BackColor = Color.Transparent;
+            this.Size = new Size(20, 20);
+            this.Cursor = Cursors.SizeNWSE;
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                isResizing = true;
+                lastMousePos = PointToScreen(e.Location);
+            }
+            base.OnMouseDown(e);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            if (isResizing)
+            {
+                Point currentMousePos = PointToScreen(e.Location);
+                int deltaX = currentMousePos.X - lastMousePos.X;
+                int deltaY = currentMousePos.Y - lastMousePos.Y;
+
+                ResizeDragged?.Invoke(this, new Size(deltaX, deltaY));
+                lastMousePos = currentMousePos;
+            }
+            base.OnMouseMove(e);
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            isResizing = false;
+            base.OnMouseUp(e);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            using (Pen pen = new Pen(Color.FromArgb(150, 255, 255, 255), 2))
+            {
+                // Draw the ⌟ symbol
+                // Vertical line
+                e.Graphics.DrawLine(pen, Width - 5, Height - 12, Width - 5, Height - 5);
+                // Horizontal line
+                e.Graphics.DrawLine(pen, Width - 12, Height - 5, Width - 5, Height - 5);
+            }
+        }
+    }
+
+    // --------------------------------------------------
     // Chat window
     // --------------------------------------------------
-    class ChatForm : Form
+    public partial class ChatForm : Form
     {
         Process robloxProcess;
         Panel mainContainer; // New container for the window
@@ -255,6 +303,10 @@ namespace ChatLauncherApp
         IntPtr winEventHook = IntPtr.Zero;
         NativeMethods.WinEventDelegate winEventDelegate;
 
+        private Point defaultOffset = new Point(10, 40); // Original offset
+        private Point currentOffset = new Point(10, 40); // Tracks user customization
+        private bool isUserMovingWindow = false;
+
         float chatOnOpacity = 1.0f;
         float chatOffOpacity = 0.7f;
         float targetOpacity = 0.7f;
@@ -268,6 +320,20 @@ namespace ChatLauncherApp
         private CancellationTokenSource wsCts;
         private const string BASE_URL = "RobloxChatLauncherDemo.onrender.com";
 
+        // Sets a rounded region for the given control as
+        // Windows Forms does not natively support rounded corners.
+        private void SetRoundedRegion(Control control, int radius)
+        {
+            System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.StartFigure();
+            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
+            path.AddArc(new Rectangle(control.Width - radius, 0, radius, radius), 270, 90);
+            path.AddArc(new Rectangle(control.Width - radius, control.Height - radius, radius, radius), 0, 90);
+            path.AddArc(new Rectangle(0, control.Height - radius, radius, radius), 90, 90);
+            path.CloseFigure();
+            control.Region = new Region(path);
+        }
+
         void OnRobloxLocationChanged(
             IntPtr hWinEventHook,
             uint eventType,
@@ -277,7 +343,7 @@ namespace ChatLauncherApp
             uint dwEventThread,
             uint dwmsEventTime)
         {
-            if (hwnd != robloxProcess.MainWindowHandle)
+            if (hwnd != robloxProcess.MainWindowHandle || isUserMovingWindow)
                 return;
 
             if (NativeMethods.IsIconic(hwnd))
@@ -294,7 +360,8 @@ namespace ChatLauncherApp
                 if (WindowState == FormWindowState.Minimized)
                     WindowState = FormWindowState.Normal;
 
-                Location = new Point(rect.Left + 10, rect.Top + 40);
+                // Use the dynamic offset instead of +10, +40
+                Location = new Point(rect.Left + currentOffset.X, rect.Top + currentOffset.Y);
             }));
         }
 
@@ -316,7 +383,8 @@ namespace ChatLauncherApp
 
         public void ToggleVisibility()
         {
-            this.Invoke((MethodInvoker)delegate {
+            this.Invoke((MethodInvoker)delegate
+            {
                 isWindowHidden = !isWindowHidden;
                 mainContainer.Visible = !isWindowHidden;
 
@@ -338,51 +406,146 @@ namespace ChatLauncherApp
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.Magenta;
             this.TransparencyKey = Color.Magenta; // Makes form background invisible
-            this.Width = 350;
-            this.Height = 300;
+            this.Width = 500;
+            this.Height = 400;
             this.TopMost = true;
+            this.DoubleBuffered = true; // Reduce flicker
 
             // Circular Toggle Button (Parented to Form, not Container)
-            toggleBtn = new RoundButton { Location = new Point(114, 2), Size = new Size(45, 45), Cursor = Cursors.Hand };
-            toggleBtn.Clicked += (s, e) => {
+            toggleBtn = new RoundButton
+            {
+                Location = new Point(115, 2),
+                Size = new Size(45, 45),
+                Cursor = Cursors.Hand
+            };
+
+            // Button click toggling visibility is buggy so prefer
+            // Using the Ctrl+Shift+C hotkey instead.
+            /*
+            toggleBtn.Clicked += (s, e) =>
+            {
                 isWindowHidden = !isWindowHidden;
                 mainContainer.Visible = !isWindowHidden;
             };
+            */
+
+            toggleBtn.Dragged += (s, delta) =>
+            {
+                isUserMovingWindow = true;
+                // Update the offset based on drag
+                currentOffset.X += delta.X;
+                currentOffset.Y += delta.Y;
+
+                // Immediate visual update
+                this.Location = new Point(this.Location.X + delta.X, this.Location.Y + delta.Y);
+            };
+
+            toggleBtn.DragEnded += (s, e) =>
+            {
+                isUserMovingWindow = false;
+
+                // 1. Get where Roblox is right now
+                NativeMethods.GetWindowRect(robloxProcess.MainWindowHandle, out NativeMethods.RECT rect);
+
+                // 2. Calculate our current offset relative to Roblox's top-left
+                int relativeX = this.Location.X - rect.Left;
+                int relativeY = this.Location.Y - rect.Top;
+
+                // 3. Snap check: If relative position is close to default, snap to it
+                int snapDistance = 20; // Adjust as needed
+                if (Math.Abs(relativeX - defaultOffset.X) < snapDistance &&
+                    Math.Abs(relativeY - defaultOffset.Y) < snapDistance)
+                {
+                    currentOffset = defaultOffset;
+                }
+                else
+                {
+                    // Otherwise, save this new position as the permanent offset
+                    currentOffset = new Point(relativeX, relativeY);
+                }
+
+                // 4. Force one update to snap the window visually
+                this.Location = new Point(rect.Left + currentOffset.X, rect.Top + currentOffset.Y);
+            };
+
             this.Controls.Add(toggleBtn);
 
-            // Main Window Container
-            mainContainer = new Panel
+            // 1. Update Main Container styling
+            mainContainer = new SmoothPanel // Use SmoothPanel instead of Panel to reduce flicker
             {
-                Location = new Point(10, 65),
-                Size = new Size(330, 220),
-                BackColor = Color.FromArgb(45, 47, 49) // Roblox Gray
+                Location = new Point(7, 54),
+                Size = new Size(472, 297), // THIS IS THE REAL SIZE OF THE CHAT WINDOW
+                BackColor = Color.FromArgb(35, 45, 55), // Semi-transparent Dark Blue-Gray
+                Padding = new Padding(10) // Give text breathing room
             };
             this.Controls.Add(mainContainer);
 
-            // Chat History
-            chatBox = new TextBox
+            // Apply rounded corners after the control is created
+            mainContainer.HandleCreated += (s, e) => SetRoundedRegion(mainContainer, 20);
+
+            // 2. Update Chat History (The top part)
+            chatBox = new SmoothTextBox // Use SmoothTextBox instead of TextBox to reduce flicker
             {
                 Multiline = true,
                 ReadOnly = true,
                 Dock = DockStyle.Fill,
                 BorderStyle = BorderStyle.None,
-                BackColor = Color.FromArgb(45, 47, 49),
+                BackColor = Color.FromArgb(35, 45, 55), // Match container
                 ForeColor = Color.White,
-                TabStop = false
+                Font = new Font("Segoe UI", 10, FontStyle.Regular),
+                TabStop = false,
+                Margin = new Padding(0), // Set margin to zero
             };
 
-            // Non-clickable Input Bar
+            // 3. Update Input Bar (The bottom part)
             inputBox = new ChatInputBox
             {
                 Dock = DockStyle.Bottom,
-                Height = 40,
-                BackColor = Color.FromArgb(30, 30, 30),
+                Height = 45, // Slightly taller
+                BackColor = Color.FromArgb(25, 25, 25), // Darker than history
                 ForeColor = Color.White,
-                Enabled = false // THIS prevents clicking/focus
+                Enabled = false,
+                Margin = new Padding(5) // Space between history and input
+            };
+
+            // Ensure the input box also has slightly rounded corners
+            inputBox.HandleCreated += (s, e) => SetRoundedRegion(inputBox, 10);
+
+            // Resize Grip
+            ResizeGrip grip = new ResizeGrip();
+            // Anchor it to the bottom right
+            grip.Location = new Point(mainContainer.Width - grip.Width, mainContainer.Height - grip.Height);
+            grip.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+
+            grip.ResizeDragged += (s, delta) =>
+            {
+                int newWidth = this.Width + delta.Width;
+                int newHeight = this.Height + delta.Height;
+
+                if (newWidth > 200 && newHeight > 150)
+                {
+                    // 1. Stop the layout engine temporarily
+                    this.SuspendLayout();
+                    mainContainer.SuspendLayout();
+
+                    this.Size = new Size(newWidth, newHeight);
+                    mainContainer.Size = new Size(mainContainer.Width + delta.Width, mainContainer.Height + delta.Height);
+
+                    // 2. Refresh the rounded corners
+                    SetRoundedRegion(mainContainer, 20);
+                    SetRoundedRegion(inputBox, 10);
+
+                    // 3. Resume and force a clean redraw
+                    mainContainer.ResumeLayout();
+                    this.ResumeLayout(true);
+                    this.Update(); // Force instant redraw
+                }
             };
 
             mainContainer.Controls.Add(chatBox);
             mainContainer.Controls.Add(inputBox);
+            mainContainer.Controls.Add(grip);
+            grip.BringToFront(); // Ensure it is above the chatBox
 
             // Hide real Win32 caret defensively
             chatBox.GotFocus += (s, e) => NativeMethods.HideCaret(chatBox.Handle);
@@ -479,425 +642,28 @@ namespace ChatLauncherApp
             targetOpacity = chatOffOpacity;
             SyncInput();
         }
-
-        // WebSocket connection and message handling
-        private async Task ConnectWebSocket()
-        {
-            // The Render server may take time to wake up, so we implement retries
-            int maxRetries = 12;
-            int delayMilliseconds = 5000; // seconds between tries
-            // Goal: Retry for up to 1 minute as
-            // that's how long Render free-tier usually takes to wake up
-
-            for (int i = 1; i <= maxRetries; i++)
-            {
-                try
-                {
-                    // Console.WriteLine($"[DEBUG] Attempt {i}/{maxRetries} - starting connection...");
-
-                    // Clean up old client if it exists
-                    wsCts?.Cancel();
-                    wsClient?.Dispose();
-                    wsClient = new ClientWebSocket();
-                    wsCts = new CancellationTokenSource();
-
-                    // Console.WriteLine("[DEBUG] ClientWebSocket created");
-
-                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connecting to server (Attempt {i}/{maxRetries})...\r\n")));
-
-                    // Console.WriteLine($"[DEBUG] Connecting to wss://{BASE_URL}/ ...");
-                    // Try to connect
-                    await wsClient.ConnectAsync(new Uri($"wss://{BASE_URL}/"), wsCts.Token);
-                    // Console.WriteLine("[DEBUG] Connected to WebSocket successfully");
-
-                    // If we reach here, connection was successful
-                    var joinPayload = new
-                    {
-                        type = "join",
-                        channelId = this.channelId
-                    };
-                    string json = JsonConvert.SerializeObject(joinPayload);
-                    await wsClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(json)),
-                        WebSocketMessageType.Text, true, wsCts.Token);
-
-                    this.Invoke((MethodInvoker)(() => chatBox.AppendText("[System]: Connected successfully!\r\n")));
-
-                    _ = Task.Run(ReceiveLoop);
-                    return; // Exit the method successfully
-                }
-                catch (Exception ex)
-                {
-                    // Log full exception details to see inner exceptions and stack trace
-                    // Console.WriteLine($"[DEBUG] Attempt {i} failed:");
-                    // Console.WriteLine(ex.ToString());
-
-                    if (i == maxRetries)
-                    {
-                        this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connection failed after {maxRetries} tries: {ex.Message}\r\n")));
-                    }
-                    else
-                    {
-                        // Wait before trying again
-                        await Task.Delay(delayMilliseconds);
-                    }
-                }
-            }
-        }
-
-        private async Task ReceiveLoop()
-        {
-            var buffer = new byte[4096];
-
-            try
-            {
-                while (wsClient.State == WebSocketState.Open)
-                {
-                    var result = await wsClient.ReceiveAsync(
-                        new ArraySegment<byte>(buffer),
-                        wsCts.Token
-                    );
-
-                    if (result.MessageType == WebSocketMessageType.Close)
-                        break;
-
-                    var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    dynamic data = JsonConvert.DeserializeObject(message);
-
-                    this.Invoke((MethodInvoker)delegate
-                    {
-                        // Normal chat message
-                        if (data.type == "message")
-                        {
-                            chatBox.AppendText($"[{data.sender}]: {data.text}\r\n");
-                        }
-                        // Rejection handling
-                        else if (data.status == "rejected")
-                        {
-                            string reason = data.reason;
-                            string messageText;
-
-                            switch (reason)
-                            {
-                                case "moderation":
-                                    messageText = "Your message was not sent as it violates community guidelines.";
-                                    break;
-                                case "queue_full":
-                                    messageText = "Your message was rejected because the server queue is full. Please try again shortly.";
-                                    break;
-                                case "api_error":
-                                    messageText = "Your message could not be processed due to a server error. Please try again.";
-                                    break;
-                                default:
-                                    messageText = "Your message was not sent due to unknown reasons.";
-                                    break;
-                            }
-
-                            chatBox.AppendText($"[System]: {messageText}\r\n");
-                        }
-                    });
-                }
-            }
-            catch (OperationCanceledException) { }
-            catch (Exception ex)
-            {
-                chatBox.AppendText($"[System]: WS Receive Error: {ex.Message}\r\n");
-            }
-        }
-
-        public async Task Send()
-        {
-            // If empty, just exit chat mode and return
-            if (string.IsNullOrWhiteSpace(rawInputText))
-            {
-                isChatting = false;
-                rawInputText = "";
-                targetOpacity = chatOffOpacity;
-                SyncInput();
-                return;
-            }
-
-            string userMessage = rawInputText;
-
-            // 1. Immediate UI Feedback
-            rawInputText = "";
-            isChatting = false;
-            targetOpacity = chatOffOpacity;
-            SyncInput();
-
-            // --- ROUTING LOGIC ---
-            // Check if it's an echo command
-            if (userMessage.StartsWith("/echo ", StringComparison.OrdinalIgnoreCase))
-            {
-                // Extract the text after "/echo "
-                string echoPayload = userMessage.Substring(6);
-                await ExecuteEchoRequest(echoPayload);
-            }
-            else
-            {
-                // Default: Send via WebSocket for the channel broadcast
-                await SendWebSocketMessage(userMessage);
-            }
-        }
-
-        // Echo Logic
-        private async Task ExecuteEchoRequest(string userMessage)
-        {
-            // chatBox.AppendText($"You: {userMessage}\r\n");
-            try
-            {
-                // 2. Network Call
-                var content = new StringContent(userMessage, Encoding.UTF8, "text/plain");
-                // PaaS echo server for POC demo testing
-                var response = await client.PostAsync($"https://{BASE_URL}/echo", content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string echoResponse = await response.Content.ReadAsStringAsync();
-
-                    this.Invoke((MethodInvoker)delegate
-                    {
-                        chatBox.AppendText($"[Server]: {echoResponse} (Only you can see this message.)\r\n");
-                    });
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
-                    string reason = data?.reason;
-
-                    string messageText;
-                    switch (reason)
-                    {
-                        case "moderation":
-                            messageText = "Your message was not sent as it violates community guidelines.";
-                            break;
-                        case "queue_full":
-                            messageText = "Your message was rejected because the server queue is full. Please try again shortly.";
-                            break;
-                        case "api_error":
-                            messageText = "Your message could not be processed due to a server error. Please try again.";
-                            break;
-                        default:
-                            messageText = "Your message was not sent due to unknown reasons.";
-                            break;
-                    }
-
-                    this.Invoke((MethodInvoker)delegate
-                    {
-                        chatBox.AppendText(messageText + "\r\n");
-                    });
-                }
-            }
-            // 3. Catch Timeout Specifically
-            catch (TaskCanceledException)
-            {
-                this.Invoke((MethodInvoker)delegate
-                {
-                    chatBox.AppendText("[System]: Request timed out. (Render server may be waking up)\r\n");
-                });
-            }
-            // 4. Catch General Errors (DNS, No Internet, etc.)
-            catch (Exception ex)
-            {
-                this.Invoke((MethodInvoker)delegate
-                {
-                    chatBox.AppendText($"[System]: Connection error: {ex.Message}\r\n");
-                });
-            }
-            finally
-            {
-                // Ensure the chat always scrolls to the bottom and hides caret
-                this.Invoke((MethodInvoker)delegate
-                {
-                    chatBox.SelectionStart = chatBox.Text.Length;
-                    chatBox.ScrollToCaret();
-                    NativeMethods.HideCaret(chatBox.Handle);
-                });
-            }
-        }
-
-        // WebSocket Sender
-        private async Task SendWebSocketMessage(string text)
-        {
-            // Don't append the user's own message here; the server will broadcast it back
-            if (wsClient == null || wsClient.State != WebSocketState.Open)
-            {
-                chatBox.AppendText("[System]: WebSocket not connected. Try /echo for HTTP mode.\r\n");
-                return;
-            }
-
-            try
-            {
-                var payload = new
-                {
-                    type = "message",
-                    text = text
-                };
-                string json = JsonConvert.SerializeObject(payload);
-                byte[] bytes = Encoding.UTF8.GetBytes(json);
-
-                await wsClient.SendAsync(new ArraySegment<byte>(bytes),
-                    WebSocketMessageType.Text, true, wsCts.Token);
-
-            }
-            catch (TaskCanceledException)
-            {
-                chatBox.AppendText("[System]: WS send timed out. (Render server may be waking up)\r\n");
-            }
-            catch (Exception ex)
-            {
-                chatBox.AppendText($"[System]: WS Send Error: {ex.Message}\r\n");
-            }
-        }
-
-        void SyncInput()
-        {
-            inputBox.RawText = rawInputText;
-            inputBox.IsChatting = isChatting;
-            inputBox.Invalidate();
-        }
-
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-            _ = ConnectWebSocket();
-        }
-
-        protected override void OnFormClosed(FormClosedEventArgs e)
-        {
-            // WebSocket cleanup
-            wsCts?.Cancel();
-            wsClient?.Dispose();
-
-            // Hook cleanup
-            if (winEventHook != IntPtr.Zero)
-            {
-                NativeMethods.UnhookWinEvent(winEventHook);
-                winEventHook = IntPtr.Zero;
-            }
-
-            base.OnFormClosed(e);
-        }
     }
 
     // --------------------------------------------------
-    // Keyboard hook (layout-correct, shift-safe)
+    // Smooth Panel and TextBox (for reducing flicker)
     // --------------------------------------------------
-    class ChatKeyboardHandler : IDisposable
+    public class SmoothPanel : Panel
     {
-        IKeyboardMouseEvents hook;
-        ChatForm form;
-        bool chatMode;
-
-        static bool IsNonTextKey(Keys key) =>
-            key == Keys.Escape ||
-            key == Keys.Enter ||
-            key == Keys.Back ||
-            key == Keys.ControlKey ||
-            key == Keys.ShiftKey ||
-            key == Keys.Menu; // Both alt keys
-
-        public ChatKeyboardHandler(ChatForm chatForm)
+        public SmoothPanel()
         {
-            form = chatForm;
-            hook = Hook.GlobalEvents();
-            hook.KeyDown += OnKeyDown;
+            this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint |
+                          ControlStyles.UserPaint |
+                          ControlStyles.OptimizedDoubleBuffer, true);
         }
-
-        void OnKeyDown(object sender, KeyEventArgs e)
+    }
+    public class SmoothTextBox : TextBox
+    {
+        public SmoothTextBox()
         {
-            // 1. Ignore all input if the chat window is minimized
-            // This handles cases where the user minimizes Roblox
-            if (form.WindowState == FormWindowState.Minimized)
-                return;
-
-            // 2. Ignore all input if Roblox is NOT the active (focused) window
-            // We get the current foreground window and compare it to Roblox's handle
-            // This handles cases where the user alt-tabs away or clicks another window
-            IntPtr foregroundWindow = NativeMethods.GetForegroundWindow();
-            if (!form.IsRobloxForegroundProcess())
-                return;
-
-            if (!chatMode)
-            {
-                // Toggle UI Visibility: Ctrl + Shift + C
-                if (e.Control && e.Shift && e.KeyCode == Keys.C)
-                {
-                    form.ToggleVisibility();
-                    e.Handled = true;
-                    return;
-                }
-                if (e.KeyCode == Keys.OemQuestion) // slash key
-                {
-                    chatMode = true;
-                    form.StartChatMode();
-                    e.Handled = true;
-                }
-                return;
-            }
-
-            if (e.KeyCode == Keys.Escape)
-            {
-                chatMode = false;           // Stop intercepting keys in this app
-                form.CancelChatMode();      // Update UI (opacity/caret) but keep text
-                                            // DO NOT set e.Handled = true; 
-                                            // This allows the Escape key to "pass through" to the game/Windows
-                return;
-            }
-
-            if (e.KeyCode == Keys.Enter)
-            {
-                // Use _ = to explicitly fire and forget the task
-                _ = form.Send();
-                chatMode = false;
-                e.Handled = true;
-                return;
-            }
-
-            if (e.KeyCode == Keys.Back)
-            {
-                form.Backspace();
-                e.Handled = true;
-                return;
-            }
-
-            string text = TranslateKey(e);
-            if (!string.IsNullOrEmpty(text))
-            {
-                form.AppendTextFromKey(text);
-                e.Handled = true;
-            }
-        }
-
-        string TranslateKey(KeyEventArgs e)
-        {
-            // Don't translate control keys into text characters
-            if (IsNonTextKey(e.KeyCode))
-                return null;
-
-            byte[] state = new byte[256];
-            if (!NativeMethods.GetKeyboardState(state))
-                return null;
-
-            StringBuilder sb = new StringBuilder(8);
-            IntPtr layout = NativeMethods.GetKeyboardLayout(0);
-
-            int result = NativeMethods.ToUnicodeEx(
-                (uint)e.KeyValue,
-                0,
-                state,
-                sb,
-                sb.Capacity,
-                0,
-                layout);
-
-            return result > 0 ? sb.ToString() : null;
-        }
-
-        public void Dispose()
-        {
-            hook.KeyDown -= OnKeyDown;
-            hook.Dispose();
+            this.DoubleBuffered = true;
+            // This stops the background from "flashing" dark before the text draws
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer, true);
         }
     }
 }
