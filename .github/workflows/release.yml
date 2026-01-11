@@ -62,9 +62,11 @@ jobs:
       # Build & validate app
       # ---------------------------
       - name: Restore dependencies
+        working-directory: ./client
         run: dotnet restore
 
       - name: Publish app (Release)
+        working-directory: ./client
         run: dotnet publish -c Release
 
       # ---------------------------

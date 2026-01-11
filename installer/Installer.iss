@@ -17,7 +17,7 @@ LicenseFile={#Root}\LICENSE
 Source: "{#Root}\LICENSE"; DestDir: "{app}"
 Source: "{#Root}\PRIVACY"; DestDir: "{app}"
 ; Copy everything from the publish folder
-Source: "{#Root}\bin\Release\net10.0-windows\publish\*"; DestDir: "{app}"
+Source: "{#Root}\client\bin\Release\net10.0-windows\publish\*"; DestDir: "{app}"
 
 [Run]
 ; Silently run the app to register it as the Roblox launcher
