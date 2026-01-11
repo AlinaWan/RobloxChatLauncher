@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
@@ -58,22 +58,30 @@ namespace ChatLauncherApp
 
             if (!IsChatting && string.IsNullOrEmpty(RawText))
             {
-                text = "Press / to type | Ctrl+Shift+C to toggle visibility";
-                color = Color.FromArgb(128, Color.Gray);
+                text = "Press / key | Ctrl+Shift+C to hide";
+                color = Color.FromArgb(180, 200, 200, 200); // Gray placeholder
             }
             else
             {
                 text = RawText + (IsChatting && caretVisible ? "|" : "");
-                color = ForeColor;
+                color = ForeColor; // White text
             }
+
+            // Set a 10px margin so text doesn't hit the edge
+            Rectangle textRect = new Rectangle(10, 0, ClientRectangle.Width - 50, ClientRectangle.Height);
 
             TextRenderer.DrawText(
                 e.Graphics,
                 text,
                 Font,
-                ClientRectangle,
+                textRect,
                 color,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+
+            // Draw the arrow icon on the right
+            TextRenderer.DrawText(e.Graphics, "➤", Font,
+                new Rectangle(Width - 35, 0, 30, Height), color,
+                TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
         }
     }
 
@@ -131,19 +139,20 @@ namespace ChatLauncherApp
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            // Important: Use AntiAlias for smooth circles
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             e.Graphics.Clear(Color.Magenta); // Background transparency key
 
-            // Draw the dark circular background
+            // Draw the dark circular background (Roblox style)
             using (var brush = new SolidBrush(Color.FromArgb(50, 50, 50)))
                 e.Graphics.FillEllipse(brush, 0, 0, Width, Height);
 
-            // Draw the appropriate Roblox icon
+            // Draw the chat icon (imgOn or imgOff)
             Image currentImg = IsActive ? imgOn : imgOff;
 
             if (currentImg != null)
             {
-                // Center the image within the button
+                // Center the icon image inside the circle
                 int x = (Width - currentImg.Width) / 2;
                 int y = (Height - currentImg.Height) / 2;
                 e.Graphics.DrawImage(currentImg, x, y);
@@ -187,6 +196,20 @@ namespace ChatLauncherApp
         private ClientWebSocket wsClient;
         private CancellationTokenSource wsCts;
         private const string BASE_URL = "RobloxChatLauncherDemo.onrender.com";
+
+        // Sets a rounded region for the given control as
+        // Windows Forms does not natively support rounded corners.
+        private void SetRoundedRegion(Control control, int radius)
+        {
+            System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.StartFigure();
+            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
+            path.AddArc(new Rectangle(control.Width - radius, 0, radius, radius), 270, 90);
+            path.AddArc(new Rectangle(control.Width - radius, control.Height - radius, radius, radius), 0, 90);
+            path.AddArc(new Rectangle(0, control.Height - radius, radius, radius), 90, 90);
+            path.CloseFigure();
+            control.Region = new Region(path);
+        }
 
         void OnRobloxLocationChanged(
             IntPtr hWinEventHook,
@@ -259,12 +282,17 @@ namespace ChatLauncherApp
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.Magenta;
             this.TransparencyKey = Color.Magenta; // Makes form background invisible
-            this.Width = 350;
-            this.Height = 300;
+            this.Width = 500;
+            this.Height = 400;
             this.TopMost = true;
 
             // Circular Toggle Button (Parented to Form, not Container)
-            toggleBtn = new RoundButton { Location = new Point(114, 2), Size = new Size(45, 45), Cursor = Cursors.Hand };
+            toggleBtn = new RoundButton
+            {
+                Location = new Point(115, 2),
+                Size = new Size(45, 45),
+                Cursor = Cursors.Hand
+            };
             toggleBtn.Clicked += (s, e) =>
             {
                 isWindowHidden = !isWindowHidden;
@@ -272,42 +300,51 @@ namespace ChatLauncherApp
             };
             this.Controls.Add(toggleBtn);
 
-            // Main Window Container
+            // 1. Update Main Container styling
             mainContainer = new Panel
             {
-                Location = new Point(10, 65),
-                Size = new Size(330, 220),
-                BackColor = Color.FromArgb(45, 47, 49) // Roblox Gray
+                Location = new Point(7, 54),
+                Size = new Size(472, 297), // THIS IS THE REAL SIZE OF THE CHAT WINDOW
+                BackColor = Color.FromArgb(35, 45, 55), // Semi-transparent Dark Blue-Gray
+                Padding = new Padding(10) // Give text breathing room
             };
             this.Controls.Add(mainContainer);
 
-            // Chat History
+            // Apply rounded corners after the control is created
+            mainContainer.HandleCreated += (s, e) => SetRoundedRegion(mainContainer, 20);
+
+            // 2. Update Chat History (The top part)
             chatBox = new TextBox
             {
                 Multiline = true,
                 ReadOnly = true,
                 Dock = DockStyle.Fill,
                 BorderStyle = BorderStyle.None,
-                BackColor = Color.FromArgb(45, 47, 49),
+                BackColor = Color.FromArgb(35, 45, 55), // Match container
                 ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10, FontStyle.Regular),
                 TabStop = false
             };
 
-            // Non-clickable Input Bar
+            // 3. Update Input Bar (The bottom part)
             inputBox = new ChatInputBox
             {
                 Dock = DockStyle.Bottom,
-                Height = 40,
-                BackColor = Color.FromArgb(30, 30, 30),
+                Height = 45, // Slightly taller
+                BackColor = Color.FromArgb(25, 25, 25), // Darker than history
                 ForeColor = Color.White,
-                Enabled = false // THIS prevents clicking/focus
+                Enabled = false,
+                Margin = new Padding(5) // Space between history and input
             };
 
             mainContainer.Controls.Add(chatBox);
             mainContainer.Controls.Add(inputBox);
 
-            // Hide real Win32 caret defensively
-            chatBox.GotFocus += (s, e) => NativeMethods.HideCaret(chatBox.Handle);
+            // Ensure the input box also has slightly rounded corners
+            inputBox.HandleCreated += (s, e) => SetRoundedRegion(inputBox, 10);
+
+        // Hide real Win32 caret defensively
+        chatBox.GotFocus += (s, e) => NativeMethods.HideCaret(chatBox.Handle);
             chatBox.MouseDown += (s, e) => NativeMethods.HideCaret(chatBox.Handle);
             inputBox.GotFocus += (s, e) => ActiveControl = null;
             inputBox.MouseDown += (s, e) => ActiveControl = null;
