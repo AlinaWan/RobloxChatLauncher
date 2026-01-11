@@ -41,7 +41,7 @@ namespace ChatLauncherApp
 
                     // Console.WriteLine("[DEBUG] ClientWebSocket created");
 
-                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connecting to server (Attempt {i}/{maxRetries})...\r\n")));
+                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connecting to server...\r\n")));
 
                     // Console.WriteLine($"[DEBUG] Connecting to wss://{BASE_URL}/ ...");
                     // Try to connect
@@ -71,7 +71,7 @@ namespace ChatLauncherApp
 
                     if (i == maxRetries)
                     {
-                        this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connection failed after {maxRetries} tries: {ex.Message}\r\n")));
+                        this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connection failed: {ex.Message}\r\n")));
                     }
                     else
                     {
@@ -96,7 +96,11 @@ namespace ChatLauncherApp
                     );
 
                     if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        // server closed connection (often unclean on PaaS)
+                        _ = ConnectWebSocket();
                         break;
+                    }
 
                     var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
                     dynamic data = JsonConvert.DeserializeObject(message);
@@ -286,13 +290,6 @@ namespace ChatLauncherApp
             {
                 chatBox.AppendText($"[System]: WS Send Error: {ex.Message}\r\n");
             }
-        }
-
-        void SyncInput()
-        {
-            inputBox.RawText = rawInputText;
-            inputBox.IsChatting = isChatting;
-            inputBox.Invalidate();
         }
 
         protected override void OnShown(EventArgs e)

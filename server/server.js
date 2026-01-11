@@ -233,6 +233,10 @@ wss.on('connection', (ws, req) => {
     const userKey = hashIp(getTrustedIp(req, ws));
     let currentChannel = null;
 
+    ws.isAlive = true;
+    ws.on('pong', heartbeat);
+
+    // --- Begin WS message handling ---
     ws.on('message', async (data) => {
         try {
             const payload = JSON.parse(data);
@@ -288,6 +292,26 @@ wss.on('connection', (ws, req) => {
             console.error("WS Message Error:", e);
         }
     });
+    // --- End WS message handling ---
+
+    // WebSocket heartbeat (ping/pong) to detect dead connections
+    // System.Net.WebSockets.ClientWebSocket automatically responds to ping frames with pong frames
+    function heartbeat() {
+        this.isAlive = true;
+    }
+
+    const interval = setInterval(() => {
+        wss.clients.forEach((ws) => {
+            if (ws.isAlive === false) {
+                // No pong received since last ping → dead connection
+                return ws.terminate();
+            }
+
+            ws.isAlive = false;
+            ws.ping(); // send ping frame
+        });
+    }, 30_000); // 30 seconds is a good default
+    // --- End heartbeat ---
 
     // Remove the user mapping on disconnect
     ws.on('close', () => {
@@ -301,6 +325,11 @@ wss.on('connection', (ws, req) => {
         }
         userChannelMap.delete(userKey);
     });
+
+    wss.on('close', () => {
+        clearInterval(interval);
+    });
+    // --- End WS connection handling ---
 });
 
 // Helper to send to everyone in a specific channel
