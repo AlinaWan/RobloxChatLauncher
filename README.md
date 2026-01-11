@@ -29,6 +29,13 @@
 
 **A proof-of-concept launcher designed to restore and modernize the Roblox social experience.**
 
+<!-- Preview images start -->
+<p align="center">
+  <img src="assets/readme/16_window_preview_off.png" width="390" alt="Window Preview Off">
+  <img src="assets/readme/16_window_preview_on.png" width="390" alt="Window Preview On">
+</p>
+<!-- Preview images end -->
+
 Why?
 
 As of January 7, 2026, Roblox has completely removed in-game communication unless users provide pictures of their face or government IDs—sensitive information that becomes a major security liability in the event of a data breach. While Roblox claims to "immediately" delete this data after processing it, [Roblox's partner Persona can keep copies for up to 30 days](https://en.help.roblox.com/hc/en-us/articles/4412863575316-Roblox-Facial-Media-Capture-Privacy-Notice#:~:text=Our%20service%20provider%2C%20Persona%2C%20will%20respectively%20delete%20your%20Biometric%20Data%20within%2030%20days%20after%20collection%2C%20unless%20required%20by%20law%20(such%20as%20a%20warrant%20or%20subpoena)%20to%20keep%20your%20Biometric%20Data%20for%20a%20longer%20period.).
