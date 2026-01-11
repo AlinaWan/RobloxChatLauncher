@@ -49,6 +49,12 @@ namespace ChatLauncherApp
             caretTimer.Start();
         }
 
+        protected override void OnResize(EventArgs e)
+        {
+            this.Invalidate(); // Forces a clean redraw of the text and arrow
+            base.OnResize(e);
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             e.Graphics.Clear(BackColor);
@@ -160,10 +166,6 @@ namespace ChatLauncherApp
                 this.Cursor = Cursors.Hand;
                 DragEnded?.Invoke(this, EventArgs.Empty);
             }
-            else if (ClientRectangle.Contains(e.Location))
-            {
-                Clicked?.Invoke(this, EventArgs.Empty);
-            }
             base.OnMouseUp(e);
         }
 
@@ -217,6 +219,69 @@ namespace ChatLauncherApp
         {
             Clicked?.Invoke(this, e);
             base.OnClick(e);
+        }
+    }
+
+    // --------------------------------------------------
+    // Class for resize grip control
+    // --------------------------------------------------
+    public class ResizeGrip : Control
+    {
+        private Point lastMousePos;
+        private bool isResizing = false;
+        public event EventHandler<Size> ResizeDragged;
+
+        public ResizeGrip()
+        {
+            this.SetStyle(ControlStyles.SupportsTransparentBackColor |
+                          ControlStyles.AllPaintingInWmPaint |
+                          ControlStyles.OptimizedDoubleBuffer, true);
+            this.BackColor = Color.Transparent;
+            this.Size = new Size(20, 20);
+            this.Cursor = Cursors.SizeNWSE;
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                isResizing = true;
+                lastMousePos = PointToScreen(e.Location);
+            }
+            base.OnMouseDown(e);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            if (isResizing)
+            {
+                Point currentMousePos = PointToScreen(e.Location);
+                int deltaX = currentMousePos.X - lastMousePos.X;
+                int deltaY = currentMousePos.Y - lastMousePos.Y;
+
+                ResizeDragged?.Invoke(this, new Size(deltaX, deltaY));
+                lastMousePos = currentMousePos;
+            }
+            base.OnMouseMove(e);
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            isResizing = false;
+            base.OnMouseUp(e);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            using (Pen pen = new Pen(Color.FromArgb(150, 255, 255, 255), 2))
+            {
+                // Draw the ⌟ symbol
+                // Vertical line
+                e.Graphics.DrawLine(pen, Width - 5, Height - 12, Width - 5, Height - 5);
+                // Horizontal line
+                e.Graphics.DrawLine(pen, Width - 12, Height - 5, Width - 5, Height - 5);
+            }
         }
     }
 
@@ -344,6 +409,7 @@ namespace ChatLauncherApp
             this.Width = 500;
             this.Height = 400;
             this.TopMost = true;
+            this.DoubleBuffered = true; // Reduce flicker
 
             // Circular Toggle Button (Parented to Form, not Container)
             toggleBtn = new RoundButton
@@ -353,11 +419,15 @@ namespace ChatLauncherApp
                 Cursor = Cursors.Hand
             };
 
+            // Button click toggling visibility is buggy so prefer
+            // Using the Ctrl+Shift+C hotkey instead.
+            /*
             toggleBtn.Clicked += (s, e) =>
             {
                 isWindowHidden = !isWindowHidden;
                 mainContainer.Visible = !isWindowHidden;
             };
+            */
 
             toggleBtn.Dragged += (s, delta) =>
             {
@@ -401,7 +471,7 @@ namespace ChatLauncherApp
             this.Controls.Add(toggleBtn);
 
             // 1. Update Main Container styling
-            mainContainer = new Panel
+            mainContainer = new SmoothPanel // Use SmoothPanel instead of Panel to reduce flicker
             {
                 Location = new Point(7, 54),
                 Size = new Size(472, 297), // THIS IS THE REAL SIZE OF THE CHAT WINDOW
@@ -414,7 +484,7 @@ namespace ChatLauncherApp
             mainContainer.HandleCreated += (s, e) => SetRoundedRegion(mainContainer, 20);
 
             // 2. Update Chat History (The top part)
-            chatBox = new TextBox
+            chatBox = new SmoothTextBox // Use SmoothTextBox instead of TextBox to reduce flicker
             {
                 Multiline = true,
                 ReadOnly = true,
@@ -423,7 +493,8 @@ namespace ChatLauncherApp
                 BackColor = Color.FromArgb(35, 45, 55), // Match container
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 10, FontStyle.Regular),
-                TabStop = false
+                TabStop = false,
+                Margin = new Padding(0), // Set margin to zero
             };
 
             // 3. Update Input Bar (The bottom part)
@@ -437,14 +508,47 @@ namespace ChatLauncherApp
                 Margin = new Padding(5) // Space between history and input
             };
 
-            mainContainer.Controls.Add(chatBox);
-            mainContainer.Controls.Add(inputBox);
-
             // Ensure the input box also has slightly rounded corners
             inputBox.HandleCreated += (s, e) => SetRoundedRegion(inputBox, 10);
 
-        // Hide real Win32 caret defensively
-        chatBox.GotFocus += (s, e) => NativeMethods.HideCaret(chatBox.Handle);
+            // Resize Grip
+            ResizeGrip grip = new ResizeGrip();
+            // Anchor it to the bottom right
+            grip.Location = new Point(mainContainer.Width - grip.Width, mainContainer.Height - grip.Height);
+            grip.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+
+            grip.ResizeDragged += (s, delta) =>
+            {
+                int newWidth = this.Width + delta.Width;
+                int newHeight = this.Height + delta.Height;
+
+                if (newWidth > 200 && newHeight > 150)
+                {
+                    // 1. Stop the layout engine temporarily
+                    this.SuspendLayout();
+                    mainContainer.SuspendLayout();
+
+                    this.Size = new Size(newWidth, newHeight);
+                    mainContainer.Size = new Size(mainContainer.Width + delta.Width, mainContainer.Height + delta.Height);
+
+                    // 2. Refresh the rounded corners
+                    SetRoundedRegion(mainContainer, 20);
+                    SetRoundedRegion(inputBox, 10);
+
+                    // 3. Resume and force a clean redraw
+                    mainContainer.ResumeLayout();
+                    this.ResumeLayout(true);
+                    this.Update(); // Force instant redraw
+                }
+            };
+
+            mainContainer.Controls.Add(chatBox);
+            mainContainer.Controls.Add(inputBox);
+            mainContainer.Controls.Add(grip);
+            grip.BringToFront(); // Ensure it is above the chatBox
+
+            // Hide real Win32 caret defensively
+            chatBox.GotFocus += (s, e) => NativeMethods.HideCaret(chatBox.Handle);
             chatBox.MouseDown += (s, e) => NativeMethods.HideCaret(chatBox.Handle);
             inputBox.GotFocus += (s, e) => ActiveControl = null;
             inputBox.MouseDown += (s, e) => ActiveControl = null;
@@ -537,6 +641,29 @@ namespace ChatLauncherApp
             isChatting = false;
             targetOpacity = chatOffOpacity;
             SyncInput();
+        }
+    }
+
+    // --------------------------------------------------
+    // Smooth Panel and TextBox (for reducing flicker)
+    // --------------------------------------------------
+    public class SmoothPanel : Panel
+    {
+        public SmoothPanel()
+        {
+            this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint |
+                          ControlStyles.UserPaint |
+                          ControlStyles.OptimizedDoubleBuffer, true);
+        }
+    }
+    public class SmoothTextBox : TextBox
+    {
+        public SmoothTextBox()
+        {
+            this.DoubleBuffered = true;
+            // This stops the background from "flashing" dark before the text draws
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer, true);
         }
     }
 }
