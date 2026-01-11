@@ -91,8 +91,15 @@ namespace ChatLauncherApp
     public class RoundButton : Control
     {
         public event EventHandler Clicked;
+        public event EventHandler<Point> Dragged; // Notify form of movement
+        public event EventHandler DragEnded;
+
         private Image imgOn;
         private Image imgOff;
+        private System.Windows.Forms.Timer holdTimer;
+        private bool isDragging = false;
+        private Point lastMousePos;
+        private const int HOLD_THRESHOLD = 500; // Milliseconds to hold before release (for dragging)
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsActive { get; set; } = true;
@@ -102,7 +109,15 @@ namespace ChatLauncherApp
             this.SetStyle(ControlStyles.Selectable, false);
             LoadRobloxIcons();
 
-            // Fix the purple stroke issue
+            holdTimer = new System.Windows.Forms.Timer { Interval = HOLD_THRESHOLD };
+            holdTimer.Tick += (s, e) =>
+            {
+                holdTimer.Stop();
+                isDragging = true;
+                this.Cursor = Cursors.SizeAll;
+            };
+
+            // Fix the purple issue
             this.SizeChanged += (s, e) =>
             {
                 using (var path = new System.Drawing.Drawing2D.GraphicsPath())
@@ -111,6 +126,45 @@ namespace ChatLauncherApp
                     this.Region = new Region(path);
                 }
             };
+        }
+
+        // Mouse event overrides for dragging behavior
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                lastMousePos = e.Location;
+                holdTimer.Start();
+            }
+            base.OnMouseDown(e);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                // Calculate how much the mouse moved since last frame
+                int deltaX = e.X - lastMousePos.X;
+                int deltaY = e.Y - lastMousePos.Y;
+                Dragged?.Invoke(this, new Point(deltaX, deltaY));
+            }
+            base.OnMouseMove(e);
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            holdTimer.Stop();
+            if (isDragging)
+            {
+                isDragging = false;
+                this.Cursor = Cursors.Hand;
+                DragEnded?.Invoke(this, EventArgs.Empty);
+            }
+            else if (ClientRectangle.Contains(e.Location))
+            {
+                Clicked?.Invoke(this, EventArgs.Empty);
+            }
+            base.OnMouseUp(e);
         }
 
         private void LoadRobloxIcons()
@@ -184,6 +238,10 @@ namespace ChatLauncherApp
         IntPtr winEventHook = IntPtr.Zero;
         NativeMethods.WinEventDelegate winEventDelegate;
 
+        private Point defaultOffset = new Point(10, 40); // Original offset
+        private Point currentOffset = new Point(10, 40); // Tracks user customization
+        private bool isUserMovingWindow = false;
+
         float chatOnOpacity = 1.0f;
         float chatOffOpacity = 0.7f;
         float targetOpacity = 0.7f;
@@ -220,7 +278,7 @@ namespace ChatLauncherApp
             uint dwEventThread,
             uint dwmsEventTime)
         {
-            if (hwnd != robloxProcess.MainWindowHandle)
+            if (hwnd != robloxProcess.MainWindowHandle || isUserMovingWindow)
                 return;
 
             if (NativeMethods.IsIconic(hwnd))
@@ -237,7 +295,8 @@ namespace ChatLauncherApp
                 if (WindowState == FormWindowState.Minimized)
                     WindowState = FormWindowState.Normal;
 
-                Location = new Point(rect.Left + 10, rect.Top + 40);
+                // Use the dynamic offset instead of +10, +40
+                Location = new Point(rect.Left + currentOffset.X, rect.Top + currentOffset.Y);
             }));
         }
 
@@ -293,11 +352,52 @@ namespace ChatLauncherApp
                 Size = new Size(45, 45),
                 Cursor = Cursors.Hand
             };
+
             toggleBtn.Clicked += (s, e) =>
             {
                 isWindowHidden = !isWindowHidden;
                 mainContainer.Visible = !isWindowHidden;
             };
+
+            toggleBtn.Dragged += (s, delta) =>
+            {
+                isUserMovingWindow = true;
+                // Update the offset based on drag
+                currentOffset.X += delta.X;
+                currentOffset.Y += delta.Y;
+
+                // Immediate visual update
+                this.Location = new Point(this.Location.X + delta.X, this.Location.Y + delta.Y);
+            };
+
+            toggleBtn.DragEnded += (s, e) =>
+            {
+                isUserMovingWindow = false;
+
+                // 1. Get where Roblox is right now
+                NativeMethods.GetWindowRect(robloxProcess.MainWindowHandle, out NativeMethods.RECT rect);
+
+                // 2. Calculate our current offset relative to Roblox's top-left
+                int relativeX = this.Location.X - rect.Left;
+                int relativeY = this.Location.Y - rect.Top;
+
+                // 3. Snap check: If relative position is close to default, snap to it
+                int snapDistance = 20; // Adjust as needed
+                if (Math.Abs(relativeX - defaultOffset.X) < snapDistance &&
+                    Math.Abs(relativeY - defaultOffset.Y) < snapDistance)
+                {
+                    currentOffset = defaultOffset;
+                }
+                else
+                {
+                    // Otherwise, save this new position as the permanent offset
+                    currentOffset = new Point(relativeX, relativeY);
+                }
+
+                // 4. Force one update to snap the window visually
+                this.Location = new Point(rect.Left + currentOffset.X, rect.Top + currentOffset.Y);
+            };
+
             this.Controls.Add(toggleBtn);
 
             // 1. Update Main Container styling
