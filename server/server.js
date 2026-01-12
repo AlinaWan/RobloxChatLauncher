@@ -238,7 +238,7 @@ const interval = setInterval(() => {
     wss.clients.forEach((ws) => {
         if (ws.isAlive === false) {
             // No pong received since last ping → dead connection
-            console.log(`Terminating dead client: ${userKey}`);
+            // console.log(`Terminating dead client: ${userKey}`);
             return ws.terminate();
         }
 
