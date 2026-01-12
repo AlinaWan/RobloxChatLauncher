@@ -223,16 +223,40 @@ app.post('/echo', async (req, res) => {
     }
 });
 
+// --------------------------------------
 // WebSocket connection handling
 // Usage:
 // Connect: wss://RobloxChatLauncherDemo.onrender.com/
 // Join: {"type": "join", "channelId": "c91feeaf-ef07-4a39-af05-a88032c358d2"}
 // (The channelId should be the gameId from the URI. If not found, the client should send 'global' as the channelId)
 // Chat: {"type": "message", "text": "Hello world!"}
+// --------------------------------------
+// Heartbeat interval
+const HEARTBEAT_INTERVAL = 30_000;
+
+const interval = setInterval(() => {
+    wss.clients.forEach((ws) => {
+        if (ws.isAlive === false) {
+            // No pong received since last ping → dead connection
+            console.log(`Terminating dead client: ${userKey}`);
+            return ws.terminate();
+        }
+
+        ws.isAlive = false;
+        ws.ping(); // send ping frame
+    });
+}, HEARTBEAT_INTERVAL);
+
+wss.on('close', () => clearInterval(interval));
+
 wss.on('connection', (ws, req) => {
     const userKey = hashIp(getTrustedIp(req, ws));
     let currentChannel = null;
 
+    ws.isAlive = true;
+    ws.on('pong', () => { ws.isAlive = true; });
+
+    // --- Begin WS message handling ---
     ws.on('message', async (data) => {
         try {
             const payload = JSON.parse(data);
@@ -288,6 +312,7 @@ wss.on('connection', (ws, req) => {
             console.error("WS Message Error:", e);
         }
     });
+    // --- End WS message handling ---
 
     // Remove the user mapping on disconnect
     ws.on('close', () => {

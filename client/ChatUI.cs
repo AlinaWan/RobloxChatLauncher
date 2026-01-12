@@ -688,6 +688,13 @@ namespace ChatLauncherApp
             targetOpacity = chatOffOpacity;
             SyncInput();
         }
+
+        void SyncInput()
+        {
+            inputBox.RawText = rawInputText;
+            inputBox.IsChatting = isChatting;
+            inputBox.Invalidate();
+        }
     }
 
     // --------------------------------------------------
