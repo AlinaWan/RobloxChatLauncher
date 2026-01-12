@@ -223,18 +223,38 @@ app.post('/echo', async (req, res) => {
     }
 });
 
+// --------------------------------------
 // WebSocket connection handling
 // Usage:
 // Connect: wss://RobloxChatLauncherDemo.onrender.com/
 // Join: {"type": "join", "channelId": "c91feeaf-ef07-4a39-af05-a88032c358d2"}
 // (The channelId should be the gameId from the URI. If not found, the client should send 'global' as the channelId)
 // Chat: {"type": "message", "text": "Hello world!"}
+// --------------------------------------
+// Heartbeat interval
+const HEARTBEAT_INTERVAL = 30_000;
+
+const interval = setInterval(() => {
+    wss.clients.forEach((ws) => {
+        if (ws.isAlive === false) {
+            // No pong received since last ping → dead connection
+            console.log(`Terminating dead client: ${userKey}`);
+            return ws.terminate();
+        }
+
+        ws.isAlive = false;
+        ws.ping(); // send ping frame
+    });
+}, HEARTBEAT_INTERVAL);
+
+wss.on('close', () => clearInterval(interval));
+
 wss.on('connection', (ws, req) => {
     const userKey = hashIp(getTrustedIp(req, ws));
     let currentChannel = null;
 
     ws.isAlive = true;
-    ws.on('pong', heartbeat);
+    ws.on('pong', () => { ws.isAlive = true; });
 
     // --- Begin WS message handling ---
     ws.on('message', async (data) => {
@@ -294,25 +314,6 @@ wss.on('connection', (ws, req) => {
     });
     // --- End WS message handling ---
 
-    // WebSocket heartbeat (ping/pong) to detect dead connections
-    // System.Net.WebSockets.ClientWebSocket automatically responds to ping frames with pong frames
-    function heartbeat() {
-        this.isAlive = true;
-    }
-
-    const interval = setInterval(() => {
-        wss.clients.forEach((ws) => {
-            if (ws.isAlive === false) {
-                // No pong received since last ping → dead connection
-                return ws.terminate();
-            }
-
-            ws.isAlive = false;
-            ws.ping(); // send ping frame
-        });
-    }, 30_000); // 30 seconds is a good default
-    // --- End heartbeat ---
-
     // Remove the user mapping on disconnect
     ws.on('close', () => {
         const channelId = userChannelMap.get(userKey);
@@ -325,11 +326,6 @@ wss.on('connection', (ws, req) => {
         }
         userChannelMap.delete(userKey);
     });
-
-    wss.on('close', () => {
-        clearInterval(interval);
-    });
-    // --- End WS connection handling ---
 });
 
 // Helper to send to everyone in a specific channel
