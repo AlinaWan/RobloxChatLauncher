@@ -11,7 +11,7 @@
 > [!WARNING]
 > **THIS IS STILL A PROOF OF CONCEPT**
 >
-> The chat now supports **multi-user WebSocket communication** within the same Roblox server instance (or a global channel if you don't join a server directly). Messages you send can now reach other users in your game who are connected to the same chat channel.
+> The chat now supports **multi-user WebSocket communication** within the same Roblox server instance. Messages you send can now reach other users in your game who are connected to the same chat channel.
 >
 > However, the system is still early-stage and may have occasional moderation or network delays.
 
