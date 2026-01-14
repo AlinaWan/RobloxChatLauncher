@@ -5,8 +5,8 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-using Utils;
-using ChatLauncherApp;
+using RobloxChatLauncher.Utils;
+using RobloxChatLauncher;
 
 class Program
 {
@@ -24,9 +24,9 @@ class Program
             return;
         }
 
-        Utils.LaunchData.LaunchUri = args[0];
-        string uri = Utils.LaunchData.LaunchUri;
-        string gameId = Utils.LaunchData.GetGameId();
+        RobloxChatLauncher.Utils.LaunchData.LaunchUri = args[0];
+        string uri = RobloxChatLauncher.Utils.LaunchData.LaunchUri;
+        string gameId = RobloxChatLauncher.Utils.LaunchData.GetGameId();
 
         // Console.WriteLine("Roblox Launch Detected");
 
@@ -47,7 +47,7 @@ class Program
         // Console.WriteLine("Keeping console open for inspection. Press Enter to continue launching Roblox...");
         // Console.ReadLine();
 
-        string robloxExe = Utils.RobloxLocator.ResolveRobloxPlayerPath();
+        string robloxExe = RobloxChatLauncher.Utils.RobloxLocator.ResolveRobloxPlayerPath();
         if (robloxExe == null)
         {
             Console.WriteLine("RobloxPlayerBeta.exe not found.");

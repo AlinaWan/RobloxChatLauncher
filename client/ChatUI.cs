@@ -12,9 +12,10 @@ using System.Diagnostics;
 using Gma.System.MouseKeyHook;
 using Newtonsoft.Json;
 
-using Utils;
+using RobloxChatLauncher.Services;
+using RobloxChatLauncher.Utils;
 
-namespace ChatLauncherApp
+namespace RobloxChatLauncher
 {
     // --------------------------------------------------
     // Custom input box (fake caret, custom paint)
@@ -202,7 +203,7 @@ namespace ChatLauncherApp
         {
             try
             {
-                string versionFolder = Utils.RobloxLocator.GetRobloxVersionFolder();
+                string versionFolder = RobloxChatLauncher.Utils.RobloxLocator.GetRobloxVersionFolder();
                 string basePath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "Roblox", "Versions", versionFolder, "content", "textures", "ui", "TopBar");
@@ -361,9 +362,11 @@ namespace ChatLauncherApp
         bool isChatting;
         string rawInputText = "";
 
-        private string channelId;
+        // Channel IDs and WebSocket
+        private string channelId = "global";
+        private RobloxChatLauncher.Services.RobloxAreaService _robloxService;
         private ClientWebSocket wsClient;
-        private CancellationTokenSource wsCts;
+        private CancellationTokenSource wsCts = new CancellationTokenSource(); // Make sure it's not null when the form starts or it will raise an exception at runtime
         private const string BASE_URL = "RobloxChatLauncherDemo.onrender.com";
 
         // Sets a rounded region for the given control as
@@ -614,26 +617,57 @@ namespace ChatLauncherApp
                 0,
                 NativeMethods.WINEVENT_OUTOFCONTEXT);
 
-            // Get the gameId from LaunchData
-            string gameId = Utils.LaunchData.GetGameId();
+            // --- Roblox Log Monitor for JobID changes ---
+            // Initialize the Roblox Log Monitor
+            _robloxService = new RobloxChatLauncher.Services.RobloxAreaService();
 
-            if (!string.IsNullOrEmpty(gameId))
+            // Subscribe to ID changes
+            _robloxService.OnJobIdChanged += async (s, newJobId) =>
             {
-                channelId = gameId;
-                chatBox.AppendText($"[Server]: Attempting to use server channel: {channelId}.\r\n");
-            }
-            else
-            {
-                channelId = "global";
-                chatBox.AppendText("[Server]: Warning: Attempting to use the global channel. This is likely because you joined using the play button. Join a server directly to use server-scoped channels.\r\n");
-            }
+                // Safety check: Don't reconnect if we are already in this channel
+                if (this.channelId == newJobId)
+                    return;
+
+                this.Invoke((MethodInvoker)delegate {
+                    bool wasGlobal = (this.channelId == "global");
+                    this.channelId = newJobId;
+
+                    if (wasGlobal)
+                    {
+                        // chatBox.AppendText($"[Server]: Server instance found!\r\n");
+                    }
+                    else
+                        chatBox.AppendText($"[Server]: Switching server...\r\n");
+                });
+
+                // Handle WebSocket cleanup and new connection
+                wsCts?.Cancel();
+                wsCts?.Dispose();
+                wsCts = new CancellationTokenSource();
+
+                await ConnectWebSocket(wsCts.Token);
+            };
+
+            // Start watching logs, passing the Roblox process for session tracking
+            _robloxService.Start(robloxProcess);
+
+            // Initial check: If we can't find a JobID yet, wait for the log monitor to catch it
+            channelId = "global";
+            // chatBox.AppendText("[Server]: Searching for Roblox server instance...\r\n");
+            // --- End Roblox Log Monitor ---
         }
 
         private void RobloxProcess_Exited(object sender, EventArgs e)
         {
-            // Invoke on UI thread
-            if (!IsDisposed)
-                BeginInvoke((MethodInvoker)(() => Close()));
+            // 1. Dispose the service safely
+            _robloxService?.Dispose();
+            _robloxService = null; // Set to null so OnFormClosed knows it's already done
+
+            // 2. Close the form
+            if (!IsDisposed && InvokeRequired)
+            {
+                BeginInvoke((MethodInvoker)(() => this.Close()));
+            }
         }
 
         void UpdateOpacity(object sender, EventArgs e)

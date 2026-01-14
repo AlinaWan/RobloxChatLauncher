@@ -12,62 +12,53 @@ using System.Diagnostics;
 using Gma.System.MouseKeyHook;
 using Newtonsoft.Json;
 
-using Utils;
+using RobloxChatLauncher.Utils;
 
-namespace ChatLauncherApp
+namespace RobloxChatLauncher
 {
     public partial class ChatForm : Form
     {
         // WebSocket connection and message handling
-        private async Task ConnectWebSocket()
+        private async Task ConnectWebSocket(CancellationToken ct)
         {
-            // The Render server may take time to wake up, so we implement retries
             int maxRetries = 12;
-            int delayMilliseconds = 5000; // seconds between tries
-            // Goal: Retry for up to 1 minute as
-            // that's how long Render free-tier usually takes to wake up
+            int delayMilliseconds = 5000;
 
             for (int i = 1; i <= maxRetries; i++)
             {
+                // EXIT if a newer connection request has started
+                if (ct.IsCancellationRequested)
+                    return;
+
                 try
                 {
-                    // Console.WriteLine($"[DEBUG] Attempt {i}/{maxRetries} - starting connection...");
-
-                    // Clean up old client if it exists
-                    wsCts?.Cancel();
                     wsClient?.Dispose();
                     wsClient = new ClientWebSocket();
-                    wsCts = new CancellationTokenSource();
 
-                    // Console.WriteLine("[DEBUG] ClientWebSocket created");
+                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connecting to server {channelId}...\r\n")));
 
-                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connecting to server...\r\n")));
+                    // Use the passed 'ct' token here
+                    await wsClient.ConnectAsync(new Uri($"wss://{BASE_URL}/"), ct);
 
-                    // Console.WriteLine($"[DEBUG] Connecting to wss://{BASE_URL}/ ...");
-                    // Try to connect
-                    await wsClient.ConnectAsync(new Uri($"wss://{BASE_URL}/"), wsCts.Token);
-                    // Console.WriteLine("[DEBUG] Connected to WebSocket successfully");
-
-                    // If we reach here, connection was successful
                     var joinPayload = new
                     {
                         type = "join",
                         channelId = this.channelId
                     };
                     string json = JsonConvert.SerializeObject(joinPayload);
+
                     await wsClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(json)),
-                        WebSocketMessageType.Text, true, wsCts.Token);
+                        WebSocketMessageType.Text, true, ct);
 
-                    this.Invoke((MethodInvoker)(() => chatBox.AppendText("[System]: Connected successfully!\r\n")));
+                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connected successfully!\r\n")));
 
-                    _ = Task.Run(ReceiveLoop);
-                    return; // Exit the method successfully
+                    _ = Task.Run(() => ReceiveLoop(ct), ct);
+                    return;
                 }
                 catch (Exception ex)
                 {
-                    // Log full exception details to see inner exceptions and stack trace
-                    // Console.WriteLine($"[DEBUG] Attempt {i} failed:");
-                    // Console.WriteLine(ex.ToString());
+                    if (ct.IsCancellationRequested)
+                        return;
 
                     if (i == maxRetries)
                     {
@@ -75,30 +66,30 @@ namespace ChatLauncherApp
                     }
                     else
                     {
-                        // Wait before trying again
-                        await Task.Delay(delayMilliseconds);
+                        // Task.Delay must also use the token so it wakes up immediately 
+                        // if a new server is detected
+                        await Task.Delay(delayMilliseconds, ct);
                     }
                 }
             }
         }
 
-        private async Task ReceiveLoop()
+        private async Task ReceiveLoop(CancellationToken ct)
         {
             var buffer = new byte[4096];
-
             try
             {
-                while (wsClient.State == WebSocketState.Open)
+                while (wsClient.State == WebSocketState.Open && !ct.IsCancellationRequested)
                 {
                     var result = await wsClient.ReceiveAsync(
                         new ArraySegment<byte>(buffer),
-                        wsCts.Token
+                        ct // Use the passed token
                     );
 
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
                         // server closed connection (often unclean on PaaS)
-                        _ = ConnectWebSocket();
+                        _ = ConnectWebSocket(ct); // ct passed here
                         break;
                     }
 
@@ -292,19 +283,32 @@ namespace ChatLauncherApp
             }
         }
 
+        // Commented out because it will always force a Global
+        // connection before the JobId is found
+        /*
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-            _ = ConnectWebSocket();
+            _ = ConnectWebSocket(wsCts.Token);
         }
+        */
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            // WebSocket cleanup
-            wsCts?.Cancel();
+            // Only dispose if RobloxProcess_Exited hasn't done it yet
+            _robloxService?.Dispose();
+            _robloxService = null;
+
+            // Standard WebSocket cleanup
+            try
+            {
+                wsCts?.Cancel();
+            }
+            catch (ObjectDisposedException) { }
+
+            wsCts?.Dispose();
             wsClient?.Dispose();
 
-            // Hook cleanup
             if (winEventHook != IntPtr.Zero)
             {
                 NativeMethods.UnhookWinEvent(winEventHook);

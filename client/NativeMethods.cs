@@ -12,7 +12,7 @@ using System.Diagnostics;
 using Gma.System.MouseKeyHook;
 using Newtonsoft.Json;
 
-namespace ChatLauncherApp
+namespace RobloxChatLauncher
 {
     // --------------------------------------------------
     // Native Win32 helpers

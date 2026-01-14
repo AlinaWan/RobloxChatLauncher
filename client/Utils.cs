@@ -3,7 +3,7 @@ using System;
 using System.Web;
 using System.Text.RegularExpressions;
 
-namespace Utils
+namespace RobloxChatLauncher.Utils
 {
     public static class RobloxLocator
     {
