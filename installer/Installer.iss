@@ -72,7 +72,7 @@ begin
 
   if not IsDotNet10Installed() then
   begin
-    if MsgBox('.NET Desktop Runtime 10.0 is was not detected.' #13#13 +
+    if MsgBox('.NET Desktop Runtime 10.0 was not detected.' #13#13 +
               'Would you like to download and install it now?', mbConfirmation, MB_YESNO) = IDYES then
     begin
       ShellExec('open', DotNet10Url, '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
