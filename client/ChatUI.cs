@@ -640,12 +640,7 @@ namespace RobloxChatLauncher
                         chatBox.AppendText($"[Server]: Switching server...\r\n");
                 });
 
-                // Handle WebSocket cleanup and new connection
-                wsCts?.Cancel();
-                wsCts?.Dispose();
-                wsCts = new CancellationTokenSource();
-
-                await ConnectWebSocket(wsCts.Token);
+                await RestartWebSocketAsync(); // Reconnect to the WebSocket
             };
 
             // Start watching logs, passing the Roblox process for session tracking
@@ -654,6 +649,11 @@ namespace RobloxChatLauncher
             // Initial check: If we can't find a JobID yet, wait for the log monitor to catch it
             channelId = "global";
             // chatBox.AppendText("[Server]: Searching for Roblox server instance...\r\n");
+
+            chatBox.AppendText("Made with ❤︎ by Riri.\r\n");
+            chatBox.AppendText("Check for updates at github.com/AlinaWan/RobloxChatLauncher\r\n");
+            chatBox.AppendText("Chat '/?' or '/help' for a list of chat commands.\r\n");
+
             // --- End Roblox Log Monitor ---
         }
 

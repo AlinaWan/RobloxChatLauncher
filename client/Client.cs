@@ -74,6 +74,16 @@ namespace RobloxChatLauncher
             }
         }
 
+        private async Task RestartWebSocketAsync()
+        {
+            // Handle WebSocket cleanup and new connection
+            wsCts?.Cancel();
+            wsCts?.Dispose();
+            wsCts = new CancellationTokenSource();
+
+            await ConnectWebSocket(wsCts.Token);
+        }
+
         private async Task ReceiveLoop(CancellationToken ct)
         {
             var buffer = new byte[4096];
@@ -136,40 +146,34 @@ namespace RobloxChatLauncher
                 chatBox.AppendText($"[System]: WS Receive Error: {ex.Message}\r\n");
             }
         }
-
         public async Task Send()
         {
-            // If empty, just exit chat mode and return
             if (string.IsNullOrWhiteSpace(rawInputText))
             {
-                isChatting = false;
-                rawInputText = "";
-                targetOpacity = chatOffOpacity;
-                SyncInput();
+                ExitChatUI();
                 return;
             }
 
             string userMessage = rawInputText;
+            ExitChatUI(); // Helper to reset targetOpacity/SyncInput
 
-            // 1. Immediate UI Feedback
+            // 1. Check if it's a command first
+            bool isCommand = await HandleCommands(userMessage);
+
+            // 2. If not a command, send normally via WebSocket
+            if (!isCommand)
+            {
+                await SendWebSocketMessage(userMessage);
+            }
+        }
+
+        // Small helper to keep Send() tidy
+        private void ExitChatUI()
+        {
             rawInputText = "";
             isChatting = false;
             targetOpacity = chatOffOpacity;
             SyncInput();
-
-            // --- ROUTING LOGIC ---
-            // Check if it's an echo command
-            if (userMessage.StartsWith("/echo ", StringComparison.OrdinalIgnoreCase))
-            {
-                // Extract the text after "/echo "
-                string echoPayload = userMessage.Substring(6);
-                await ExecuteEchoRequest(echoPayload);
-            }
-            else
-            {
-                // Default: Send via WebSocket for the channel broadcast
-                await SendWebSocketMessage(userMessage);
-            }
         }
 
         // Echo Logic
@@ -255,7 +259,7 @@ namespace RobloxChatLauncher
             // Don't append the user's own message here; the server will broadcast it back
             if (wsClient == null || wsClient.State != WebSocketState.Open)
             {
-                chatBox.AppendText("[System]: WebSocket not connected. Try /echo for HTTP mode.\r\n");
+                chatBox.AppendText("[System]: WebSocket not connected. Use '/rc' or '/reconnect' to connect to server.\r\n");
                 return;
             }
 
