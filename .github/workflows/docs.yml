@@ -1,0 +1,31 @@
+name: Auto-generate Command Docs
+
+permissions:
+  contents: write
+
+on:
+  push:
+    paths:
+      - '**.cs' # Only run when C# files change
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Generate MD
+        run: python generate_docs.py
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add COMMANDS.md
+          git diff --quiet && git diff --staged --quiet || git commit -m "docs: autogenerate command list"
+          git push
