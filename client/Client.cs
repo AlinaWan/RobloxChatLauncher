@@ -259,7 +259,7 @@ namespace RobloxChatLauncher
             // Don't append the user's own message here; the server will broadcast it back
             if (wsClient == null || wsClient.State != WebSocketState.Open)
             {
-                chatBox.AppendText("[System]: WebSocket not connected. Try /echo for HTTP mode.\r\n");
+                chatBox.AppendText("[System]: WebSocket not connected. Use '/rc' or '/reconnect' to connect to server.\r\n");
                 return;
             }
 
