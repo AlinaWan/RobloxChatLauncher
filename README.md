@@ -227,7 +227,7 @@ dotnet run
 
 > [!WARNING]
 >
-> This will automatically change the registry key without a confirmation. To revert back to the original Roblox launcher, you can re-run the `RobloxPlayerInstaller` or manually change the key value to `RobloxPlayerBeta.exe`'s path.  
+> This will automatically change the registry key without a confirmation. To revert back to the original Roblox launcher, it's as simple as running the original `RobloxPlayerInstaller`.  
 > Only the `HKEY_CLASSES_ROOT\roblox-player\shell\open\command` key is changed.
 
 This step switches the relevant Roblox registry key to point to the launcher. After this, launching Roblox will automatically launch the chat window alongside the client.
