@@ -40,7 +40,7 @@ namespace RobloxChatLauncher
 
 				case "/reconnect":
 				case "/rc":
-					await RestartWebSocketAsync(); // Calls await RestartWebSocketAsync(); in Client.cs
+					await RestartWebSocketAsync(); // Calls await RestartWebSocketAsync() in Client.cs
 					return true;
 
 				case "/echo":
