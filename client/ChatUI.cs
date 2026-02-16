@@ -670,7 +670,7 @@ namespace RobloxChatLauncher
             }
         }
 
-        void UpdateOpacity(object sender, EventArgs e)
+        void UpdateOpacity(object sender, EventArgs e) // Z-order scoping is also here so we can use the same timer. Please do not make it its own timer
         {
             // Z-order scoping
             // The overlay will always stay above Roblox,
@@ -687,6 +687,7 @@ namespace RobloxChatLauncher
                 TopMost = false;
                 overlayTopMostActive = false;
             }
+            // END Z-order scoping
 
             // Fade logic
             if (Math.Abs(Opacity - targetOpacity) < 0.01f)
