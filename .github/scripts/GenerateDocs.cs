@@ -35,6 +35,7 @@ try
             if (!caseLabels.Any())
                 return null;
 
+            // --- TURN ACTION INTO PSEUDOCODE FOR DOCUMENTATION ---
             var actionLines = section.Statements
                 .Select(stmt => stmt.ToString().Trim())
                 .Where(text => !text.Contains("return true"))
