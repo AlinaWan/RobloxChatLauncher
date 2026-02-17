@@ -16,7 +16,7 @@ try
     var outputFile = Path.Combine(cwd, "assets", "docs", "COMMANDS.md");
 
     if (!File.Exists(sourceFile))
-        throw new FileNotFoundException($"Oops! I couldn't find the file at {sourceFile}... Check the folder for me babe? 🎀 ");
+        throw new FileNotFoundException($"Oops! I couldn't find the file at {sourceFile}... Check the folder for me babe? 🎀");
 
     var code = File.ReadAllText(sourceFile);
     var tree = CSharpSyntaxTree.ParseText(code);
