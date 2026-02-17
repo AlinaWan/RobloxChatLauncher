@@ -40,15 +40,19 @@ jobs:
           if ($tag.StartsWith("v")) { $tag = $tag.Substring(1) }
 
           $path = "Installer.iss"
-          $content = Get-Content $path -Raw
-
-          if ($content -notmatch "^AppVersion=$tag$") {
-            Write-Host "Updating AppVersion to $tag"
-            $updated = $content -replace '^AppVersion=.*', "AppVersion=$tag"
-            Set-Content -Path $path -Value $updated -NoNewline
-          } else {
-            Write-Host "AppVersion already correct"
+          $content = Get-Content $path
+          
+          # Check if the line exists before trying to change it
+          if (-not ($content -match "^AppVersion=")) {
+              Write-Error "Ugh, I couldn't find 'AppVersion=' in $path. Can you check it for me babe? 🎀"
+              exit 1
           }
+
+          # Perform the replacement and force UTF8
+          $content -replace "^AppVersion=.*", "AppVersion=$tag" | 
+            Set-Content $path -Encoding UTF8
+          
+          Write-Host "Successfully updated AppVersion to $tag in $path 💖"
 
       # ---------------------------
       # Setup .NET SDK 10.0
@@ -105,7 +109,7 @@ jobs:
         run: |
           $installer = Get-ChildItem Installer*.exe | Select-Object -First 1
           if (-not $installer) {
-            Write-Error "Installer executable not found"
+            Write-Error "Installer executable not found. Mind checking what happened babe? 🎀"
             exit 1
           }
 
