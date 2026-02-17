@@ -7,8 +7,7 @@ def generate_markdown(source_file, output_file):
     # Find the entire switch block
     switch_match = re.search(r'switch\s*\(command\)\s*\{(.*?)default:', content, re.DOTALL)
     if not switch_match:
-        print("Oops! I couldn't find the command switch block... Check the script for me babe? 🎀")
-        return
+        raise ValueError("Oops! I couldn't find the command switch block... Check the script for me babe? 🎀")
 
     switch_body = switch_match.group(1)
     
