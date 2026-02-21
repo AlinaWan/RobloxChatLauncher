@@ -48,15 +48,15 @@ const userChannelMap = new Map(); // userKey -> channelId
 // req.ip is the trusted private IP (NOT origin IP/public IP)
 // This is not your home IP address. We never see your origin IP.
 function getTrustedIp(req, ws = null) {
-    // HTTP requests
-    if (req.ip) return req.ip;
+    // HTTP requests (echo endpoint)
+    if (req.ip) return req.ip; // Returns a 10.x.x.x IP address
 
     // WebSocket: combine proxy IP + remote port
     if (ws && ws._socket) {
         const ip = ws._socket.remoteAddress;
         // Each WS connection gets a unique remotePort even if multiple users connect via the same proxy.
         const port = ws._socket.remotePort; // unique per connection
-        return `${ip}:${port}`;
+        return `${ip}:${port}`; // Returns a 127.0.0.1:x IP address
     }
     
     return req.socket?.remoteAddress || "unknown";
