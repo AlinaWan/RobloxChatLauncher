@@ -26,6 +26,9 @@ Message received from 127.0.0.1:42668 on channel c4d2c979-b7f4-453d-b78e-1eab07f
 Message received from 127.0.0.1:56198 on channel c4d2c979-b7f4-453d-b78e-1eab07fda058: Yet another user on the same channel with a different guest number!
 Message received from 127.0.0.1:45768 on channel d3ea7bfa-c43a-49cd-8dae-24614c34d15e: New channel, new user!
 Message received from 127.0.0.1:45768 on channel d3ea7bfa-c43a-49cd-8dae-24614c34d15e: This is a different channel than the previous messages!
+
+All logs are automatically deleted by Render after 7 days and are irrecoverable by us.
+We do not persist your logged messages outside of Render's standard logging system.
 */
 const crypto = require('crypto');
 
