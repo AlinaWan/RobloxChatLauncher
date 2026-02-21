@@ -29,6 +29,7 @@ Message received from 127.0.0.1:45768 on channel d3ea7bfa-c43a-49cd-8dae-24614c3
 
 All logs are automatically deleted by Render after 7 days and are irrecoverable by us.
 We do not persist your logged messages outside of Render's standard logging system.
+Also see the Privacy Policy at ./PRIVACY
 */
 const crypto = require('crypto');
 
