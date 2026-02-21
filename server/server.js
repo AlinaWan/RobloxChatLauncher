@@ -251,6 +251,9 @@ const interval = setInterval(() => {
 wss.on('close', () => clearInterval(interval));
 
 wss.on('connection', (ws, req) => {
+    const trustedIp = getTrustedIp(req, ws); // Get the 127.0.0.1:x IP address from the WebSocket connection
+    const connectionPort = trustedIp.split(':')[1] || '0'; // Extract the port to return to use as the guest number
+
     const userKey = hashIp(getTrustedIp(req, ws));
     let currentChannel = null;
 
@@ -297,7 +300,9 @@ wss.on('connection', (ws, req) => {
                     broadcastToChannel(currentChannel, {
                         type: 'message',
                         text: payload.text,
-                        sender: userKey
+                        sender: `Guest ${connectionPort}` // Use the connection port as a simple guest identifier (since we don't have real user accounts)
+                                                          // Note that this will change on every reconnection
+                                                          // And the port may be reassigned to another user after they disconnect
                     });
                 } else {
                     // IMPORTANT: do NOT log message contents if rejected
