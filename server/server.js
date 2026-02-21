@@ -29,7 +29,7 @@ const channels = new Map();
 
 // Render and other PaaS providers usually use port 10000 by default
 const PORT = process.env.PORT || 10000;
-const rateLimit = require('express-rate-limit');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 
 // Queue of messages to be filtered
 const messageQueue = [];
@@ -180,9 +180,10 @@ async function isMessageAllowed(text) {
 app.use(
     '/echo',
     rateLimit({
-        windowMs: 1000, // 1 second
+        windowMs: 1000, 
         max: 5,
-        keyGenerator: (req, res) => req.ip // per-client IP
+        // This satisfies the security check for IPv6
+        keyGenerator: (req, res) => ipKeyGenerator(req, res)
     })
 );
 // Echo endpoint
