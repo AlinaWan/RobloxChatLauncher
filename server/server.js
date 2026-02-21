@@ -1,4 +1,33 @@
-﻿const crypto = require('crypto');
+﻿/*
+Privacy Note for Reviewers / Users:
+
+What the server sees:
+- Your messages
+- The channel/server instance they are sent on (for routing purposes)
+
+What the server does NOT see:
+- Your public IP address, even as a hashed string.
+  (Render, the hosting provider, sees your public IP as a fundamental requirement of standard internet communication, but we do not log it or have access to see it)
+- Any permanent identifiers (not even pseudoanonymous ones).
+  The server only sees a temporary guest label based on the WebSocket connection port, which changes on every reconnect.
+
+- Guest labels change on every reconnect
+  (you can verify this by running `/rc` on the client, which reconnects the WebSocket and will assign you a new guest number)
+- Ports may be reused across sessions
+
+This is intended to give users and reviewers peace of mind regarding privacy.
+
+EXAMPLE OF WHAT IS LOGGED:
+Message received from 127.0.0.1:59938 on channel c4d2c979-b7f4-453d-b78e-1eab07fda058: Hello World!
+Message received from 127.0.0.1:59938 on channel c4d2c979-b7f4-453d-b78e-1eab07fda058: I'm testing the chat server.
+Message received from 127.0.0.1:59938 on channel c4d2c979-b7f4-453d-b78e-1eab07fda058: What's up?
+Message received from 127.0.0.1:42668 on channel c4d2c979-b7f4-453d-b78e-1eab07fda058: I'm another user with a different guest number!
+Message received from 127.0.0.1:42668 on channel c4d2c979-b7f4-453d-b78e-1eab07fda058: But on the same channel!
+Message received from 127.0.0.1:56198 on channel c4d2c979-b7f4-453d-b78e-1eab07fda058: Yet another user on the same channel with a different guest number!
+Message received from 127.0.0.1:45768 on channel d3ea7bfa-c43a-49cd-8dae-24614c34d15e: New channel, new user!
+Message received from 127.0.0.1:45768 on channel d3ea7bfa-c43a-49cd-8dae-24614c34d15e: This is a different channel than the previous messages!
+*/
+const crypto = require('crypto');
 
 const express = require('express');
 const http = require('http');
@@ -251,6 +280,9 @@ const interval = setInterval(() => {
 wss.on('close', () => clearInterval(interval));
 
 wss.on('connection', (ws, req) => {
+    const trustedIp = getTrustedIp(req, ws); // Get the 127.0.0.1:x IP address from the WebSocket connection
+    const connectionPort = trustedIp.split(':')[1] || '0'; // Extract the port to return to use as the guest number
+
     const userKey = hashIp(getTrustedIp(req, ws));
     let currentChannel = null;
 
@@ -297,7 +329,9 @@ wss.on('connection', (ws, req) => {
                     broadcastToChannel(currentChannel, {
                         type: 'message',
                         text: payload.text,
-                        sender: userKey
+                        sender: `Guest ${connectionPort}` // Use the connection port as a simple guest identifier (since we don't have real user accounts)
+                                                          // Note that this will change on every reconnection
+                                                          // And the port may be reassigned to another user after they disconnect
                     });
                 } else {
                     // IMPORTANT: do NOT log message contents if rejected
