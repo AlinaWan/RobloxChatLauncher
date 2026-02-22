@@ -75,31 +75,13 @@ jobs:
         run: dotnet publish -c Release
 
       # ---------------------------
-      # Install Inno Setup
-      # ---------------------------
-      - name: Download and install Inno Setup 6.4.3
-        working-directory: ./installer
-        shell: pwsh
-        run: |
-          Invoke-WebRequest `
-            -Uri "https://files.jrsoftware.org/is/6/innosetup-6.4.3.exe" `
-            -OutFile is.exe
-
-          Start-Process `
-            -FilePath ".\is.exe" `
-            -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" `
-            -Wait
-
-          Remove-Item .\is.exe
-
-      # ---------------------------
       # Build installer
       # ---------------------------
       - name: Build installer with Inno Setup
         working-directory: ./installer
         shell: cmd
         run: |
-          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" Installer.iss
+          iscc Installer.iss
 
       # ---------------------------
       # Generate SHA-256
