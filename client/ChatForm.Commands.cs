@@ -70,9 +70,19 @@ namespace RobloxChatLauncher
                 case "/unmute":
                     return HandleUnmute(args);
 
-                case "/w":
                 case "/whisper":
+                case "/w":
                     return await HandleWhisperAsync(args);
+
+				case "/console":
+				case "/debug":
+                    OpenDebugConsole();
+					return true;
+
+                case "/closeconsole":
+                case "/closedebug":
+                    CloseDebugConsole();
+                    return true;
 
                 default:
 					chatBox.AppendText($"[System]: Unknown command '{command}'. Use '/?' or '/help' for a list of commands.\r\n");

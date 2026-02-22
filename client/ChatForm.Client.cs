@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -395,6 +396,47 @@ namespace RobloxChatLauncher
 
             await SendWhisperWebSocket(target, msg);
             return true;
+        }
+
+        private void OpenDebugConsole()
+        {
+            // Create the window
+            if (NativeMethods.AllocConsole())
+            {
+                // Re-route the standard output streams so Console.WriteLine actually works
+                var writer = new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true };
+                Console.SetOut(writer);
+                Console.SetError(writer);
+
+                // Get the handle to the console window
+                IntPtr consoleWindow = NativeMethods.GetConsoleWindow();
+                if (consoleWindow != IntPtr.Zero)
+                {
+                    // Get the system menu for the console and delete the Close (SC_CLOSE) option
+                    // This prevents users from accidentally closing the console and crashing the entire app since it's a child window of the main form
+                    IntPtr sysMenu = NativeMethods.GetSystemMenu(consoleWindow, false);
+                    if (sysMenu != IntPtr.Zero)
+                    {
+                        NativeMethods.DeleteMenu(sysMenu, NativeMethods.SC_CLOSE, NativeMethods.MF_BYCOMMAND);
+                    }
+                }
+
+                Console.Title = "Roblox Chat Launcher Debugger";
+                Console.WriteLine("===================================================");
+                Console.WriteLine($"DEBUG CONSOLE INITIALIZED AT {DateTime.Now}");
+                Console.WriteLine($"Use '/closeconsole or '/closedebug' to close");
+                Console.WriteLine("===================================================");
+            }
+        }
+
+        private void CloseDebugConsole()
+        {
+            // Redirect output back to null so the app doesn't crash 
+            // trying to write to a console that no longer exists
+            Console.SetOut(TextWriter.Null);
+            Console.SetError(TextWriter.Null);
+
+            NativeMethods.FreeConsole();
         }
 
         // Commented out because it will always force a Global

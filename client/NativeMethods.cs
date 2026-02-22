@@ -93,5 +93,29 @@ namespace RobloxChatLauncher
 
         [DllImport("user32.dll")]
         public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+        // To create and free the console after the application has started (since we're a WinForms app), we can call AllocConsole.
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool AllocConsole();
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool FreeConsole();
+
+        // Methods to hide the console window's close button so that users don't accidentally close it and terminate the entire WinForms app.
+        // Use the /closeconsole command to close the console properly (calls FreeConsole) instead of just closing the window,
+        // otherwise the app will crash when it tries to write to the console after it's been closed.
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+
+        [DllImport("user32.dll")]
+        public static extern bool DeleteMenu(IntPtr hMenu, uint uPosition, uint uFlags);
+
+        public const uint SC_CLOSE = 0xF060;
+        public const uint MF_BYCOMMAND = 0x00000000;
     }
 }
