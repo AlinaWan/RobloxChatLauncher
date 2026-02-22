@@ -9,3 +9,5 @@
 >
 > Attempting to use these integrations in a live game
 > will result in connection failures or 404 errors until the backend infrastructure is deployed.
+
+The `.lua` scripts in this directory are licensed under the [Mozilla Public License 2.0](LICENSE).
