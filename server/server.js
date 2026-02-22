@@ -287,6 +287,9 @@ wss.on('connection', (ws, req) => {
     const trustedIp = getTrustedIp(req, ws); // Get the 127.0.0.1:x IP address from the WebSocket connection
     const connectionPort = trustedIp.split(':')[1] || '0'; // Extract the port to return to use as the guest number
 
+    // Identify this socket so we can find it by name later
+    ws.senderName = `Guest ${connectionPort}`;
+
     const userKey = hashIp(getTrustedIp(req, ws));
     let currentChannel = null;
 
@@ -345,6 +348,44 @@ wss.on('connection', (ws, req) => {
                         reason: moderation.reason,
                         message: "Message not sent due to community guidelines or server limits."
                     }));
+                }
+            }
+
+            // 3. WHISPER LOGIC
+            if (payload.type === 'whisper' && currentChannel) {
+                const moderation = await enqueueMessage(payload.text);
+                if (moderation.allowed) {
+                    const targetName = payload.target;
+                    const clients = channels.get(currentChannel);
+                    let found = false;
+
+                    clients.forEach(client => {
+                        // 1. Send to the Recipient
+                        if (client.senderName === targetName) {
+                            client.send(JSON.stringify({
+                                type: 'message',
+                                text: payload.text,
+                                sender: `From ${ws.senderName}`
+                            }));
+                            found = true;
+                        }
+                    });
+
+                    // 2. Send back to the Sender (You)
+                    // This confirms the server processed it.
+                    ws.send(JSON.stringify({
+                        type: 'message',
+                        text: payload.text,
+                        sender: `To ${targetName}`
+                    }));
+
+                    if (!found) {
+                        ws.send(JSON.stringify({
+                            type: 'message',
+                            sender: 'System',
+                            text: `User ${targetName} not found in this channel.`
+                        }));
+                    }
                 }
             }
         } catch (e) {
