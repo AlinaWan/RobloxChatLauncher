@@ -51,17 +51,11 @@ class Program
         {
             Process robloxGame = WaitForRobloxProcess(60); // Wait up to 60 seconds
 
-            // Only ensure registry control if we resolved a bootstrapper
-            // as vanilla Roblox won't take back control of the registry key
-            // Prevents redundant checks to the registry on every launch when using the vanilla client
             if (robloxGame != null)
             {
-                // THE TRIGGER: The game started, meaning the bootstrapper is done.
-                // Check and fix registry only if the bootstrapper took control
-                // (i.e., overwrote our registry key)
-
-                if (robloxClient.Type == RobloxClientType.Bootstrapper)
-                    RegisterAsRobloxLauncher();
+                // THE TRIGGER: The game started, meaning the bootstrapper or Roblox is done.
+                // Check and fix registry only if it overwrote our registry key
+                RegisterAsRobloxLauncher();
 
                 chatForm = new ChatForm(robloxGame);
                 keyboardHandler = new ChatKeyboardHandler(chatForm);
