@@ -3,6 +3,7 @@ name: Build & Release Installer
 permissions:
   contents: write
   id-token: write # Required for keyless signing
+  attestations: write # Required for GitHub Attestation
 
 on:
   workflow_dispatch:
@@ -119,7 +120,7 @@ jobs:
           Set-Content -Encoding ASCII -Path Installer.exe.sha256 -Value $hash
 
       # ---------------------------
-      # Sign and attest the installer
+      # Sign and attest the installer with Cosign
       # ---------------------------
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.3.0
@@ -131,6 +132,14 @@ jobs:
             --yes `
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------
+      # Sign and attest the installer with GitHub Attestation
+      # ---------------------------
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'installer/Installer.exe'
 
       # ---------------------------
       # Create GitHub Release
