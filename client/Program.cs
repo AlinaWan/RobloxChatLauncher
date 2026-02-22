@@ -25,12 +25,6 @@ class Program
 
         Console.WriteLine($"Resolved Roblox client: {robloxClient.Type} ({robloxClient.ExecutablePath})");
 
-        // Only ensure registry control if we resolved a bootstrapper
-        // as vanilla Roblox won't take back control of the registry key
-        // Prevents redundant checks to the registry on every launch when using the vanilla client
-        if (robloxClient.Type == RobloxClientType.Bootstrapper)
-            RegisterAsRobloxLauncher();
-
         // If no URI argument is provided, we assume the launcher is being run directly and just register for the protocol without launching anything
         // i.e., first run to register, then launching a game from the website will pass the URI argument to us to trigger the chat form
         if (args.Length == 0)
@@ -43,6 +37,8 @@ class Program
         string uri = args[0];
 
         // 1. Launch the Roblox client
+        // If it's a bootstrapper, it will handle launching Roblox itself
+        // Otherwise we just launch Roblox directly here
         Process.Start(new ProcessStartInfo
         {
             FileName = robloxClient.ExecutablePath,
@@ -57,11 +53,9 @@ class Program
 
             if (robloxGame != null)
             {
-                // THE TRIGGER: The game started, meaning the bootstrapper is done.
-                // Check and fix registry only if the bootstrapper took control
-                // (i.e., overwrote our registry key)
-                if (robloxClient.Type == RobloxClientType.Bootstrapper)
-                    RegisterAsRobloxLauncher();
+                // THE TRIGGER: The game started, meaning the bootstrapper or Roblox is done.
+                // Check and fix registry only if it overwrote our registry key
+                RegisterAsRobloxLauncher();
 
                 chatForm = new ChatForm(robloxGame);
                 keyboardHandler = new ChatKeyboardHandler(chatForm);
