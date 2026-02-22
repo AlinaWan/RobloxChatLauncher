@@ -5,8 +5,8 @@
 
     Source: https://github.com/AlinaWan/RobloxChatLauncher/blob/main/assets/integrations/TeamPayload.lua
     
-    Licensed under the GPL-3.0 license.
-    See https://www.gnu.org/licenses/gpl-3.0.txt for full text.
+    Licensed under the MPL 2.0 license.
+    See https://www.mozilla.org/en-US/MPL/2.0/ for full text.
 --]=]
 
 -- !! WARNING: This script is a WORK IN PROGRESS !!
