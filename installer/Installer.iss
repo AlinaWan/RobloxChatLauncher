@@ -17,7 +17,7 @@ InfoBeforeFile={#Root}\TERMS
 
 [Messages]
 InfoBeforeLabel=Please read the following Terms of Service before continuing.
-InfoBeforeClickLabel=Click Next to confirm that you have have read and understand these Terms of Service.
+InfoBeforeClickLabel=Click Next to confirm that you have read and understand these Terms of Service.
 
 [Files]
 Source: "{#Root}\LICENSE"; DestDir: "{app}"
