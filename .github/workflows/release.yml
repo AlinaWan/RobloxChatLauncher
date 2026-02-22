@@ -14,6 +14,10 @@ on:
       release_name:
         description: "Name of the release (defaults to the tag)"
         required: false
+      custom_notes:
+        description: "Custom message to include in release notes"
+        required: false
+        default: ""
       prerelease:
         description: "Is this a prerelease?"
         required: false
@@ -132,7 +136,12 @@ jobs:
           tag_name: ${{ github.event.inputs.tag_name }}
           name: ${{ github.event.inputs.release_name || github.event.inputs.tag_name }}
           prerelease: ${{ github.event.inputs.prerelease }}
-          generate_release_notes: true
+          # Add the custom message at the top
+          body: |
+            ${{ github.event.inputs.custom_notes }}
+            
+            ---
+          generate_release_notes: true # This appends the "What's Changed" section below the body
           files: |
             installer/Installer*.exe
             installer/Installer.exe.sha256
