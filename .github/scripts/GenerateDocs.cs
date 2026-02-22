@@ -44,6 +44,11 @@ try
                     string p = text;
                     p = p.Replace("await ", "").TrimEnd(';');
 
+                    if (p.StartsWith("return "))
+                    {
+                        p = p.Replace("return ", "");
+                    }
+
                     // --- HANDLE CONCATENATED STRINGS & PRINT ---
                     if (p.Contains("chatBox.AppendText"))
                     {

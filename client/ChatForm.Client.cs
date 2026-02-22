@@ -18,6 +18,9 @@ namespace RobloxChatLauncher
 {
     public partial class ChatForm : Form
     {
+        // Collection of muted users (case-insensitive)
+        private System.Collections.Generic.HashSet<string> mutedUsers = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         // WebSocket connection and message handling
         private async Task ConnectWebSocket(CancellationToken ct)
         {
@@ -111,7 +114,28 @@ namespace RobloxChatLauncher
                         // Normal chat message
                         if (data.type == "message")
                         {
-                            chatBox.AppendText($"[{data.sender}]: {data.text}\r\n");
+                            string sender = (string)data.sender;
+                            string text = (string)data.text;
+
+                            string rawName = sender;
+
+                            // Handle whisper message formats to extract the actual speaker name for mute checking
+                            // If it's an incoming whisper: "From Guest 12345"
+                            if (sender.StartsWith("From "))
+                            {
+                                rawName = sender.Substring(5); // Remove "From "
+                            }
+                            // If it's an outgoing whisper: "To Guest 12345"
+                            else if (sender.StartsWith("To "))
+                            {
+                                rawName = sender.Substring(3); // Remove "To "
+                            }
+
+                            // Now check the cleaned name against the mute list
+                            if (!mutedUsers.Contains(rawName))
+                            {
+                                chatBox.AppendText($"[{sender}]: {text}\r\n");
+                            }
                         }
                         // Rejection handling
                         else if (data.status == "rejected")
@@ -285,6 +309,92 @@ namespace RobloxChatLauncher
             {
                 chatBox.AppendText($"[System]: WS Send Error: {ex.Message}\r\n");
             }
+        }
+
+        private async Task SendWhisperWebSocket(string target, string text)
+        {
+            if (wsClient?.State != WebSocketState.Open)
+                return;
+
+            var payload = new
+            {
+                type = "whisper",
+                target = target,
+                text = text
+            };
+            string json = JsonConvert.SerializeObject(payload);
+            byte[] bytes = Encoding.UTF8.GetBytes(json);
+
+            await wsClient.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, wsCts.Token);
+
+            // DO NOT chatBox.AppendText here anymore. 
+            // Wait for the server to send the "To {target}" message back.
+        }
+
+        private bool HandleMute(string args)
+        {
+            if (string.IsNullOrWhiteSpace(args))
+            {
+                chatBox.AppendText("[System]: Usage: /mute <speaker>\r\n");
+            }
+            else
+            {
+                mutedUsers.Add(args.Trim());
+                chatBox.AppendText($"[System]: Speaker '{args.Trim()}' has been muted.\r\n");
+            }
+            return true;
+        }
+
+        private bool HandleUnmute(string args)
+        {
+            if (string.IsNullOrWhiteSpace(args))
+            {
+                chatBox.AppendText("[System]: Usage: /unmute <speaker>\r\n");
+                return true;
+            }
+
+            string speaker = args.Trim();
+
+            if (mutedUsers.Remove(speaker))
+                chatBox.AppendText($"[System]: Speaker '{speaker}' has been unmuted.\r\n");
+            else
+                chatBox.AppendText($"[System]: Speaker '{speaker}' was not muted.\r\n");
+
+            return true;
+        }
+
+        private async Task<bool> HandleWhisperAsync(string args)
+        {
+            string target = "";
+            string msg = "";
+
+            if (args.StartsWith("\""))
+            {
+                int endQuoteIndex = args.IndexOf("\"", 1);
+                if (endQuoteIndex != -1)
+                {
+                    target = args.Substring(1, endQuoteIndex - 1);
+                    msg = args.Substring(endQuoteIndex + 1).Trim();
+                }
+            }
+            else
+            {
+                string[] whisperParts = args.Split(' ', 2);
+                if (whisperParts.Length == 2)
+                {
+                    target = whisperParts[0];
+                    msg = whisperParts[1];
+                }
+            }
+
+            if (string.IsNullOrEmpty(target) || string.IsNullOrEmpty(msg))
+            {
+                chatBox.AppendText("[System]: Usage: /w \"<speaker 12345>\" message or /w <speaker> message\r\n");
+                return true;
+            }
+
+            await SendWhisperWebSocket(target, msg);
+            return true;
         }
 
         // Commented out because it will always force a Global

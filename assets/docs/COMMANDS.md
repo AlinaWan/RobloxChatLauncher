@@ -10,3 +10,6 @@
 | **/clear** | `/cls`, `/c` | <code>chatBox.Clear()</code> |
 | **/id** | `/channel` | <code>Print: "[System]: Current Channel ID: &#123;channelId&#125;"</code> |
 | **/bug** | `/issue` | <code>OpenUrl("https://github.com/AlinaWan/RobloxChatLauncher/issues/new")</code><br><code>Print: "[System]: Opening website..."</code> |
+| **/mute** | None | <code>HandleMute(args)</code> |
+| **/unmute** | None | <code>HandleUnmute(args)</code> |
+| **/w** | `/whisper` | <code>HandleWhisperAsync(args)</code> |

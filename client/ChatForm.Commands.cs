@@ -64,7 +64,17 @@ namespace RobloxChatLauncher
 					chatBox.AppendText("[System]: Opening website...\r\n");
 					return true;
 
-				default:
+                case "/mute":
+					return HandleMute(args);
+
+                case "/unmute":
+                    return HandleUnmute(args);
+
+                case "/w":
+                case "/whisper":
+                    return await HandleWhisperAsync(args);
+
+                default:
 					chatBox.AppendText($"[System]: Unknown command '{command}'. Use '/?' or '/help' for a list of commands.\r\n");
 					return true; // Return true so it doesn't send the bad command to the server
 			}
