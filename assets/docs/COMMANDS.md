@@ -12,4 +12,6 @@
 | **/bug** | `/issue` | <code>OpenUrl("https://github.com/AlinaWan/RobloxChatLauncher/issues/new")</code><br><code>Print: "[System]: Opening website..."</code> |
 | **/mute** | None | <code>HandleMute(args)</code> |
 | **/unmute** | None | <code>HandleUnmute(args)</code> |
-| **/w** | `/whisper` | <code>HandleWhisperAsync(args)</code> |
+| **/whisper** | `/w` | <code>HandleWhisperAsync(args)</code> |
+| **/console** | `/debug` | <code>OpenDebugConsole()</code> |
+| **/closeconsole** | `/closedebug` | <code>CloseDebugConsole()</code> |
