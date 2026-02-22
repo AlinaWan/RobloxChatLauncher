@@ -203,7 +203,8 @@ namespace RobloxChatLauncher
         {
             try
             {
-                string versionFolder = RobloxChatLauncher.Utils.RobloxLocator.GetRobloxVersionFolder();
+                // Get the Roblox version folder to construct the path to the chat icons
+                string versionFolder = RobloxChatLauncher.Utils.RobloxLocator.GetVanillaRobloxVersionFolder();
                 string basePath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "Roblox", "Versions", versionFolder, "content", "textures", "ui", "TopBar");
