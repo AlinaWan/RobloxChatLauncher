@@ -10,3 +10,6 @@
 | **/clear** | `/cls`, `/c` | <code>chatBox.Clear()</code> |
 | **/id** | `/channel` | <code>Print: "[System]: Current Channel ID: &#123;channelId&#125;"</code> |
 | **/bug** | `/issue` | <code>OpenUrl("https://github.com/AlinaWan/RobloxChatLauncher/issues/new")</code><br><code>Print: "[System]: Opening website..."</code> |
+| **/mute** | None | <code>Print: "[System]: Usage: /mute <speaker>"</code><br><code>Print: "[System]: Speaker '&#123;args.Trim()&#125;' has been muted."</code> |
+| **/unmute** | None | <code>Print: "[System]: Usage: /unmute <speaker>"</code><br><code>Print: "[System]: Speaker '&#123;args.Trim()&#125;' has been unmuted."</code><br><code>Print: "[System]: Speaker '&#123;args.Trim()&#125;' was not muted."</code> |
+| **/w** | `/whisper` | <code>string target = ""</code><br><code>string msg = ""</code><br><code>if (args.StartsWith("\"")) &#123; // Find the closing quote int endQuoteIndex = args.IndexOf("\"", 1); if (endQuoteIndex != -1) &#123; target = args.Substring(1, endQuoteIndex - 1); msg = args.Substring(endQuoteIndex + 1).Trim(); &#125; &#125; else &#123; // No quotes? Fallback to the first space string[] whisperParts = args.Split(' ', 2); if (whisperParts.Length == 2) &#123; target = whisperParts[0]; msg = whisperParts[1]; &#125; &#125;</code><br><code>Print: "[System]: Usage: /w \ message or /w <speaker> message"</code> |
