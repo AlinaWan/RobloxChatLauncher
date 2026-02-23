@@ -14,14 +14,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpBridge = require(ReplicatedStorage.HttpBridge)
 local Enums = require(ReplicatedStorage.Enums)
 
--- 1. Ensure the Universal RemoteEvent exists
-local BridgeEvent = ReplicatedStorage:FindFirstChild("RCL_Event")
-if not BridgeEvent then
-    BridgeEvent = Instance.new("RemoteEvent")
-    BridgeEvent.Name = "RCL_Event"
-    BridgeEvent.Parent = ReplicatedStorage
-    print("[RCL Ingress] Initialized universal RCL_Event")
-end
+-- 1. Rojo guarantees this exists based on the JSON file
+local BridgeEvent = ReplicatedStorage:WaitForChild("RCL_Event")
 
 -- 2. Logic for commands that run ONLY on the Server
 local function handleServerCommand(payload)
