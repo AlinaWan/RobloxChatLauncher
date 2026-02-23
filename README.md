@@ -238,6 +238,8 @@ Integration scripts under [this directory](https://github.com/AlinaWan/RobloxCha
 
 This README is based on the template by [Bloxstrap](https://github.com/bloxstraplabs/bloxstrap/blob/9a062367f78b2e5e48ff53d233c001536978230e/README.md), used under the [MIT License](https://github.com/bloxstraplabs/bloxstrap/blob/9a062367f78b2e5e48ff53d233c001536978230e/LICENSE). It has been modified to fit the specific needs of this project.
 
+Original Copyright (c) 2022 pizzaboxer
+
 ---
 
 **Trademark Notice:** "Roblox" is a registered trademark of Roblox Corporation. This project is not, and makes no claims to be, affiliated with or endorsed by Roblox Corporation.
