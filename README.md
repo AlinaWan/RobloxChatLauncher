@@ -51,8 +51,26 @@ Roblox Chat Launcher is only supported for PCs running Windows.
 
 ---
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [❓ Frequently Asked Questions](#-frequently-asked-questions)
+- [💬 Why Not Just Use Discord?](#-why-not-just-use-discord)
+- [📋 Features](#-features)
+- [🌐 Installing](#-installing)
+- [📦 Compiling from Source](#-compiling-from-source)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Prerequisites](#prerequisites-1)
+  - [Installation](#installation-1)
+  - [Prerequisites](#prerequisites-2)
+  - [Installation](#installation-2)
+- [Terms of Service](#terms-of-service)
+- [Privacy Policy](#privacy-policy)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ---
 
