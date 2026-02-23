@@ -1,18 +1,20 @@
 Privacy Policy
 --------------
 
-Last Updated: January 10, 2026
+Last Updated: February 22, 2026
 
 This Privacy Policy explains how this service processes information when users send messages through the application.
 The service is designed with privacy-by-design principles and minimizes the collection and retention of personal data.
 
 1. Data Transmission & IP Addresses
-    When a message is sent to the server, the user's IP address is automatically included in the HTTP request. This is a
-    fundamental requirement of standard internet communication. IP addresses are used only for the following purposes:
-        Routing: Delivering responses back to the user's device.
-        Security: Enforcing rate limits to prevent service abuse.
-    Public IP addresses are not stored by the application. Users may review the code to see exactly what data is processed and
-    how it is handled at https://github.com/AlinaWan/RobloxChatLauncher.
+    To facilitate standard internet communication, your IP address is visible to our hosting provider (Render) to route messages back to your device.
+        Application Invisibility: Our server application is designed so that it does not see, log, or store your public IP address, even in a hashed
+                                  or pseudonymized format.
+        No Permanent Identifiers: We do not use cookies, hardware IDs, or permanent tokens. Instead, the server identifies you using a temporary guest
+                                  label derived from your current WebSocket connection port.
+        Transient Identity: This label is strictly temporary; it changes every time you reconnect to the server. Users can manually trigger a
+                            reconnection and rotate their label at any time by using the '/rc' command within the client.
+        Open Source: Users may review the code to see exactly what data is processed and how it is handled at https://github.com/AlinaWan/RobloxChatLauncher.
 
 2. Message Content & Content Moderation
     Messages submitted to the service are processed for the purpose of maintaining a safe and abuse-free environment. To assist with
@@ -23,19 +25,20 @@ The service is designed with privacy-by-design principles and minimizes the coll
 3. Hosting & Infrastructure
     This service is hosted on Render. As a hosting provider, Render may automatically collect and retain access logs (such as IP addresses and
     timestamps) for security and operational monitoring. In addition, the application may temporarily log messages and technical metadata for
-    debugging and moderation purposes. Message content may appear transiently within Render’s infrastructure logs as part of normal request handling.
-        Retention: Render automatically deletes infrastructure logs after approximately 7 days. The application itself does not persist or store
-        message content, chat history, or user-submitted messages outside of Render’s standard logging systems. The service does not have the
-        ability to access, retrieve, or restore message content once Render’s logs are deleted.
+    debugging and moderation purposes. Message content may appear transiently within the application logs as part of normal request handling.
+        Retention: Render automatically deletes the application logs after approximately 7 days. The application itself does not persist or store
+                   message content, chat history, or user-submitted messages outside of Render’s standard logging systems. The service does not have the
+                   ability to access, retrieve, or restore message content once Render’s logs are deleted.
     Users should avoid including personally identifiable or sensitive information in messages, as message content is user-submitted
     and cannot be guaranteed to remain private once transmitted.
     Users are encouraged to review Render's Privacy Policy at https://render.com/privacy.
 
 4. Limited Personal Data Processing
-    The service does not offer user accounts and does not collect names, email addresses, or account credentials.
-        The only personal data processed is:
-            - IP addresses transmitted as part of standard HTTP communication (used only transiently for routing and security; not stored by the service)
-            - Message content voluntarily submitted by users.
+    The service is built on a "zero-account" model. We do not collect names, emails, or credentials.
+        What the Server Sees: Only your submitted message content and the specific channel/instance it is routed to.
+        Temporary Metadata: The server tracks active connections via ephemeral port numbers. Because these ports are reused by the operating system
+                            across different users over time, they cannot be used as a reliable or permanent identifier for any specific individual.
+        Verification: As we do not store IP addresses or permanent IDs, we generally cannot link a specific message to a specific person once the connection is closed.
     All processing is limited to what is necessary for service operation, security, and abuse prevention.
 
 5. Legal Basis & Consent
