@@ -25,37 +25,46 @@ end
 local LocalPlayer = Players.LocalPlayer
 
 -------------------------------
--- 3. Command Handler Functions
--- Define them all as functions here
+-- 3. Command Handler Map
 -------------------------------
-local function handleEmote(data)
-    local emoteName = data.name
+local Handlers = {}
+
+-- You can define them directly in the table
+Handlers[Enums.CommandType.Emote] = function(data)
     local character = LocalPlayer.Character
     if not character then return end
 
     local animateScript = character:FindFirstChild("Animate")
     if animateScript and animateScript:IsA("LocalScript") then
         local playEmote = animateScript:FindFirstChild("PlayEmote")
-        
         if playEmote and playEmote:IsA("BindableFunction") then
-            print("[RCL] Playing emote:", emoteName)
-            playEmote:Invoke(emoteName)
+            task.spawn(function()
+                playEmote:Invoke(data.name)
+            end)
+        else
+            warn("[RCL] PlayEmote function not found on this character.")
         end
     end
 end
 
+-- Adding a new command is just one block of code:
+--[[
+Handlers[Enums.CommandType.Kill] = function(data)
+    print("Handling kill command for:", data.target)
+end
+]]
+
 -------------------------------
--- 4. Main Dispatcher
+-- 4. Main Dispatcher (Clean & Dynamic)
 -------------------------------
 BridgeEvent.OnClientEvent:Connect(function(payload)
-    -- Safety check
     if not payload or type(payload) ~= "table" then return end
     
-    local cmdType = payload.type
-    local data = payload.data
-
-    -- Use the Enums
-    if cmdType == Enums.CommandType.Emote and data then
-        handleEmote(data)
+    local handler = Handlers[payload.type]
+    
+    if handler then
+        handler(payload.data)
+    else
+        warn("[RCL] No handler defined for command type:", payload.type)
     end
 end)

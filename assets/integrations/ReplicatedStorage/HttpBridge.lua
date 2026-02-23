@@ -72,16 +72,15 @@ function HttpBridge._startCentralLoop(endpoint: string, interval: number)
             local success, response = pcall(function() return HttpService:GetAsync(fullUrl) end)
             
             if success and response and #response > 0 then
-                local ok, payloads = pcall(HttpService.JSONDecode, HttpService, response)
-                if ok and type(payloads) == "table" then
-                    -- Send every command to every registered script
-                    for _, cmd in ipairs(payloads) do
-                        for _, handlerFunc in ipairs(handlers) do
-                            task.spawn(handlerFunc, cmd)
-                        end
+                local ok, decodedData = pcall(HttpService.JSONDecode, HttpService, response)
+                if ok then
+                    -- JUST PASS THE DATA. Don't loop here.
+                    for _, handlerFunc in ipairs(handlers) do
+                        task.spawn(handlerFunc, decodedData)
                     end
                 end
             end
+            
             if not success then warn("[RCL Ingress] Polling error:", response) end
             task.wait(interval)
         end

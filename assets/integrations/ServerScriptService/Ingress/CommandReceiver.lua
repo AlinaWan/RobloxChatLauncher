@@ -28,37 +28,83 @@ local function handleServerCommand(payload)
     -- Here we can add any server-specific command handling logic.
 end
 
---[[
-    Example Emote ingress payload (it should be in square brackets):
+--[=[
+    Example Emote ingress payload:
+
+    ```json
+    {
+        "type": "Emote",
+        "targetPlayer": "AlinaWan",
+        "data": {
+            "name": "Dance"
+        }
+    }
+    ```
+
+    But it can also be an array:
+    ```json
     [
         {
             "type": "Emote",
-            "targetPlayer": "PlayerName",
+            "targetPlayer": "AlinaWan",
             "data": {
                 "name": "Dance"
             }
+        },
+        {
+            "type": "Emote",
+            "targetPlayer": "builderman",
+            "data": {
+                "name": "Wave"
+            }
         }
     ]
-]]
+    ```
+]=]
 
 -- 3. The Main Router
-local function handleIncomingRequest(payload)
-    -- Check if we have a valid payload
-    if not payload or type(payload) ~= "table" then return end
+local function handleIncomingRequest(input)
+    if type(input) ~= "table" then return end
 
-    -- ROUTE TO SERVER
-    -- Activates if the ingress payload has no targetPlayer or if the targetPlayer is explicitly the Server
-    if payload.targetPlayer == Enums.Target.Server or not payload.targetPlayer then
-        handleServerCommand(payload)
-    
-    -- ROUTE TO PLAYER (Client)
-    else
-        local target = Players:FindFirstChild(payload.targetPlayer)
-        if target then
-            -- Send the whole payload so the Client knows what to do
-            BridgeEvent:FireClient(target, payload)
+    -- Normalize: If it's a single command (no index 1), wrap it in a table
+    -- If it's already an array, use it as is.
+    local commands = (input[1] ~= nil) and input or {input}
+
+    for _, payload in ipairs(commands) do
+        -- Now we are guaranteed to be looking at individual command objects
+        if type(payload) ~= "table" or not payload.type then
+            warn("[RCL Ingress] Skipping malformed payload entry")
+            continue 
+        end
+
+        local target = payload.targetPlayer
+
+        ---------------------------------------------------------
+        -- ROUTING LOGIC
+        ---------------------------------------------------------
+        
+        -- A. ROUTE TO SERVER: targetPlayer must be explicitly "Server"
+        if target == Enums.Target.Server then
+            handleServerCommand(payload)
+
+        -- B. ROUTE TO PLAYER: targetPlayer is a string (username)
+        elseif type(target) == "string" then
+            local player = Players:FindFirstChild(target)
+            
+            if player then
+                -- Send the specific payload to the client
+                BridgeEvent:FireClient(player, payload)
+            else
+                warn("[RCL Ingress] Target player not found in server:", target)
+            end
+
+        -- C. ERROR HANDLING: No target or invalid target type
         else
-            warn("[RCL Ingress] Target player not found in server:", payload.targetPlayer)
+            warn(string.format(
+                "[RCL Ingress] Dropping payload (Type: %s). Missing or invalid 'targetPlayer'. Received: %s",
+                tostring(payload.type),
+                tostring(target)
+            ))
         end
     end
 end
