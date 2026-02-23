@@ -77,6 +77,8 @@ Roblox Chat Launcher is only supported for PCs running Windows.
 
 **A:** No. The source code here is viewable to all, and it'd be impossible for us to slip anything malicious into the downloads without anyone noticing. Just be sure you're downloading it from [this GitHub repository](https://github.com/AlinaWan/RobloxChatLauncher).
 
+**Want to be 100% sure?** Every release is cryptographically signed and attested. You can verify that the `.exe` you downloaded exactly matches the code in this repo by following the [Verification Guide](#-trust--provenance).
+
 **Q: Can using this get me banned?**
 
 **A:** No, it shouldn't. Like other bootstrappers, Roblox Chat Launcher doesn't interact with the Roblox client in the same way that exploits do. Think of the chat window like using a messaging app like Discord, only seamlessly integrated with the native Roblox experience.
@@ -217,6 +219,26 @@ iscc Installer.iss
 ```
 
 </details>
+
+## 🛡️ Trust & Provenance
+
+To ensure the installer hasn't been tampered with, every release is signed using both **Sigstore** and **GitHub Artifact Attestations**.
+
+### Verify with GitHub CLI
+
+If you have the GitHub CLI installed:
+
+```powershell
+gh attestation verify Installer.exe --repo AlinaWan/RobloxChatLauncher
+```
+
+### Verify with Cosign
+
+If you prefer Cosign, download the `.exe` and the `.cosign.bundle` from the release page:
+
+```powershell
+cosign verify-blob Installer.exe --bundle Installer.exe.cosign.bundle --certificate-identity-regexp "https://github.com/AlinaWan/RobloxChatLauncher/" --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
 
 ## Terms of Service
 
