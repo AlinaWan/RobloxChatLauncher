@@ -10,7 +10,7 @@
 local Players = game:GetService("Players")
 local HttpBridge = require(game.ReplicatedStorage.HttpBridge)
 
-local ENDPOINT = "/team-payload"
+local ENDPOINT = "/egress/team-payload"
 
 local function sendTeamUpdate(player)
     local myTeam = player.Team
