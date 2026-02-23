@@ -12,12 +12,6 @@ OutputBaseFilename=Installer
 Compression=lzma
 SolidCompression=yes
 LicenseFile={#Root}\LICENSE
-; Add a second page after the license page
-InfoBeforeFile={#Root}\TERMS
-
-[Messages]
-InfoBeforeLabel=Please read the following Terms of Service before continuing.
-InfoBeforeClickLabel=Click Next to confirm that you have read and understand these Terms of Service.
 
 [Files]
 Source: "{#Root}\LICENSE"; DestDir: "{app}"
@@ -96,5 +90,84 @@ begin
       MsgBox('Installation cannot proceed without .NET Desktop Runtime 10.0.', mbError, MB_OK);
       Result := False;
     end;
+  end;
+end;
+
+// ------------------------------------------------------------
+// Clickwrap agreements for Terms of Service and Privacy Policy
+// ------------------------------------------------------------
+var
+  TermsPage, PrivacyPage: TOutputMsgMemoWizardPage;
+  TermsAcceptedRadio, TermsNotAcceptedRadio: TRadioButton;
+  PrivacyAcceptedRadio, PrivacyNotAcceptedRadio: TRadioButton;
+
+{ Logic to enable/disable Next button based on selection }
+procedure UpdateNextButton(Sender: TObject);
+begin
+  { We add 'Assigned' checks to ensure the pages exist before checking IDs }
+  if Assigned(TermsPage) and (WizardForm.CurPageID = TermsPage.ID) then
+    WizardForm.NextButton.Enabled := TermsAcceptedRadio.Checked
+  else if Assigned(PrivacyPage) and (WizardForm.CurPageID = PrivacyPage.ID) then
+    WizardForm.NextButton.Enabled := PrivacyAcceptedRadio.Checked;
+end;
+
+{ Helper function to create and place the radio buttons }
+function CreateLicenseRadio(ParentPage: TOutputMsgMemoWizardPage; Original: TRadioButton; Text: string): TRadioButton;
+begin
+  Result := TRadioButton.Create(WizardForm);
+  Result.Parent := ParentPage.Surface;
+  Result.Caption := Text;
+  Result.Left := Original.Left;
+  Result.Top := Original.Top;
+  Result.Width := Original.Width;
+  Result.Height := Original.Height;
+  Result.Anchors := Original.Anchors;
+  Result.OnClick := @UpdateNextButton;
+end;
+
+
+procedure InitializeWizard();
+var
+  TermsPath, PrivacyPath: string;
+begin
+  { --- 1. TERMS OF SERVICE PAGE --- }
+  { wpLicense means it comes right after the standard License page }
+  TermsPage := CreateOutputMsgMemoPage(wpLicense, 
+    'Terms of Service Agreement', 'Please read the following important information before continuing.',
+    'Please read the following Terms of Service Agreement. You must accept the terms of this agreement before continuing with the installation.', '');
+  
+  TermsPage.RichEditViewer.Height := WizardForm.LicenseMemo.Height;
+  
+  ExtractTemporaryFile('TERMS');
+  TermsPath := ExpandConstant('{tmp}\TERMS');
+  TermsPage.RichEditViewer.Lines.LoadFromFile(TermsPath);
+
+  TermsAcceptedRadio := CreateLicenseRadio(TermsPage, WizardForm.LicenseAcceptedRadio, 'I accept the agreement');
+  TermsNotAcceptedRadio := CreateLicenseRadio(TermsPage, WizardForm.LicenseNotAcceptedRadio, 'I do not accept the agreement');
+  TermsNotAcceptedRadio.Checked := True;
+
+  { --- 2. PRIVACY POLICY PAGE --- }
+  { We use TermsPage.ID so this appears right after the Terms page }
+  PrivacyPage := CreateOutputMsgMemoPage(TermsPage.ID, 
+    'Privacy Policy Agreement', 'Please read the following important information before continuing.',
+    'Please read the following Privacy Policy Agreement. You must accept the terms of this agreement before continuing with the installation.', '');
+
+  PrivacyPage.RichEditViewer.Height := WizardForm.LicenseMemo.Height;
+
+  ExtractTemporaryFile('PRIVACY');
+  PrivacyPath := ExpandConstant('{tmp}\PRIVACY');
+  PrivacyPage.RichEditViewer.Lines.LoadFromFile(PrivacyPath);
+
+  PrivacyAcceptedRadio := CreateLicenseRadio(PrivacyPage, WizardForm.LicenseAcceptedRadio, 'I accept the agreement');
+  PrivacyNotAcceptedRadio := CreateLicenseRadio(PrivacyPage, WizardForm.LicenseNotAcceptedRadio, 'I do not accept the agreement');
+  PrivacyNotAcceptedRadio.Checked := True;
+end;
+
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  { Ensure the Next button state is correct when the user navigates to these pages }
+  if (CurPageID = TermsPage.ID) or (CurPageID = PrivacyPage.ID) then
+  begin
+    UpdateNextButton(nil);
   end;
 end;
