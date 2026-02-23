@@ -7,12 +7,6 @@
     Licensed under the MPL 2.0 license.
     See https://www.mozilla.org/en-US/MPL/2.0/ for full text.
 --]=]
---!language luau
---[=[
-    Copyright (c) 2026 Riri a.k.a. Alina Wan
-    Client-side Dispatcher for RobloxChatLauncher
---]=]
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
