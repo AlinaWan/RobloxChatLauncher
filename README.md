@@ -60,7 +60,7 @@ Roblox Chat Launcher is only supported for PCs running Windows.
 - [🌐 Installing](#-installing)
 - [📦 Compiling from Source](#-compiling-from-source)
   - [Client (C#)](#client-c)
-  - [Server (Node.js)](#server-nodejs)
+  - [Server (Docker)](#server-docker)
   - [Installer (Inno Setup)](#installer-inno-setup)
 - [Terms of Service](#terms-of-service)
 - [Privacy Policy](#privacy-policy)
