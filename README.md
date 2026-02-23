@@ -80,7 +80,7 @@ Roblox Chat Launcher is only supported for PCs running Windows.
 
 **A:** No. The source code here is viewable to all, and it'd be impossible for us to slip anything malicious into the downloads without anyone noticing. Just be sure you're downloading it from [this GitHub repository](https://github.com/AlinaWan/RobloxChatLauncher).
 
-**Want to be 100% sure?** Every release is cryptographically signed and attested. You can verify that the `.exe` you downloaded exactly matches the code in this repo by following the [Verification Guide](#-trust-and-provenance).
+**Want to be 100% sure?** Every release is cryptographically signed and attested. You can verify that the `.exe` you downloaded exactly matches the code in this repo by following the [Verification Guide](#trust--provenance).
 
 **Q: Can using this get me banned?**
 
@@ -223,7 +223,7 @@ iscc Installer.iss
 
 </details>
 
-## 🛡️ Trust and Provenance
+## Trust & Provenance
 
 To ensure the installer hasn't been tampered with, every release is signed using both **Sigstore** and **GitHub Artifact Attestations**.
 
