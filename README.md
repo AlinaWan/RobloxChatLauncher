@@ -160,9 +160,9 @@ dotnet run
 
 <!-- Server -->
 <details>
-  <summary>Server (Node.js)</summary>
+  <summary>Server (Docker)</summary>
 
-### Server (Node.js)
+### Server (Docker)
   
 #### Prerequisites
 
