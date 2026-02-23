@@ -62,7 +62,7 @@ Roblox Chat Launcher is only supported for PCs running Windows.
   - [Client (C#)](#client-c)
   - [Server (Docker)](#server-docker)
   - [Installer (Inno Setup)](#installer-inno-setup)
-- [🛡️ Trust & Provenance](#-trust--provenance)
+- [🛡️ Trust and Provenance](#-trust-and-provenance)
   - [Verify with GitHub CLI](#verify-with-github-cli)
   - [Verify with Cosign](#verify-with-cosign)
 - [Terms of Service](#terms-of-service)
