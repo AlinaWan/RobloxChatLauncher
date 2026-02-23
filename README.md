@@ -138,12 +138,14 @@ cd RobloxChatLauncher
 <!-- Client -->
 <details>
   <summary>Client (C#)</summary>
+
+### Client (C#)
   
-### Prerequisites
+#### Prerequisites
 
 * [.NET 10.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-10.0.101-windows-x64-installer)
 
-### Installation
+#### Installation
 
 Navigate to the `client/` folder:
 
@@ -162,12 +164,14 @@ dotnet run
 <!-- Server -->
 <details>
   <summary>Server (Node.js)</summary>
+
+### Server (Node.js)
   
-### Prerequisites
+#### Prerequisites
 
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-### Installation
+#### Installation
 
 Navigate to the `server/` folder:
 
@@ -194,12 +198,14 @@ Your server will now be accessible at `http://localhost:10000`.
 <!-- Installer -->
 <details>
   <summary>Installer (Inno Setup)</summary>
+
+### Installer (Inno Setup)
   
-### Prerequisites
+#### Prerequisites
 
 * [Inno Setup](https://jrsoftware.org/isdl.php)
 
-### Installation
+#### Installation
 
 Navigate to the `installer/` folder:
 
