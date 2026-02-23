@@ -1,4 +1,3 @@
-; Using Inno Setup Compiler 6.4.3
 #define Root ".."
 
 [Setup]
