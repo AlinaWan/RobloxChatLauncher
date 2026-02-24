@@ -55,7 +55,12 @@ As of January 7, 2026, Roblox has completely removed in-game communication unles
 >
 > Roblox is still partnered with Persona.
 >
-> Source: [Belanger, A. (2026, February 20). Ars Technica](https://arstechnica.com/tech-policy/2026/02/discord-and-persona-end-partnership-after-shady-uk-age-test-sparks-outcry/)
+> <details>
+>    <summary>Sources:</summary>
+> Belanger, A. (2026, February 20). Fury over Discord’s age checks explodes after shady Persona test in UK. Ars Technica. https://arstechnica.com/tech-policy/2026/02/discord-and-persona-end-partnership-after-shady-uk-age-test-sparks-outcry/  
+>    <br>
+> L0la L33tz. (2026, February 19). Hackers Expose Age-Verification Software Powering Surveillance Web. The Rage. https://www.therage.co/persona-age-verification/
+> </details>
 
 Furthermore, new age-group filtering often fragments the player base and ruins the cooperative experience. The Roblox Chat Launcher restores this lost social layer with a lightweight Windows overlay that mirrors the native chat experience. By using your keyboard's existing muscle memory and synchronizing directly with the Roblox window, it provides a secure, native-feeling alternative that keeps communication open and co-op gameplay intact without the privacy risks.
 
