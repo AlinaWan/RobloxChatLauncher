@@ -24,14 +24,14 @@ namespace RobloxChatLauncher.Utils
 
             foreach (string bootstrapper in bootstrappers)
             {
-                // Check the Uninstall key for the bootstrapper's InstallLocation. If it exists, we assume it's a valid Roblox client and return it.
+                // Check the Uninstall key for the bootstrapper's icon path. If it exists, we assume it's a valid Roblox client and return it.
                 using var key = Registry.CurrentUser.OpenSubKey($@"Software\Microsoft\Windows\CurrentVersion\Uninstall\{bootstrapper}");
-                string installPath = key?.GetValue("InstallLocation") as string;
+                string rawPath = key?.GetValue("DisplayIcon") as string;
 
-                if (!string.IsNullOrEmpty(installPath))
+                if (!string.IsNullOrEmpty(rawPath))
                 {
-                    // Assume the executable is located at InstallLocation\{bootstrapper}.exe
-                    string exePath = Path.Combine(installPath, $"{bootstrapper}.exe");
+                    // Split the comma to remove the icon index and trim quotes if they exist
+                    string exePath = rawPath.Split(',')[0].Trim('\"');
                     if (File.Exists(exePath))
                         return new RobloxClientInfo(exePath, RobloxClientType.Bootstrapper);
                 }
