@@ -76,5 +76,9 @@ nunit-*.xml
 # Node.js
 node_modules/
 
-# .exe binaries
+# Executable binaries
 *.exe
+
+# Assets source and Photoshop files
+assets_src/
+*.psd
