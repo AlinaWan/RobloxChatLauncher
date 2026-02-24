@@ -24,8 +24,8 @@ namespace RobloxChatLauncher.Utils
 
             foreach (string bootstrapper in bootstrappers)
             {
-                // Check HKCU\Software for the bootstrapper's InstallLocation. If it exists, we assume it's a valid Roblox client and return it.
-                using var key = Registry.CurrentUser.OpenSubKey($@"Software\{bootstrapper}");
+                // Check the Uninstall key for the bootstrapper's InstallLocation. If it exists, we assume it's a valid Roblox client and return it.
+                using var key = Registry.CurrentUser.OpenSubKey($@"Software\Microsoft\Windows\CurrentVersion\Uninstall\{bootstrapper}");
                 string installPath = key?.GetValue("InstallLocation") as string;
 
                 if (!string.IsNullOrEmpty(installPath))
