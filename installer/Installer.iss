@@ -1,6 +1,8 @@
 #define Root ".."
 
 [Setup]
+; In Inno Setup you must use double curly braces at the start of the GUID to escape the character
+AppId={{B0BACAFE-D326-4A7B-B6BA-1437C0DEBABE}
 AppName=Roblox Chat Launcher
 AppVersion=1.0.0 ; Do not manually update this version; it is auto-updated by release workflow
 AppVerName=Roblox Chat Launcher

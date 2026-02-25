@@ -19,6 +19,9 @@ namespace RobloxChatLauncher
 {
     public partial class ChatForm : Form
     {
+        // Declare the keyboard handler at the class level so the whole form can access it (e.g., to dispose on close)
+        private ChatKeyboardHandler keyboardHandler;
+
         // Collection of muted users (case-insensitive)
         private System.Collections.Generic.HashSet<string> mutedUsers = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -449,6 +452,7 @@ namespace RobloxChatLauncher
         }
         */
 
+        // Comprehensive cleanup on form close to ensure all resources are properly released and no memory leaks occur
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             // Only dispose if RobloxProcess_Exited hasn't done it yet
@@ -465,11 +469,16 @@ namespace RobloxChatLauncher
             wsCts?.Dispose();
             wsClient?.Dispose();
 
+            // Unhook the WinEvent hook to prevent memory leaks and potential issues with dangling hooks after the form is closed
             if (winEventHook != IntPtr.Zero)
             {
                 NativeMethods.UnhookWinEvent(winEventHook);
                 winEventHook = IntPtr.Zero;
             }
+
+            // Dispose the keyboard handler which unhooks the global keyboard events to prevent memory leaks
+            keyboardHandler?.Dispose();
+            keyboardHandler = null;
 
             base.OnFormClosed(e);
         }
