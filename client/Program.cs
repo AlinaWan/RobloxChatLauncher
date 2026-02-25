@@ -98,12 +98,26 @@ class Program
 
     static Process WaitForRobloxProcess(int timeoutSeconds)
     {
+        // Record when we the launcher actually started
+        DateTime launcherStartTime = DateTime.Now;
+
         // Loop every 500ms until the actual game engine process appears
         for (int i = 0; i < timeoutSeconds * 2; i++)
         {
             var processes = Process.GetProcessesByName("RobloxPlayerBeta");
-            if (processes.Length > 0)
-                return processes[0];
+            foreach (var proc in processes)
+            {
+                try
+                {
+                    // Only attach if the Roblox process started AFTER the launcher
+                    // Or at least very recently.
+                    if (proc.StartTime > launcherStartTime.AddSeconds(-5))
+                    {
+                        return proc;
+                    }
+                }
+                catch { /* Process might have exited already */ }
+            }
             Thread.Sleep(500);
         }
         return null;
