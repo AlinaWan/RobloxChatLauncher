@@ -86,12 +86,12 @@ All commits **must follow [Conventional Commits v1.0.0](https://www.conventional
 
 ---
 
-## 📥 Installing .NET 10 and Downloading Roblox Chat Launcher from CLI
+## 📥 Installing .NET 10 and Downloading Roblox Chat Launcher from CLI (for VM)
 
 <details>
   <summary>Click to expand</summary>
   <br>
-  <p>Follow these steps to install .NET 10 and Roblox Chat Launcher without Git, GitHub CLI, or a browser.</p>
+  <p>Follow these steps to install .NET 10 and Roblox Chat Launcher without Git, GitHub CLI, or a browser. This guide is intended for usage in a virtual machine for the purposes of testing; prefer conventional methods elsewhere.</p>
   
   <h3>1️⃣ Prepare Directories</h3>
   <p>Open <b>PowerShell (Admin)</b>:</p>
