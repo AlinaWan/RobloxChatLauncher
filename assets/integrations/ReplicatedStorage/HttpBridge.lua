@@ -66,12 +66,16 @@ end
 
 -- Internal loop that only runs ONCE total
 function HttpBridge._startCentralLoop(endpoint: string, interval: number)
-    local fullUrl = formatUrl(endpoint)
+    -- Include the JobId in the URL as a query parameter
+    local jobId = game.JobId
+    local fullUrl = formatUrl(endpoint) .. "?jobId=" .. jobId
+    
     task.spawn(function()
         while true do
+            -- The server now checks only it's own mailbox
             local success, response = pcall(function() return HttpService:GetAsync(fullUrl) end)
             
-            if success and response and #response > 0 then
+            if success and response and #response > 2 then -- > 2 to ignore empty brackets []
                 local ok, decodedData = pcall(HttpService.JSONDecode, HttpService, response)
                 if ok then
                     -- JUST PASS THE DATA. Don't loop here.
@@ -80,11 +84,11 @@ function HttpBridge._startCentralLoop(endpoint: string, interval: number)
                     end
                 end
             end
-            
             if not success then warn("[RCL Ingress] Polling error:", response) end
             task.wait(interval)
         end
     end)
 end
+
 
 return HttpBridge
