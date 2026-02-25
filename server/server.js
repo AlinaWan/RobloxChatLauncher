@@ -298,6 +298,10 @@ wss.on('connection', (ws, req) => {
 
     // --- Begin WS message handling ---
     ws.on('message', async (data) => {
+        if (data.length > 1024) {
+            // Above 1kb is not allowed (same as HTTP limit)
+            return; // Just drop the message without closing the websocket
+        }
         try {
             const payload = JSON.parse(data);
 
