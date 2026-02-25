@@ -27,11 +27,4 @@
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Properties\Settings1.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings1.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
 </Project>

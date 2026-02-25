@@ -8,6 +8,7 @@ using RobloxChatLauncher.Utils;
 
 namespace RobloxChatLauncher
 {
+    [System.ComponentModel.DesignerCategory("Code")] // This covers the entire class so it only needs to be declared once here.
     public partial class ChatForm : Form
     {
         // Declare the keyboard handler at the class level so the whole form can access it (e.g., to dispose on close)
