@@ -128,7 +128,7 @@ Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/a
 Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\Downloads\RobloxChatLauncher"</code></pre>
 
   <p>Or the Installer.exe of a release:</p>
-  <pre><code>Invoke-WebRequest -Uri "Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/releases/download/v1.0.0/RobloxChatLauncher.exe" -OutFile "C:\Downloads\Installer.exe"</code></pre>
+  <pre><code>Invoke-WebRequest -Uri "Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/releases/download/v1.0.0/Installer.exe" -OutFile "C:\Downloads\Installer.exe"</code></pre>
 
   <hr>
 
