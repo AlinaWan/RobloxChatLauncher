@@ -48,11 +48,11 @@ Use a sandboxed environment for safe testing:
 * **Tiny11 25H2 / Tiny11 Core 25H2:** newer minimal Windows 11 images.
   * [Download](https://archive.org/details/tiny11_25H2)
 
-> [!WARNING]
+> [!CAUTION]
 > **Tiny11 Core Safety Notes:**
 >
-> * Tiny11 Core is not a replacement for Tiny11; use for testing only.
-> * Windows Defender is removed. Exercise caution when browsing inside the VM.
+> * Tiny11 Core is not a replacement for Tiny11; use for testing in a VM only.
+> * Windows Defender is not included in Tiny11 Core. Exercise caution when browsing inside the VM.
 
 ---
 
