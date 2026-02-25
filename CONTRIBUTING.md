@@ -74,7 +74,7 @@ All commits **must follow [Conventional Commits v1.0.0](https://www.conventional
 | `refactor(client):` clean up input capture logic | Improving code structure without changing behavior. |
 | `perf(server):` optimize message broadcasting latency | A change specifically focused on improving speed. |
 | `chore(installer):` update Inno Setup script for .NET 10.0 | Routine maintenance or dependency updates. |
-| `docs(readme):` add security research citations for Persona | Documentation-only changes. |
+| `chore(docs):` add security research citations for Persona | Documentation-only changes. |
 
 ### Common Commit Types
 
