@@ -4,7 +4,7 @@
 | Command | Aliases | Action / Function |
 | :--- | :--- | :--- |
 | **/help** | `/?` | <code>OpenUrl("https://github.com/AlinaWan/RobloxChatLauncher/tree/main/assets/docs/COMMANDS.md")</code><br><code>Print: "[System]: Opening website..."</code> |
-| **/about** | `/credits` | <code>Print: "About Roblox Chat Launcher:"</code><br><code>Print: "Made with ❤︎ by Riri."</code><br><code>Print: "Developed in VS 2022 🎀 Built with .NET / WinForms."</code><br><code>Print: "Server written in Node.js 🌸 Hosted on Render.com."</code><br><code>Print: "Source: https://github.com/AlinaWan/RobloxChatLauncher"</code><br><code>Print: "And of course, credits to you 💖"</code> |
+| **/about** | `/credits` | <code>Print: "About Roblox Chat Launcher:"</code><br><code>Print: "Made with ❤︎ by Riri."</code><br><code>Print: "Developed in VS 2026 🎀 Built with .NET / WinForms."</code><br><code>Print: "Server written in Node.js 🌸 Hosted on Render.com."</code><br><code>Print: "Source: https://github.com/AlinaWan/RobloxChatLauncher"</code><br><code>Print: "And of course, credits to you 💖"</code> |
 | **/reconnect** | `/rc` | <code>RestartWebSocketAsync()</code> |
 | **/echo** | None | <code>ExecuteEchoRequest(args)</code> |
 | **/clear** | `/cls`, `/c` | <code>chatBox.Clear()</code> |
