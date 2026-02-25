@@ -32,8 +32,8 @@ To ensure your environment matches production builds:
 ### IDE & Toolchain
 
 * **[Visual Studio 2026](https://visualstudio.microsoft.com/downloads/):** primary IDE; required to target .NET 10.0.
-* **[Inno Setup](https://jrsoftware.org/isdl.php) (latest version):** for building the installer.
 * **[.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0):** the target framework for the C# client.
+* **[Inno Setup](https://jrsoftware.org/isdl.php) (latest version):** for building the installer.
 * **[Docker Desktop](https://www.docker.com/products/docker-desktop/):** to build images and deploy the back-end server.
 
 ### Testing & Virtualization
