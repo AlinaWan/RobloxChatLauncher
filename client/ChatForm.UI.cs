@@ -45,7 +45,7 @@ namespace RobloxChatLauncher
             caretTimer.Tick += (s, e) =>
             {
                 caretVisible = !caretVisible;
-                Invalidate();
+                this.Invalidate(false);
             };
             caretTimer.Start();
         }
@@ -346,6 +346,9 @@ namespace RobloxChatLauncher
                 CreateParams cp = base.CreateParams;
                 // 0x00000080 is WS_EX_TOOLWINDOW
                 cp.ExStyle |= 0x00000080;
+                // WS_EX_COMPOSITED: tells Windows to composite (double-buffer) all child windows together
+                // This is the biggest single fix to reduce flickering
+                cp.ExStyle |= 0x02000000;
                 return cp;
             }
         }
@@ -538,9 +541,9 @@ namespace RobloxChatLauncher
                 Location = new Point(7, 54),
                 Size = new Size(472, 297), // THIS IS THE REAL SIZE OF THE CHAT WINDOW
                 BackColor = Color.FromArgb(35, 45, 55), // Semi-transparent Dark Blue-Gray
-                Padding = new Padding(10) // Give text breathing room
+                // Each number is: Left, Top, Right, Bottom padding respectively
+                Padding = new Padding(10, 10, 30, 10) // Give text breathing room
             };
-            this.Controls.Add(mainContainer);
 
             // Apply rounded corners after the control is created
             mainContainer.HandleCreated += (s, e) => SetRoundedRegion(mainContainer, 20);
@@ -563,11 +566,11 @@ namespace RobloxChatLauncher
             inputBox = new ChatInputBox
             {
                 Dock = DockStyle.Bottom,
-                Height = 45, // Slightly taller
+                Height = 45,
                 BackColor = Color.FromArgb(25, 25, 25), // Darker than history
                 ForeColor = Color.White,
                 Enabled = false,
-                Margin = new Padding(5) // Space between history and input
+                // Margin is ignored by Dock, but Padding in the parent will now squeeze this
             };
 
             // Ensure the input box also has slightly rounded corners
@@ -629,6 +632,43 @@ namespace RobloxChatLauncher
                 (uint)robloxProcess.Id,
                 0,
                 NativeMethods.WINEVENT_OUTOFCONTEXT);
+
+            // ----- Reset Button in the bottom right corner -----
+            Label resetBtn = new Label
+            {
+                Text = "1:1",
+                Size = new Size(30, 20),
+                ForeColor = Color.DarkGray,
+                BackColor = Color.Transparent, // Let it blend with the panel
+                TextAlign = ContentAlignment.MiddleCenter,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 7, FontStyle.Bold),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Right
+            };
+
+            // Position it in the alley created by the padding
+            // Right edge, and just above the Resize Grip
+            resetBtn.Location = new Point(mainContainer.Width - 25, mainContainer.Height - 45);
+
+            resetBtn.Click += (s, e) =>
+            {
+                this.Size = new Size(500, 400);
+                mainContainer.Size = new Size(472, 297);
+                SetRoundedRegion(mainContainer, 20);
+                SetRoundedRegion(inputBox, 10);
+            };
+
+            mainContainer.Controls.Add(resetBtn);
+            resetBtn.BringToFront(); // Ensure it stays above the chatBox
+
+            this.Controls.Add(mainContainer);
+
+            // Ensure it is layered correctly
+            mainContainer.BringToFront();
+
+            // Manually trigger the first position sync
+            NativeMethods.GetWindowRect(robloxProcess.MainWindowHandle, out NativeMethods.RECT initialRect);
+            this.Location = new Point(initialRect.Left + currentOffset.X, initialRect.Top + currentOffset.Y);
 
             // --- Roblox Log Monitor for JobID changes ---
             // Initialize the Roblox Log Monitor
@@ -753,8 +793,7 @@ namespace RobloxChatLauncher
         public SmoothPanel()
         {
             this.DoubleBuffered = true;
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint |
-                          ControlStyles.UserPaint |
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint | // Don't add ControlStyles.UserPaint here or it will render garbage pixels when resizing the window
                           ControlStyles.OptimizedDoubleBuffer, true);
         }
     }
