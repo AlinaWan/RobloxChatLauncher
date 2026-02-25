@@ -21,6 +21,10 @@ Source: "{#Root}\TERMS"; DestDir: "{app}"
 ; Copy everything from the publish folder
 Source: "{#Root}\client\bin\Release\net10.0-windows\publish\*"; DestDir: "{app}"
 
+[UninstallDelete]
+; This recursively deletes the folder and everything inside it
+Type: filesandordirs; Name: "{localappdata}\RobloxChatLauncher"
+
 [Run]
 ; Silently run the app to register it as the Roblox launcher
 Filename: "{app}\ConsoleApp1.exe"; Flags: nowait runhidden
