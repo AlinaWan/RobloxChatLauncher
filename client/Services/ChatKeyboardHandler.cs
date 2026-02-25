@@ -1,18 +1,10 @@
-using System;
-using System.Drawing;
-using System.Windows.Forms;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Net.Http;
-using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Diagnostics;
+using System.Windows.Forms;
 using Gma.System.MouseKeyHook;
-using Newtonsoft.Json;
 
-namespace RobloxChatLauncher
+using RobloxChatLauncher.Utils;
+
+namespace RobloxChatLauncher.Services
 {
     // --------------------------------------------------
     // Keyboard hook (layout-correct, shift-safe)

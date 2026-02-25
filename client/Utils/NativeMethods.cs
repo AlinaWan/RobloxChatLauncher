@@ -1,18 +1,7 @@
-using System;
-using System.Drawing;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Net.Http;
-using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Diagnostics;
-using Gma.System.MouseKeyHook;
-using Newtonsoft.Json;
 
-namespace RobloxChatLauncher
+namespace RobloxChatLauncher.Utils
 {
     // --------------------------------------------------
     // Native Win32 helpers

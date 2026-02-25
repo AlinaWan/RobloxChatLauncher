@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace RobloxChatLauncher.Utils
+﻿namespace RobloxChatLauncher.Models
 {
     public static class LaunchData
     {

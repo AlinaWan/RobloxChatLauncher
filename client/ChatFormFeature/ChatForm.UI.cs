@@ -1,338 +1,13 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.Drawing;
-using System.Windows.Forms;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Net.Http;
 using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Diagnostics;
-using Gma.System.MouseKeyHook;
-using Newtonsoft.Json;
+using System.Windows.Forms;
 
-using RobloxChatLauncher.Services;
+using RobloxChatLauncher.UI;
 using RobloxChatLauncher.Utils;
 
 namespace RobloxChatLauncher
 {
-    // --------------------------------------------------
-    // Custom input box (fake caret, custom paint)
-    // --------------------------------------------------
-    class ChatInputBox : TextBox
-    {
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool IsChatting
-        {
-            get; set;
-        }
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string RawText { get; set; } = "";
-
-        bool caretVisible = true;
-        System.Windows.Forms.Timer caretTimer;
-
-        public ChatInputBox()
-        {
-            SetStyle(ControlStyles.UserPaint, true);
-            ReadOnly = true;
-            BorderStyle = BorderStyle.FixedSingle;
-
-            // We need to use a fake caret because since we never truly focus the overlay,
-            // the win32 caret doesn't work
-            caretTimer = new System.Windows.Forms.Timer { Interval = 500 };
-            caretTimer.Tick += (s, e) =>
-            {
-                caretVisible = !caretVisible;
-                this.Invalidate(false);
-            };
-            caretTimer.Start();
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            this.Invalidate(); // Forces a clean redraw of the text and arrow
-            base.OnResize(e);
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            e.Graphics.Clear(BackColor);
-
-            string text;
-            Color color;
-
-            if (!IsChatting && string.IsNullOrEmpty(RawText))
-            {
-                text = "Press / key | Ctrl+Shift+C to hide";
-                color = Color.FromArgb(180, 200, 200, 200); // Gray placeholder
-            }
-            else
-            {
-                text = RawText + (IsChatting && caretVisible ? "|" : "");
-                color = ForeColor; // White text
-            }
-
-            // Set a 10px margin so text doesn't hit the edge
-            Rectangle textRect = new Rectangle(10, 0, ClientRectangle.Width - 50, ClientRectangle.Height);
-
-            TextRenderer.DrawText(
-                e.Graphics,
-                text,
-                Font,
-                textRect,
-                color,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
-
-            // Draw the arrow icon on the right
-            TextRenderer.DrawText(e.Graphics, "➤", Font,
-                new Rectangle(Width - 35, 0, 30, Height), color,
-                TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
-        }
-    }
-
-    // --------------------------------------------------
-    // Class for round hide/unhide button
-    // --------------------------------------------------
-    public class RoundButton : Control
-    {
-        public event EventHandler Clicked;
-        public event EventHandler<Point> Dragged; // Notify form of movement
-        public event EventHandler DragEnded;
-
-        private Image imgOn;
-        private Image imgOff;
-        private System.Windows.Forms.Timer holdTimer;
-        private System.Windows.Forms.Timer visualTimer; // Timer for smooth animation
-        private bool isDragging = false;
-        private Point lastMousePos;
-        private float holdProgress = 0f; // 0 to 1.0
-        private DateTime holdStartTime;
-        private const int HOLD_THRESHOLD = 300; // Milliseconds to hold before release (for dragging)
-
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool IsActive { get; set; } = true;
-
-        public RoundButton()
-        {
-            this.DoubleBuffered = true; // Prevents flickering during animation
-            this.SetStyle(ControlStyles.Selectable, false);
-            LoadRobloxIcons();
-
-            // Timer for the logic
-            holdTimer = new System.Windows.Forms.Timer { Interval = HOLD_THRESHOLD };
-            holdTimer.Tick += (s, e) =>
-            {
-                holdTimer.Stop();
-                visualTimer.Stop();
-                holdProgress = 0;
-                isDragging = true;
-                this.Cursor = Cursors.SizeAll;
-                this.Invalidate();
-            };
-
-            // Timer for the visual progress
-            visualTimer = new System.Windows.Forms.Timer { Interval = 16 }; // ~60 FPS
-            visualTimer.Tick += (s, e) =>
-            {
-                var elapsed = (DateTime.Now - holdStartTime).TotalMilliseconds;
-                holdProgress = (float)Math.Min(elapsed / HOLD_THRESHOLD, 1.0);
-                this.Invalidate(); // Redraw the progress bar
-            };
-
-            this.SizeChanged += (s, e) => UpdateRegion();
-        }
-
-        private void UpdateRegion()
-        {
-            using (var path = new System.Drawing.Drawing2D.GraphicsPath())
-            {
-                path.AddEllipse(0, 0, Width, Height);
-                this.Region = new Region(path);
-            }
-        }
-
-        // Mouse event overrides for dragging behavior
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            if (isDragging)
-            {
-                // Calculate the movement delta
-                int deltaX = e.X - lastMousePos.X;
-                int deltaY = e.Y - lastMousePos.Y;
-
-                Dragged?.Invoke(this, new Point(deltaX, deltaY));
-            }
-            base.OnMouseMove(e);
-        }
-
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                lastMousePos = e.Location;
-                holdStartTime = DateTime.Now;
-                holdProgress = 0;
-                holdTimer.Start();
-                visualTimer.Start();
-            }
-            base.OnMouseDown(e);
-        }
-
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
-            holdTimer.Stop();
-            visualTimer.Stop();
-
-            // If we released before the drag threshold, it's a click
-            if (!isDragging && holdProgress < 1.0 && holdProgress > 0)
-            {
-                Clicked?.Invoke(this, EventArgs.Empty);
-            }
-
-            holdProgress = 0;
-            isDragging = false;
-            this.Cursor = Cursors.Hand;
-            DragEnded?.Invoke(this, EventArgs.Empty);
-            this.Invalidate();
-            base.OnMouseUp(e);
-        }
-
-        private void LoadRobloxIcons()
-        {
-            try
-            {
-                // Get the Roblox version folder to construct the path to the chat icons
-                string versionFolder = RobloxChatLauncher.Utils.RobloxLocator.GetVanillaRobloxVersionFolder();
-                string basePath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "Roblox", "Versions", versionFolder, "content", "textures", "ui", "TopBar");
-
-                // Roblox also has `chatOn@2x.png`, `chatOn@3x.png`, `chatOff@2x.png`, and `chatOff@3x.png`
-                // if needed in the future for higher DPI displays.
-                // There are also voice chat icons in `content/textures/ui/VoiceChat/` if voice chat
-                // support is ever added.
-                string pathOn = Path.Combine(basePath, "chatOn.png");
-                string pathOff = Path.Combine(basePath, "chatOff.png");
-
-                if (File.Exists(pathOn))
-                    imgOn = Image.FromFile(pathOn);
-                if (File.Exists(pathOff))
-                    imgOff = Image.FromFile(pathOff);
-            }
-            catch { /* Fallback to manual drawing or default icons if path fails */ }
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            // Important: Use AntiAlias for smooth circles
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            e.Graphics.Clear(Color.Magenta); // Background transparency key
-
-            // Draw the dark circular background (Roblox style)
-            using (var brush = new SolidBrush(Color.FromArgb(50, 50, 50)))
-                e.Graphics.FillEllipse(brush, 0, 0, Width, Height);
-
-            // Draw the chat icon (imgOn or imgOff)
-            Image currentImg = IsActive ? imgOn : imgOff;
-
-            if (currentImg != null)
-            {
-                // Center the icon image inside the circle
-                int x = (Width - currentImg.Width) / 2;
-                int y = (Height - currentImg.Height) / 2;
-                e.Graphics.DrawImage(currentImg, x, y);
-            }
-
-            // Draw the Progress Ring
-            if (holdProgress > 0 && holdProgress < 1.0)
-            {
-                float penWidth = 4f;
-                // Deflate rectangle so the stroke isn't cut off by the Region clip
-                RectangleF rect = new RectangleF(penWidth / 2, penWidth / 2,
-                                               Width - penWidth, Height - penWidth);
-
-                using (Pen progressPen = new Pen(Color.DeepSkyBlue, penWidth))
-                {
-                    float sweepAngle = holdProgress * 360f;
-                    // -90 degrees starts the arc at the 12 o'clock position
-                    e.Graphics.DrawArc(progressPen, rect, -90, sweepAngle);
-                }
-            }
-        }
-
-        protected override void OnClick(EventArgs e)
-        {
-            Clicked?.Invoke(this, e);
-            base.OnClick(e);
-        }
-    }
-
-    // --------------------------------------------------
-    // Class for resize grip control
-    // --------------------------------------------------
-    public class ResizeGrip : Control
-    {
-        private Point lastMousePos;
-        private bool isResizing = false;
-        public event EventHandler<Size> ResizeDragged;
-
-        public ResizeGrip()
-        {
-            this.SetStyle(ControlStyles.SupportsTransparentBackColor |
-                          ControlStyles.AllPaintingInWmPaint |
-                          ControlStyles.OptimizedDoubleBuffer, true);
-            this.BackColor = Color.Transparent;
-            this.Size = new Size(20, 20);
-            this.Cursor = Cursors.SizeNWSE;
-        }
-
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                isResizing = true;
-                lastMousePos = PointToScreen(e.Location);
-            }
-            base.OnMouseDown(e);
-        }
-
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            if (isResizing)
-            {
-                Point currentMousePos = PointToScreen(e.Location);
-                int deltaX = currentMousePos.X - lastMousePos.X;
-                int deltaY = currentMousePos.Y - lastMousePos.Y;
-
-                ResizeDragged?.Invoke(this, new Size(deltaX, deltaY));
-                lastMousePos = currentMousePos;
-            }
-            base.OnMouseMove(e);
-        }
-
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
-            isResizing = false;
-            base.OnMouseUp(e);
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            using (Pen pen = new Pen(Color.FromArgb(150, 255, 255, 255), 2))
-            {
-                // Draw the ⌟ symbol
-                // Vertical line
-                e.Graphics.DrawLine(pen, Width - 5, Height - 12, Width - 5, Height - 5);
-                // Horizontal line
-                e.Graphics.DrawLine(pen, Width - 12, Height - 5, Width - 5, Height - 5);
-            }
-        }
-    }
-
     // --------------------------------------------------
     // Chat window
     // --------------------------------------------------
@@ -484,7 +159,8 @@ namespace RobloxChatLauncher
             _autoSaveTimer = new System.Windows.Forms.Timer { Interval = 5000 }; // Save every 5 seconds if changed
                                                                                  // This ensures that if the application crashes or is killed,
                                                                                  // we won't lose more than 5 seconds of position/size changes 
-            _autoSaveTimer.Tick += (s, e) => {
+            _autoSaveTimer.Tick += (s, e) =>
+            {
                 if (_settingsDirty)
                 {
                     SaveSettingsToDisk();
@@ -546,7 +222,7 @@ namespace RobloxChatLauncher
                     currentOffset = new Point(relativeX, relativeY);
                 }
                 // Persist position
-                ConsoleApp1.Settings1.Default.WindowOffset = currentOffset;
+                Properties.Settings1.Default.WindowOffset = currentOffset;
                 _settingsDirty = true; // Mark for auto-save
 
                 this.Location = new Point(rect.Left + currentOffset.X, rect.Top + currentOffset.Y);
@@ -568,14 +244,14 @@ namespace RobloxChatLauncher
             */
 
             // Load persisted values
-            currentOffset = ConsoleApp1.Settings1.Default.WindowOffset;
-            this.Size = ConsoleApp1.Settings1.Default.WindowSize;
+            currentOffset = Properties.Settings1.Default.WindowOffset;
+            this.Size = Properties.Settings1.Default.WindowSize;
 
             // Ensure the mainContainer uses the saved size
             mainContainer = new SmoothPanel
             {
                 Location = new Point(7, 54),
-                Size = ConsoleApp1.Settings1.Default.ChatContainerSize, // THIS IS THE REAL SIZE OF THE CHAT WINDOW
+                Size = Properties.Settings1.Default.ChatContainerSize, // THIS IS THE REAL SIZE OF THE CHAT WINDOW
                 BackColor = Color.FromArgb(35, 45, 55), // Semi-transparent Dark Blue-Gray
                 // Each number is: Left, Top, Right, Bottom padding respectively
                 Padding = new Padding(10, 10, 30, 10) // Give text breathing room
@@ -642,8 +318,8 @@ namespace RobloxChatLauncher
                     this.Update(); // Force instant redraw
                 }
                 // Update settings (memory only)
-                ConsoleApp1.Settings1.Default.WindowSize = this.Size;
-                ConsoleApp1.Settings1.Default.ChatContainerSize = mainContainer.Size;
+                Properties.Settings1.Default.WindowSize = this.Size;
+                Properties.Settings1.Default.ChatContainerSize = mainContainer.Size;
                 _settingsDirty = true; // Mark for auto-save
             };
 
@@ -721,7 +397,8 @@ namespace RobloxChatLauncher
                 if (this.channelId == newJobId)
                     return;
 
-                this.Invoke((MethodInvoker)delegate {
+                this.Invoke((MethodInvoker)delegate
+                {
                     bool wasGlobal = (this.channelId == "global");
                     this.channelId = newJobId;
 
@@ -829,10 +506,10 @@ namespace RobloxChatLauncher
         // manage our own appdata folder or worry about file permissions
         private void SaveSettingsToDisk()
         {
-            ConsoleApp1.Settings1.Default.WindowOffset = currentOffset;
-            ConsoleApp1.Settings1.Default.WindowSize = this.Size;
-            ConsoleApp1.Settings1.Default.ChatContainerSize = mainContainer.Size;
-            ConsoleApp1.Settings1.Default.Save();
+            Properties.Settings1.Default.WindowOffset = currentOffset;
+            Properties.Settings1.Default.WindowSize = this.Size;
+            Properties.Settings1.Default.ChatContainerSize = mainContainer.Size;
+            Properties.Settings1.Default.Save();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

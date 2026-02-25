@@ -1,11 +1,10 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
+﻿using System.Diagnostics;
 using System.Windows.Forms;
 using Microsoft.Win32;
+
 using RobloxChatLauncher;
 using RobloxChatLauncher.Utils;
+using RobloxChatLauncher.Services;
 
 class Program
 {
@@ -90,7 +89,7 @@ class Program
                 }
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             MessageBox.Show($"Failed to write registry key: {ex.Message}");
         }
