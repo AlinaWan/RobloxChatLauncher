@@ -528,13 +528,16 @@ namespace RobloxChatLauncher
                     // Otherwise, save this new position as the permanent offset
                     currentOffset = new Point(relativeX, relativeY);
                 }
+                // Persist position
+                Properties.Settings1.Default.WindowOffset = currentOffset;
 
-                // 4. Force one update to snap the window visually
                 this.Location = new Point(rect.Left + currentOffset.X, rect.Top + currentOffset.Y);
             };
 
             this.Controls.Add(toggleBtn);
 
+            // Load these to settings instead of hardcoding them, so we can persist user customizations to the chat container size
+            /*
             // 1. Update Main Container styling
             mainContainer = new SmoothPanel // Use SmoothPanel instead of Panel to reduce flicker
             {
@@ -543,6 +546,20 @@ namespace RobloxChatLauncher
                 BackColor = Color.FromArgb(35, 45, 55), // Semi-transparent Dark Blue-Gray
                 // Each number is: Left, Top, Right, Bottom padding respectively
                 Padding = new Padding(10, 10, 30, 10) // Give text breathing room
+            };
+            */
+
+            // Load persisted values
+            currentOffset = Properties.Settings1.Default.WindowOffset;
+            this.Size = Properties.Settings1.Default.WindowSize;
+
+            // Ensure the mainContainer uses the saved size
+            mainContainer = new SmoothPanel
+            {
+                Location = new Point(7, 54),
+                Size = Properties.Settings1.Default.ChatContainerSize,
+                BackColor = Color.FromArgb(35, 45, 55),
+                Padding = new Padding(10, 10, 30, 10)
             };
 
             // Apply rounded corners after the control is created
@@ -605,6 +622,10 @@ namespace RobloxChatLauncher
                     this.ResumeLayout(true);
                     this.Update(); // Force instant redraw
                 }
+                // Update settings (memory only)
+                Properties.Settings1.Default.WindowSize = this.Size;
+                Properties.Settings1.Default.ChatContainerSize = mainContainer.Size;
+                // We will save to disk when the form closes
             };
 
             mainContainer.Controls.Add(chatBox);
@@ -782,6 +803,18 @@ namespace RobloxChatLauncher
             inputBox.RawText = rawInputText;
             inputBox.IsChatting = isChatting;
             inputBox.Invalidate();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            // Final save of all settings
+            // Windows will handle saving this for us
+            Properties.Settings1.Default.WindowOffset = currentOffset;
+            Properties.Settings1.Default.WindowSize = this.Size;
+            Properties.Settings1.Default.ChatContainerSize = mainContainer.Size;
+            Properties.Settings1.Default.Save();
+
+            base.OnFormClosing(e);
         }
     }
 
