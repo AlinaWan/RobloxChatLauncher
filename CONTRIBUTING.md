@@ -31,16 +31,16 @@ To ensure your environment matches production builds:
 
 ### IDE & Toolchain
 
-* **Visual Studio 2026:** primary IDE; required to target .NET 10.0.
-* **Inno Setup (latest version):** for building the installer.
-* **.NET 10 SDK:** the target framework for the C# client.
-* **Docker Desktop:** to build images and deploy the back-end server.
+* **[Visual Studio 2026](https://visualstudio.microsoft.com/downloads/):** primary IDE; required to target .NET 10.0.
+* **[Inno Setup](https://jrsoftware.org/isdl.php) (latest version):** for building the installer.
+* **[.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0):** the target framework for the C# client.
+* **[Docker Desktop](https://www.docker.com/products/docker-desktop/):** to build images and deploy the back-end server.
 
 ### Testing & Virtualization
 
 Use a sandboxed environment for safe testing:
 
-* **VirtualBox or any other hypervisor:** recommended hypervisor (Type 2 virtualization is sufficient).
+* **[VirtualBox](https://www.virtualbox.org/wiki/Downloads) or any other hypervisor:** any hypervisor of choice (Type 2 virtualization is sufficient).
 * **Some recommended disk images:**
   * **Windows 11:** full windows image.
     * [Download](https://www.microsoft.com/en-us/software-download/windows11)
