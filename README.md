@@ -26,7 +26,8 @@
 </div>
 
 <div align="center">
-  
+
+[![Discord Server](https://img.shields.io/discord/1476208199689572508?label=Discord%20Server&style=for-the-badge&logo=discord)](https://discord.gg/mhe2bX3dtH)
 [![GitHub Stars](https://img.shields.io/github/stars/AlinaWan/RobloxChatLauncher?style=for-the-badge&label=people%20supporting%20free%20chat%20%5Bstars%5D&color=yellow)](https://github.com/AlinaWan/RobloxChatLauncher/stargazers)
 [![GitHub Downloads](https://img.shields.io/github/downloads/AlinaWan/RobloxChatLauncher/Installer.exe?style=for-the-badge&color=green)](https://github.com/AlinaWan/RobloxChatLauncher/releases)
 
