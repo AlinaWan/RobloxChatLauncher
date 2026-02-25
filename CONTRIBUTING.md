@@ -31,7 +31,7 @@ To ensure your environment matches production builds:
 
 ### IDE & Toolchain
 
-* **Visual Studio 2026:** primary IDE. VS 2022 is not able to target .NET 10.0, so VS 2026 is required for client development.
+* **Visual Studio 2026:** primary IDE; required to target .NET 10.0.
 * **Inno Setup (latest version):** for building the installer.
 * **.NET 10 SDK:** the target framework for the C# client.
 * **Docker Desktop:** to build images and deploy the back-end server.
@@ -41,12 +41,13 @@ To ensure your environment matches production builds:
 Use a sandboxed environment for safe testing:
 
 * **VirtualBox or any other hypervisor:** recommended hypervisor (Type 2 virtualization is sufficient).
-* **Windows 11:** full windows image.
-  * [Download](https://www.microsoft.com/en-us/software-download/windows11)
-* **Tiny11 Core Beta 1 (Windows 11 Pro 23H2, Build 22631.2361):** minimal testing image.
-  * [Download](https://archive.org/details/tiny-11-core-x-64-beta-1)
-* **Tiny11 25H2 / Tiny11 Core 25H2:** newer minimal Windows 11 images.
-  * [Download](https://archive.org/details/tiny11_25H2)
+* **Some recommended disk images:**
+  * **Windows 11:** full windows image.
+    * [Download](https://www.microsoft.com/en-us/software-download/windows11)
+  * **Tiny11 25H2 / Tiny11 Core 25H2:** minimal Windows 11 images.
+    * [Download](https://archive.org/details/tiny11_25H2)
+  * **Tiny11 Core Beta 1 (Windows 11 Pro 23H2, Build 22631.2361):** smaller minimal testing image.
+    * [Download](https://archive.org/details/tiny-11-core-x-64-beta-1)
 
 > [!CAUTION]
 > **Tiny11 Core Safety Notes:**
@@ -86,12 +87,12 @@ All commits **must follow [Conventional Commits v1.0.0](https://www.conventional
 
 ---
 
-## 📥 Installing .NET 10 and Downloading Roblox Chat Launcher from CLI (for VM)
+## 📥 Installing Roblox Chat Launcher from CLI in a VM
 
 <details>
   <summary>Click to expand</summary>
   <br>
-  <p>Follow these steps to install .NET 10 and Roblox Chat Launcher without Git, GitHub CLI, or a browser. This guide is intended for usage in a virtual machine for the purposes of testing; prefer conventional methods elsewhere.</p>
+  <p>Follow these steps to install .NET 10 and Roblox Chat Launcher <strong>without Git, GitHub CLI, or a browser</strong>. This guide is intended for usage in a minimal virtual machine for the purposes of testing; prefer conventional methods such as <code>git clone</code> elsewhere.</p>
   
   <h3>1️⃣ Prepare Directories</h3>
   <p>Open <b>PowerShell (Admin)</b>:</p>
@@ -101,7 +102,8 @@ cd C:\Downloads</code></pre>
 
   <hr>
 
-  <h3>2️⃣ Install .NET 10 Desktop Runtime via Script</h3>
+  <h3>2️⃣ Install .NET 10</h3>
+  <p>Install .NET Desktop Runtime:</p>
   <pre><code>Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile C:\dotnet\dotnet-install.ps1
 powershell -ExecutionPolicy Bypass -File C:\dotnet\dotnet-install.ps1 -Runtime windowsdesktop -Channel 10.0
 setx PATH "$env:PATH;C:\dotnet"
@@ -115,20 +117,27 @@ dotnet --info</code></pre>
 
   <hr>
 
-  <h3>3️⃣ Download RobloxChatLauncher Repository as Zip</h3>
-  <pre><code>Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/refs/heads/main.zip" -OutFile "C:\Downloads\RobloxChatLauncher.zip"</code></pre>
+  <h3>3️⃣ Download RobloxChatLauncher</h3>
+  <p>Download the repository:</p>
+  <pre><code>Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/refs/heads/main.zip" -OutFile "C:\Downloads\RobloxChatLauncher.zip"
+Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\Downloads\RobloxChatLauncher"</code></pre>
   
   <p>Or a specific tag/commit hash:</p>
   <pre><code>Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/refs/tags/v1.0.0.zip" -OutFile "C:\Downloads\RobloxChatLauncher.zip"
-Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/a1b2c3d.zip" -OutFile "C:\Downloads\RobloxChatLauncher.zip"</code></pre>
+Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/a1b2c3d.zip" -OutFile "C:\Downloads\RobloxChatLauncher.zip"
+Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\Downloads\RobloxChatLauncher"</code></pre>
+
+  <p>Or the Installer.exe of a release:</p>
+  <pre><code>Invoke-WebRequest -Uri "Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/releases/download/v1.0.0/RobloxChatLauncher.exe" -OutFile "C:\Downloads\Installer.exe"</code></pre>
 
   <hr>
 
-  <h3>4️⃣ Extract the Repository</h3>
-  <pre><code>Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\Downloads\RobloxChatLauncher"</code></pre>
-  
   <p>Verify that all files are available:</p>
   <pre><code>Get-ChildItem "C:\Downloads\RobloxChatLauncher"</code></pre>
+  
+  <p>Or verify the executable exists:</p>
+  <pre><code>Test-Path "C:\Downloads\Installer.exe"</code></pre>
+  
 </details>
 
 ---
