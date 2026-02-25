@@ -338,6 +338,18 @@ namespace RobloxChatLauncher
     // --------------------------------------------------
     public partial class ChatForm : Form
     {
+        // This is required to hide the overlay from the alt-tab menu
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                // 0x00000080 is WS_EX_TOOLWINDOW
+                cp.ExStyle |= 0x00000080;
+                return cp;
+            }
+        }
+
         Process robloxProcess;
         Panel mainContainer; // New container for the window
         TextBox chatBox;

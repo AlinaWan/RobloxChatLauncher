@@ -111,7 +111,7 @@ class Program
                 {
                     // Only attach if the Roblox process started AFTER the launcher
                     // Or at least very recently.
-                    if (proc.StartTime > launcherStartTime.AddSeconds(-5))
+                    if (proc.StartTime > launcherStartTime.AddSeconds(-3))
                     {
                         return proc;
                     }
