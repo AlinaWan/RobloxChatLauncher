@@ -45,7 +45,7 @@ namespace RobloxChatLauncher
             caretTimer.Tick += (s, e) =>
             {
                 caretVisible = !caretVisible;
-                Invalidate();
+                this.Invalidate(false);
             };
             caretTimer.Start();
         }
@@ -346,6 +346,9 @@ namespace RobloxChatLauncher
                 CreateParams cp = base.CreateParams;
                 // 0x00000080 is WS_EX_TOOLWINDOW
                 cp.ExStyle |= 0x00000080;
+                // WS_EX_COMPOSITED: tells Windows to composite (double-buffer) all child windows together
+                // This is the biggest single fix to reduce flickering
+                cp.ExStyle |= 0x02000000;
                 return cp;
             }
         }
@@ -366,6 +369,10 @@ namespace RobloxChatLauncher
         private Point defaultOffset = new Point(10, 40); // Original offset
         private Point currentOffset = new Point(10, 40); // Tracks user customization
         private bool isUserMovingWindow = false;
+
+        // Save settings periodically in case of crashes
+        private bool _settingsDirty = false;
+        private System.Windows.Forms.Timer _autoSaveTimer;
 
         float chatOnOpacity = 1.0f;
         float chatOffOpacity = 0.7f;
@@ -473,6 +480,19 @@ namespace RobloxChatLauncher
             this.TopMost = true;
             this.DoubleBuffered = true; // Reduce flicker
 
+            // Auto-save timer to periodically save settings if they have changed
+            _autoSaveTimer = new System.Windows.Forms.Timer { Interval = 5000 }; // Save every 5 seconds if changed
+                                                                                 // This ensures that if the application crashes or is killed,
+                                                                                 // we won't lose more than 5 seconds of position/size changes 
+            _autoSaveTimer.Tick += (s, e) => {
+                if (_settingsDirty)
+                {
+                    SaveSettingsToDisk();
+                    _settingsDirty = false;
+                }
+            };
+            _autoSaveTimer.Start();
+
             // Circular Toggle Button (Parented to Form, not Container)
             toggleBtn = new RoundButton
             {
@@ -525,22 +545,41 @@ namespace RobloxChatLauncher
                     // Otherwise, save this new position as the permanent offset
                     currentOffset = new Point(relativeX, relativeY);
                 }
+                // Persist position
+                ConsoleApp1.Settings1.Default.WindowOffset = currentOffset;
+                _settingsDirty = true; // Mark for auto-save
 
-                // 4. Force one update to snap the window visually
                 this.Location = new Point(rect.Left + currentOffset.X, rect.Top + currentOffset.Y);
             };
 
             this.Controls.Add(toggleBtn);
 
+            // Load these to settings instead of hardcoding them, so we can persist user customizations to the chat container size
+            /*
             // 1. Update Main Container styling
             mainContainer = new SmoothPanel // Use SmoothPanel instead of Panel to reduce flicker
             {
                 Location = new Point(7, 54),
-                Size = new Size(472, 297), // THIS IS THE REAL SIZE OF THE CHAT WINDOW
-                BackColor = Color.FromArgb(35, 45, 55), // Semi-transparent Dark Blue-Gray
-                Padding = new Padding(10) // Give text breathing room
+                Size = new Size(472, 297), 
+                BackColor = Color.FromArgb(35, 45, 55), 
+                
+                Padding = new Padding(10, 10, 30, 10) 
             };
-            this.Controls.Add(mainContainer);
+            */
+
+            // Load persisted values
+            currentOffset = ConsoleApp1.Settings1.Default.WindowOffset;
+            this.Size = ConsoleApp1.Settings1.Default.WindowSize;
+
+            // Ensure the mainContainer uses the saved size
+            mainContainer = new SmoothPanel
+            {
+                Location = new Point(7, 54),
+                Size = ConsoleApp1.Settings1.Default.ChatContainerSize, // THIS IS THE REAL SIZE OF THE CHAT WINDOW
+                BackColor = Color.FromArgb(35, 45, 55), // Semi-transparent Dark Blue-Gray
+                // Each number is: Left, Top, Right, Bottom padding respectively
+                Padding = new Padding(10, 10, 30, 10) // Give text breathing room
+            };
 
             // Apply rounded corners after the control is created
             mainContainer.HandleCreated += (s, e) => SetRoundedRegion(mainContainer, 20);
@@ -563,11 +602,11 @@ namespace RobloxChatLauncher
             inputBox = new ChatInputBox
             {
                 Dock = DockStyle.Bottom,
-                Height = 45, // Slightly taller
+                Height = 45,
                 BackColor = Color.FromArgb(25, 25, 25), // Darker than history
                 ForeColor = Color.White,
                 Enabled = false,
-                Margin = new Padding(5) // Space between history and input
+                // Margin is ignored by Dock, but Padding in the parent will now squeeze this
             };
 
             // Ensure the input box also has slightly rounded corners
@@ -602,6 +641,10 @@ namespace RobloxChatLauncher
                     this.ResumeLayout(true);
                     this.Update(); // Force instant redraw
                 }
+                // Update settings (memory only)
+                ConsoleApp1.Settings1.Default.WindowSize = this.Size;
+                ConsoleApp1.Settings1.Default.ChatContainerSize = mainContainer.Size;
+                _settingsDirty = true; // Mark for auto-save
             };
 
             mainContainer.Controls.Add(chatBox);
@@ -629,6 +672,43 @@ namespace RobloxChatLauncher
                 (uint)robloxProcess.Id,
                 0,
                 NativeMethods.WINEVENT_OUTOFCONTEXT);
+
+            // ----- Reset Button in the bottom right corner -----
+            Label resetBtn = new Label
+            {
+                Text = "1:1",
+                Size = new Size(30, 20),
+                ForeColor = Color.DarkGray,
+                BackColor = Color.Transparent, // Let it blend with the panel
+                TextAlign = ContentAlignment.MiddleCenter,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 7, FontStyle.Bold),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Right
+            };
+
+            // Position it in the alley created by the padding
+            // Right edge, and just above the Resize Grip
+            resetBtn.Location = new Point(mainContainer.Width - 25, mainContainer.Height - 45);
+
+            resetBtn.Click += (s, e) =>
+            {
+                this.Size = new Size(500, 400);
+                mainContainer.Size = new Size(472, 297);
+                SetRoundedRegion(mainContainer, 20);
+                SetRoundedRegion(inputBox, 10);
+            };
+
+            mainContainer.Controls.Add(resetBtn);
+            resetBtn.BringToFront(); // Ensure it stays above the chatBox
+
+            this.Controls.Add(mainContainer);
+
+            // Ensure it is layered correctly
+            mainContainer.BringToFront();
+
+            // Manually trigger the first position sync
+            NativeMethods.GetWindowRect(robloxProcess.MainWindowHandle, out NativeMethods.RECT initialRect);
+            this.Location = new Point(initialRect.Left + currentOffset.X, initialRect.Top + currentOffset.Y);
 
             // --- Roblox Log Monitor for JobID changes ---
             // Initialize the Roblox Log Monitor
@@ -743,6 +823,26 @@ namespace RobloxChatLauncher
             inputBox.IsChatting = isChatting;
             inputBox.Invalidate();
         }
+
+        // Helper to save everything
+        // Windows manages settings for us so we don't have to
+        // manage our own appdata folder or worry about file permissions
+        private void SaveSettingsToDisk()
+        {
+            ConsoleApp1.Settings1.Default.WindowOffset = currentOffset;
+            ConsoleApp1.Settings1.Default.WindowSize = this.Size;
+            ConsoleApp1.Settings1.Default.ChatContainerSize = mainContainer.Size;
+            ConsoleApp1.Settings1.Default.Save();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            // Final save of all settings
+            _autoSaveTimer?.Stop(); // First stop the auto-save timer to prevent it from trying to save while we're disposing
+            SaveSettingsToDisk(); // Final forced save before exit
+
+            base.OnFormClosing(e);
+        }
     }
 
     // --------------------------------------------------
@@ -753,8 +853,7 @@ namespace RobloxChatLauncher
         public SmoothPanel()
         {
             this.DoubleBuffered = true;
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint |
-                          ControlStyles.UserPaint |
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint | // Don't add ControlStyles.UserPaint here or it will render garbage pixels when resizing the window
                           ControlStyles.OptimizedDoubleBuffer, true);
         }
     }
