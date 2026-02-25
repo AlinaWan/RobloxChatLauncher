@@ -31,7 +31,7 @@ To ensure your environment matches production builds:
 
 ### IDE & Toolchain
 
-* **Visual Studio 2022 (preferred) or VS 2026:** primary IDE.
+* **Visual Studio 2026:** primary IDE. VS 2022 is not able to target .NET 10.0, so VS 2026 is required for client development.
 * **Inno Setup (latest version):** for building the installer.
 * **.NET 10 SDK:** the target framework for the C# client.
 * **Docker Desktop:** to build images and deploy the back-end server.
