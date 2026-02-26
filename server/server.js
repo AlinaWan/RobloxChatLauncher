@@ -59,6 +59,19 @@ app.use(express.text({ limit: '1kb' }));
 const PERSPECTIVE_API_KEY = process.env.PERSPECTIVE_API_KEY;
 const USER_SALT = process.env.USER_SALT;
 
+// ----- PostgreSQL Setup -----
+const { pool, initDatabase } = require('./postgresPool');
+
+(async () => {
+    try {
+        await initDatabase();
+        console.log("Database initialized");
+    } catch (err) {
+        console.error("DB init failed:", err);
+        process.exit(1);
+    }
+})();
+
 // ----- WebSocket Setup -----
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
