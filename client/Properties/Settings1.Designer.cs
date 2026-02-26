@@ -58,5 +58,29 @@ namespace RobloxChatLauncher.Properties {
                 this["ChatContainerSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsVerified {
+            get {
+                return ((bool)(this["IsVerified"]));
+            }
+            set {
+                this["IsVerified"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public long RobloxUserId {
+            get {
+                return ((long)(this["RobloxUserId"]));
+            }
+            set {
+                this["RobloxUserId"] = value;
+            }
+        }
     }
 }

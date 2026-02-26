@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ConsoleApp1" GeneratedClassName="Settings1">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="RobloxChatLauncher.Properties" GeneratedClassName="Settings1">
   <Profiles />
   <Settings>
     <Setting Name="WindowOffset" Type="System.Drawing.Point" Scope="User">
@@ -10,6 +10,12 @@
     </Setting>
     <Setting Name="ChatContainerSize" Type="System.Drawing.Size" Scope="User">
       <Value Profile="(Default)">472, 297</Value>
+    </Setting>
+    <Setting Name="IsVerified" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="RobloxUserId" Type="System.Int64" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>
