@@ -362,9 +362,9 @@ app.get('/api/v1/commands', validateRegistry, (req, res) => {
 // --------------------------------------
 // ----- The Verification Endpoints -----
 // --------------------------------------
-app.post('/api/verify/generate', express.json(), generateCode);
-app.post('/api/verify/confirm', express.json(), verifyProfile);
-app.post('/api/verify/unverify', express.json(), unverifyUser);
+app.post('/api/v1/verify/generate', express.json(), generateCode);
+app.post('/api/v1/verify/confirm', express.json(), verifyProfile);
+app.post('/api/v1/verify/unverify', express.json(), unverifyUser);
 
 // -----------------------------
 // ----- The Echo Endpoint -----
