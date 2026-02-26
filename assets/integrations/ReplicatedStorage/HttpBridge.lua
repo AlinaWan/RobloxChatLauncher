@@ -1,32 +1,18 @@
 --!language luau
---[=[
-    Copyright (c) 2026 Riri a.k.a. Alina Wan <https://github.com/AlinaWan>
-
-    Source: https://github.com/AlinaWan/RobloxChatLauncher/blob/main/assets/integrations/
-    
-    Licensed under the MPL 2.0 license.
-    See https://www.mozilla.org/en-US/MPL/2.0/ for full text.
---]=]
--- Use task library over global spawn/wait
 local HttpService = game:GetService("HttpService")
 local HttpBridge = {}
 
 -------------------------------
--- Base URL for the server.
--- Endpoints will be appended to this unless a full URL is provided.
+-- Configuration
 -------------------------------
 local BASE_URL = "https://RobloxChatLauncherDemo.onrender.com"
+local API_KEY = "YOUR_SECRET_KEY" -- Replace with the key given to you by Riri or RCL admin
+local UNIVERSE_ID = tostring(game.GameId) -- game.GameId is the UniverseId. The game must be published or game.GameId will return 0 and error
 
--- Helper to format URLs consistently, allowing both full URLs and endpoint paths
+-- Helper to format URLs consistently
 local function formatUrl(path: string): string
-    -- If the path starts with http, use it as is. Otherwise, append to BASE_URL.
-    if path:sub(1, 4) == "http" then
-        return path
-    end
-    -- Ensure there is a leading slash
-    if path:sub(1, 1) ~= "/" then
-        path = "/" .. path
-    end
+    if path:sub(1, 4) == "http" then return path end
+    if path:sub(1, 1) ~= "/" then path = "/" .. path end
     return BASE_URL .. path
 end
 
@@ -40,7 +26,13 @@ function HttpBridge.send(url: string, payload: table)
             return HttpService:PostAsync(
                 fullUrl,
                 HttpService:JSONEncode(payload),
-                Enum.HttpContentType.ApplicationJson
+                Enum.HttpContentType.ApplicationJson,
+                false, -- compress
+                {
+                    ["x-api-key"] = API_KEY,
+                    ["x-universe-id"] = UNIVERSE_ID,
+                    ["x-job-id"] = game.JobId
+                }
             )
         end)
         if not success then warn("[RCL Egress] Error:", result) end
@@ -50,45 +42,59 @@ end
 -------------------------------
 -- Listener (Ingress)
 -------------------------------
-local handlers = {} -- Stores all functions that want to hear about commands
+local handlers = {} 
 local isPolling = false
 local DEFAULT_POLL_INTERVAL = 1.0
 
 function HttpBridge.registerHandler(handler: (any) -> ())
     table.insert(handlers, handler)
     
-    -- If we aren't polling yet, start the central loop
     if not isPolling then
         isPolling = true
-        HttpBridge._startCentralLoop("/ingress/commands", DEFAULT_POLL_INTERVAL)
+        HttpBridge._startCentralLoop("/api/v1/commands", DEFAULT_POLL_INTERVAL)
     end
 end
 
--- Internal loop that only runs ONCE total
 function HttpBridge._startCentralLoop(endpoint: string, interval: number)
-    -- Include the JobId in the URL as a query parameter
-    local jobId = game.JobId
-    local fullUrl = formatUrl(endpoint) .. "?jobId=" .. jobId
+    local fullUrl = formatUrl(endpoint)
     
+    -- Request Headers for Authentication
+    local headers = {
+        ["x-api-key"] = API_KEY,
+        ["x-universe-id"] = UNIVERSE_ID,
+        ["x-job-id"] = game.JobId
+    }
+
     task.spawn(function()
         while true do
-            -- The server now checks only it's own mailbox
-            local success, response = pcall(function() return HttpService:GetAsync(fullUrl) end)
+            local success, response = pcall(function() 
+                -- We use RequestAsync to send custom headers with a GET request
+                return HttpService:RequestAsync({
+                    Url = fullUrl,
+                    Method = "GET",
+                    Headers = headers
+                })
+            end)
             
-            if success and response and #response > 2 then -- > 2 to ignore empty brackets []
-                local ok, decodedData = pcall(HttpService.JSONDecode, HttpService, response)
-                if ok then
-                    -- JUST PASS THE DATA. Don't loop here.
-                    for _, handlerFunc in ipairs(handlers) do
-                        task.spawn(handlerFunc, decodedData)
+            if success and response.Success then
+                local body = response.Body
+                if #body > 2 then
+                    local ok, decodedData = pcall(HttpService.JSONDecode, HttpService, body)
+                    if ok then
+                        for _, handlerFunc in ipairs(handlers) do
+                            task.spawn(handlerFunc, decodedData)
+                        end
                     end
                 end
+            elseif not success then
+                warn("[RCL Ingress] Connection error:", response)
+            elseif response.StatusCode == 403 then
+                warn("[RCL Ingress] Auth Failed: Check API Key and UniverseID")
             end
-            if not success then warn("[RCL Ingress] Polling error:", response) end
+            
             task.wait(interval)
         end
     end)
 end
-
 
 return HttpBridge

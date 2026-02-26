@@ -9,7 +9,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # Copy the rest of the server code
-COPY server.js .
+COPY . .
 
 # Expose the port Render uses
 EXPOSE 10000

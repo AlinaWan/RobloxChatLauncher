@@ -62,7 +62,6 @@ namespace RobloxChatLauncher
         private RobloxChatLauncher.Services.RobloxAreaService _robloxService;
         private ClientWebSocket wsClient;
         private CancellationTokenSource wsCts = new CancellationTokenSource(); // Make sure it's not null when the form starts or it will raise an exception at runtime
-        private const string BASE_URL = "RobloxChatLauncherDemo.onrender.com";
 
         // Sets a rounded region for the given control as
         // Windows Forms does not natively support rounded corners.

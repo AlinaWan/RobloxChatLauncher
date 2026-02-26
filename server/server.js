@@ -38,6 +38,12 @@ const http = require('http');
 const WebSocket = require('ws');
 const axios = require('axios');
 
+const { authenticateGameServer } = require('./registry');
+const { getAllGames, upsertGame, removeGame } = require('./registry');
+const RCL_ADMIN_KEY = process.env.RCL_ADMIN_KEY;
+
+const { generateCode, verifyProfile, unverifyUser } = require('./verification');
+
 // ----- Express App Setup -----
 const app = express();
 // Trust proxy (Render / Heroku / etc.)
@@ -53,9 +59,25 @@ app.use(express.text({ limit: '1kb' }));
 const PERSPECTIVE_API_KEY = process.env.PERSPECTIVE_API_KEY;
 const USER_SALT = process.env.USER_SALT;
 
+// ----- PostgreSQL Setup -----
+const { pool, initDatabase } = require('./postgresPool');
+
+(async () => {
+    try {
+        await initDatabase();
+        console.log("Database initialized");
+    } catch (err) {
+        console.error("DB init failed:", err);
+        process.exit(1);
+    }
+})();
+
 // ----- WebSocket Setup -----
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({
+    server,
+    maxPayload: 1024 // 1 KB limit
+});
 // Memory-efficient storage for dynamic channels
 // Key: channelId (string), Value: Set of socket objects
 const channels = new Map();
@@ -68,6 +90,46 @@ const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const messageQueue = [];
 let processing = false;
 const MAX_QUEUE_SIZE = 100;
+
+// Memory storage for mailboxes
+// Key: jobId, Value: Array of { payload: object, expiresAt: number }
+const mailboxStore = new Map();
+
+const MAIL_TTL_MS = 5000; // seconds before mail is auto-deleted
+
+/**
+ * Adds mail to a specific server's mailbox
+ * @param {string} jobId - The Roblox JobId
+ * @param {object|array} data - The payload (Emote, etc.)
+ */
+function pushToMailbox(jobId, data) {
+    if (!mailboxStore.has(jobId)) {
+        mailboxStore.set(jobId, []);
+    }
+
+    const expiresAt = Date.now() + MAIL_TTL_MS;
+    const mailbox = mailboxStore.get(jobId);
+
+    // If data is an array, push each item, otherwise push the single object
+    if (Array.isArray(data)) {
+        data.forEach(item => mailbox.push({ payload: item, expiresAt }));
+    } else {
+        mailbox.push({ payload: data, expiresAt });
+    }
+}
+
+// Automatic Cleanup: Runs every 5 seconds to clear expired mail
+setInterval(() => {
+    const now = Date.now();
+    for (const [jobId, messages] of mailboxStore.entries()) {
+        const freshMessages = messages.filter(msg => msg.expiresAt > now);
+        if (freshMessages.length === 0) {
+            mailboxStore.delete(jobId);
+        } else {
+            mailboxStore.set(jobId, freshMessages);
+        }
+    }
+}, 5000);
 
 function hashIp(ip) {
     return crypto.createHash('sha256').update(ip + '||' + USER_SALT).digest('hex');
@@ -207,7 +269,118 @@ async function isMessageAllowed(text) {
     }
 }
 
+// --- Admin Authorization Middleware ---
+const validateAdmin = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || authHeader !== `Bearer ${RCL_ADMIN_KEY}`) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    next();
+};
+
+// --------------------------------
+// --- Admin Registry Endpoints ---
+// --------------------------------
+// ----- registry -----
+// 1. List all registered universes
+app.get('/api/v1/admin/registry', validateAdmin, async (req, res) => {
+    try {
+        const games = await getAllGames();
+        res.json(games);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 2. Add or Update a game (JSON Body: { "universeId": 123, "apiKey": "secret" })
+app.post('/api/v1/admin/registry', express.json(), validateAdmin, async (req, res) => {
+    const { universeId, apiKey } = req.body;
+    if (!universeId || !apiKey) return res.status(400).send("Missing data");
+
+    try {
+        await upsertGame(universeId, apiKey);
+        res.json({ status: "success", message: `Universe ${universeId} updated.` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 3. Delete a game
+app.delete('/api/v1/admin/registry/:id', validateAdmin, async (req, res) => {
+    try {
+        await removeGame(req.params.id);
+        res.json({ status: "deleted" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ----- verified users -----
+app.get('/api/v1/admin/verified', validateAdmin, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT hwid, roblox_id FROM verified_users ORDER BY roblox_id');
+        res.json(result.rows); // Returns an array of objects { hwid, roblox_id }
+    } catch (err) {
+        console.error("Admin DB List Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ----- Command Mailbox Middleware -----
+const validateRegistry = async (req, res, next) => {
+    const universeId = req.headers['x-universe-id'];
+    const apiKey = req.headers['x-api-key'];
+    const jobId = req.headers['x-job-id'];
+
+    if (!universeId || !apiKey || !jobId) {
+        return res.status(401).json({ error: "Missing identity headers." });
+    }
+
+    const isAuthenticated = await authenticateGameServer(universeId, apiKey);
+
+    if (!isAuthenticated) {
+        console.warn(`Unauthorized access attempt: Universe ${universeId}`);
+        return res.status(403).json({ error: "Invalid credentials." });
+    }
+
+    // Attach jobId to request for use in the actual endpoint logic
+    req.jobId = jobId;
+    next();
+};
+
+// --------------------------------
+// ----- The Mailbox Endpoint -----
+// --------------------------------
+// This endpoint is protected by the registry module
+app.get('/api/v1/commands', validateRegistry, (req, res) => {
+    const { jobId } = req;
+
+    // 1. Get current mail
+    const messages = mailboxStore.get(jobId) || [];
+
+    // 2. Filter out any that expired exactly now (edge case)
+    const validMessages = messages.filter(msg => msg.expiresAt > Date.now());
+
+    // 3. Clear the mailbox (Destructive Read)
+    mailboxStore.delete(jobId);
+
+    // 4. Return only the raw payloads to Roblox
+    // This allows Roblox to receive [ {type: "Emote"...}, {type: "Emote"...} ]
+    const payloads = validMessages.map(m => m.payload);
+
+    res.json(payloads);
+});
+
+// --------------------------------------
+// ----- The Verification Endpoints -----
+// --------------------------------------
+app.post('/api/v1/verify/generate', express.json(), generateCode);
+app.post('/api/v1/verify/confirm', express.json(), verifyProfile);
+app.post('/api/v1/verify/unverify', express.json(), unverifyUser);
+
+// -----------------------------
 // ----- The Echo Endpoint -----
+// -----------------------------
 // Rate limiter per real client IP (req.ip trusted)
 // WARNING: Render free tier may be slow to startup as it spins down inactive services
 app.use(
@@ -298,16 +471,29 @@ wss.on('connection', (ws, req) => {
 
     // --- Begin WS message handling ---
     ws.on('message', async (data) => {
-        if (data.length > 1024) {
-            // Above 1kb is not allowed (same as HTTP limit)
-            return; // Just drop the message without closing the websocket
-        }
         try {
             const payload = JSON.parse(data);
 
             // 1. JOIN LOGIC: Creates channel on the fly if it doesn't exist
             if (payload.type === 'join') {
-                const { channelId } = payload;
+                const { channelId, hwid } = payload;
+                const { getRobloxIdByHwid, getRobloxUsername } = require('./verification');
+
+                // Only attempt database lookup if hwid was actually provided
+                let robloxId = null;
+                if (hwid) {
+                    robloxId = await getRobloxIdByHwid(hwid);
+                }
+
+                if (robloxId) {
+                    const username = await getRobloxUsername(robloxId);
+                    ws.senderName = username;
+                    ws.isVerified = true;
+                } else {
+                    // Fallback for users who aren't verified or didn't send an HWID
+                    ws.senderName = `Guest ${connectionPort}`;
+                    ws.isVerified = false;
+                }
 
                 // If user is already in another channel, remove them
                 const previousChannel = userChannelMap.get(userKey);
@@ -340,9 +526,10 @@ wss.on('connection', (ws, req) => {
                     broadcastToChannel(currentChannel, {
                         type: 'message',
                         text: payload.text,
-                        sender: `Guest ${connectionPort}` // Use the connection port as a simple guest identifier (since we don't have real user accounts)
-                                                          // Note that this will change on every reconnection
-                                                          // And the port may be reassigned to another user after they disconnect
+                        sender: ws.senderName, // This will now be "RobloxUser:123" or "Guest 456"
+                                               // Note that guest numbers are temporary and change on every reconnect, so they cannot be used to track users across sessions.
+                                               //They are only for display purposes within a single session.
+                        verified: ws.isVerified
                     });
                 } else {
                     // IMPORTANT: do NOT log message contents if rejected

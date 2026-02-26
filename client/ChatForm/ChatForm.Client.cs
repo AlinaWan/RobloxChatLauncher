@@ -17,6 +17,10 @@ namespace RobloxChatLauncher
         // Collection of muted users (case-insensitive)
         private System.Collections.Generic.HashSet<string> mutedUsers = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        // Verification state tracking
+        private VerificationService _verifyService = new VerificationService();
+        private long _pendingRobloxId = 0;
+
         // WebSocket connection and message handling
         private async Task ConnectWebSocket(CancellationToken ct)
         {
@@ -37,12 +41,16 @@ namespace RobloxChatLauncher
                     this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connecting to server {channelId}...\r\n")));
 
                     // Use the passed 'ct' token here
-                    await wsClient.ConnectAsync(new Uri($"wss://{BASE_URL}/"), ct);
+                    await wsClient.ConnectAsync(new Uri($"wss://{Constants.Constants.BASE_URL}/"), ct);
 
                     var joinPayload = new
                     {
                         type = "join",
-                        channelId = this.channelId
+                        channelId = this.channelId,
+                        // Only send the HWID if the user has successfully verified in the past
+                        hwid = Properties.Settings1.Default.IsVerified
+                            ? Services.VerificationService.GetMachineId()
+                            : null
                     };
                     string json = JsonConvert.SerializeObject(joinPayload);
 
@@ -205,7 +213,7 @@ namespace RobloxChatLauncher
                 // 2. Network Call
                 var content = new StringContent(userMessage, Encoding.UTF8, "text/plain");
                 // PaaS echo server for POC demo testing
-                var response = await client.PostAsync($"https://{BASE_URL}/echo", content);
+                var response = await client.PostAsync($"https://{Constants.Constants.BASE_URL}/echo", content);
 
                 if (response.IsSuccessStatusCode)
                 {

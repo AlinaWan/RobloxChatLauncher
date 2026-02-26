@@ -12,7 +12,7 @@ using System.Text;
 try
 {
     var cwd = Directory.GetCurrentDirectory();
-    var sourceFile = Path.Combine(cwd, "client", "ChatForm.Commands.cs");
+    var sourceFile = Path.Combine(cwd, "client", "ChatForm", "ChatForm.Commands.cs");
     var outputFile = Path.Combine(cwd, "assets", "docs", "COMMANDS.md");
 
     if (!File.Exists(sourceFile))

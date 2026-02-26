@@ -1,6 +1,6 @@
 {
     "name": "rcl-demo-server",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Demo server for chat testing for Roblox Chat Launcher POC",
     "main": "server.js",
     "scripts": {
@@ -10,6 +10,7 @@
         "axios": "^1.13.2",
         "express": "^4.22.1",
         "express-rate-limit": "^8.2.1",
+        "pg": "^8.19.0",
         "ws": "^8.19.0"
     }
 }

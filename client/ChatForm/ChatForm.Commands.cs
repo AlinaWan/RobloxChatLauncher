@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Windows.Forms;
 
+using RobloxChatLauncher.Services;
+
 namespace RobloxChatLauncher
 {
     public partial class ChatForm : Form
@@ -80,6 +82,58 @@ namespace RobloxChatLauncher
                 case "/closeconsole":
                 case "/closedebug":
                     CloseDebugConsole();
+                    return true;
+
+                case "/verify":
+                    if (string.IsNullOrWhiteSpace(args))
+                    {
+                        chatBox.AppendText("[System]: Usage: /verify <RobloxUsername>\r\n");
+                    }
+                    else
+                    {
+                        chatBox.AppendText($"[System]: Fetching code for {args}...\r\n");
+                        var result = await _verifyService.StartVerification(args);
+                        _pendingRobloxId = result.RobloxId;
+
+                        chatBox.AppendText($"1. Copy this code: {result.Code}\r\n");
+                        chatBox.AppendText($"2. Paste it into your Roblox Profile 'About' section.\r\n");
+                        chatBox.AppendText($"3. Type /confirm to finish.\r\n");
+                        chatBox.AppendText($"The code will expire in 10 minutes.\r\n");
+                    }
+                    return true;
+
+                case "/confirm":
+                    if (await _verifyService.ConfirmVerification(_pendingRobloxId))
+                    {
+                        chatBox.AppendText("[System]: 🎀 Account linked successfully!\r\n");
+                    }
+                    else
+                    {
+                        chatBox.AppendText("[System]: ❌ Code not found. Please check your profile.\r\n");
+                    }
+
+                    // Trigger a reconnection to update their name to their verified username immediately
+                    await RestartWebSocketAsync();
+                    return true;
+
+                case "/unverify":
+                case "/logout":
+                    chatBox.AppendText("[System]: Unlinking your Roblox account and clearing local data...\r\n");
+                    bool unverified = await _verifyService.Unverify();
+
+                    if (unverified)
+                    {
+                        chatBox.AppendText("[System]: 🗑️ Successfully unverified. You are now a Guest.\r\n");
+                    }
+                    else
+                    {
+                        // Even if the server call fails, we cleared local settings, 
+                        // so the user is effectively a guest now anyway.
+                        chatBox.AppendText("[System]: Local data cleared. (Server sync may have failed).\r\n");
+                    }
+
+                    // Trigger a reconnection to update their name to "Guest" immediately
+                    await RestartWebSocketAsync();
                     return true;
 
                 default:
