@@ -33,8 +33,10 @@ To ensure your environment matches production builds:
 
 * **[Visual Studio 2026](https://visualstudio.microsoft.com/downloads/):** primary IDE; required to target .NET 10.0.
 * **[.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0):** the target framework for the C# client.
-* **[Inno Setup](https://jrsoftware.org/isdl.php) (latest version):** for building the installer.
+* **[Inno Setup 6.7+](https://jrsoftware.org/isdl.php):** for building the installer.
 * **[Docker Desktop](https://www.docker.com/products/docker-desktop/):** to build images and deploy the back-end server.
+* **[PostgreSQL 18+](https://www.postgresql.org/download/):** required to start the back-end server.
+  * Must provide a valid `DATABASE_URL` environment variable.
 
 ### Testing & Virtualization
 
