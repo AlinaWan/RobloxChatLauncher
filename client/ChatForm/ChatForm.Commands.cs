@@ -98,7 +98,7 @@ namespace RobloxChatLauncher
                         chatBox.AppendText($"1. Copy this code: {result.Code}\r\n");
                         chatBox.AppendText($"2. Paste it into your Roblox Profile 'About' section.\r\n");
                         chatBox.AppendText($"3. Type /confirm to finish.\r\n");
-                        chatBox.AppendText($"The code will expire in 10 minutes.\r\n");
+                        chatBox.AppendText($"Your code will expire in 10 minutes.\r\n");
                     }
                     return true;
 
