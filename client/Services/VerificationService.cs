@@ -43,7 +43,7 @@ namespace RobloxChatLauncher.Services
             };
             var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"{Constants.Constants.BASE_URL}/generate", content);
+            var response = await client.PostAsync($"https://{Constants.Constants.BASE_URL}/generate", content);
             var json = await response.Content.ReadAsStringAsync();
 
             // Deserialize into our helper class
@@ -62,7 +62,7 @@ namespace RobloxChatLauncher.Services
             };
             var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"{Constants.Constants.BASE_URL}/confirm", content);
+            var response = await client.PostAsync($"https://{Constants.Constants.BASE_URL}/confirm", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -87,7 +87,7 @@ namespace RobloxChatLauncher.Services
                 var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
 
                 // 1. Tell the server to delete the link
-                var response = await client.PostAsync($"{Constants.Constants.BASE_URL}/unverify", content);
+                var response = await client.PostAsync($"https://{Constants.Constants.BASE_URL}/unverify", content);
 
                 // 2. Clear local settings regardless of server response
                 Properties.Settings1.Default.RobloxUserId = 0;
