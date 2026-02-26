@@ -1,7 +1,19 @@
 const axios = require('axios');
 const { pool } = require('./postgresPool');
 
+// --- Pending verifications ---
 const pendingVerifications = new Map();
+// Structure: robloxId -> { code: string, expiresAt: number }
+const VERIFICATION_TTL_MS = 10 * 60 * 1000; // 10 minutes ttl for verification codes
+
+// Periodic cleanup for expired codes
+setInterval(() => {
+    const now = Date.now();
+    for (const [robloxId, entry] of pendingVerifications.entries()) {
+        if (entry.expiresAt <= now) pendingVerifications.delete(robloxId);
+    }
+}, 60 * 1000); // run every minute
+
 const nameCache = new Map(); // Keep names in memory to avoid API spam
 
 async function generateCode(req, res) {
@@ -19,7 +31,8 @@ async function generateCode(req, res) {
         const robloxId = userRes.data.data[0].id;
         const code = `RCL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-        pendingVerifications.set(robloxId, code);
+        // Store both code and expiration timestamp
+        pendingVerifications.set(robloxId, { code, expiresAt: Date.now() + VERIFICATION_TTL_MS });
         res.json({ code, robloxId });
     } catch (err) {
         console.error("Generate Error:", err);
@@ -29,9 +42,11 @@ async function generateCode(req, res) {
 
 async function verifyProfile(req, res) {
     const { robloxId, hwid } = req.body;
-    const expectedCode = pendingVerifications.get(robloxId);
+    const entry = pendingVerifications.get(robloxId);
 
-    if (!expectedCode) return res.status(400).send("No pending verification.");
+    if (!entry) return res.status(400).send("No pending verification or code expired.");
+
+    const expectedCode = entry.code;
 
     try {
         // 1. Check Roblox profile blurb

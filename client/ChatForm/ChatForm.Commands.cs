@@ -98,6 +98,7 @@ namespace RobloxChatLauncher
                         chatBox.AppendText($"1. Copy this code: {result.Code}\r\n");
                         chatBox.AppendText($"2. Paste it into your Roblox Profile 'About' section.\r\n");
                         chatBox.AppendText($"3. Type /confirm to finish.\r\n");
+                        chatBox.AppendText($"The code will expire in 10 minutes.\r\n");
                     }
                     return true;
 
@@ -110,6 +111,9 @@ namespace RobloxChatLauncher
                     {
                         chatBox.AppendText("[System]: ❌ Code not found. Please check your profile.\r\n");
                     }
+
+                    // Trigger a reconnection to update their name to their verified username immediately
+                    await RestartWebSocketAsync();
                     return true;
 
                 case "/unverify":
@@ -128,7 +132,7 @@ namespace RobloxChatLauncher
                         chatBox.AppendText("[System]: Local data cleared. (Server sync may have failed).\r\n");
                     }
 
-                    // Optional: Trigger a reconnection to update their name to "Guest" immediately
+                    // Trigger a reconnection to update their name to "Guest" immediately
                     await RestartWebSocketAsync();
                     return true;
 
