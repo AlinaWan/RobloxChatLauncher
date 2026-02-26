@@ -281,6 +281,7 @@ const validateAdmin = (req, res, next) => {
 // --------------------------------
 // --- Admin Registry Endpoints ---
 // --------------------------------
+// ----- registry -----
 // 1. List all registered universes
 app.get('/api/v1/admin/registry', validateAdmin, async (req, res) => {
     try {
@@ -310,6 +311,17 @@ app.delete('/api/v1/admin/registry/:id', validateAdmin, async (req, res) => {
         await removeGame(req.params.id);
         res.json({ status: "deleted" });
     } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ----- verified users -----
+app.get('/api/v1/admin/verified', validateAdmin, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT hwid, roblox_id FROM verified_users ORDER BY roblox_id');
+        res.json(result.rows); // Returns an array of objects { hwid, roblox_id }
+    } catch (err) {
+        console.error("Admin DB List Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
