@@ -282,7 +282,7 @@ const validateAdmin = (req, res, next) => {
 // --- Admin Registry Endpoints ---
 // --------------------------------
 // 1. List all registered universes
-app.get('/api/admin/registry', validateAdmin, async (req, res) => {
+app.get('/api/v1/admin/registry', validateAdmin, async (req, res) => {
     try {
         const games = await getAllGames();
         res.json(games);
@@ -292,7 +292,7 @@ app.get('/api/admin/registry', validateAdmin, async (req, res) => {
 });
 
 // 2. Add or Update a game (JSON Body: { "universeId": 123, "apiKey": "secret" })
-app.post('/api/admin/registry', express.json(), validateAdmin, async (req, res) => {
+app.post('/api/v1/admin/registry', express.json(), validateAdmin, async (req, res) => {
     const { universeId, apiKey } = req.body;
     if (!universeId || !apiKey) return res.status(400).send("Missing data");
 
@@ -305,7 +305,7 @@ app.post('/api/admin/registry', express.json(), validateAdmin, async (req, res) 
 });
 
 // 3. Delete a game
-app.delete('/api/admin/registry/:id', validateAdmin, async (req, res) => {
+app.delete('/api/v1/admin/registry/:id', validateAdmin, async (req, res) => {
     try {
         await removeGame(req.params.id);
         res.json({ status: "deleted" });
