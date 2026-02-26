@@ -25,6 +25,66 @@ This guide covers everything you need to start contributing: environment setup, 
 
 ---
 
+## 🏗️ Architecture Overview
+
+Roblox Chat Launcher consists of:
+
+- A C# desktop client (.NET 10)
+- A Node.js backend server
+- A PostgreSQL database
+- An optional Windows installer (Inno Setup)
+
+The client connects to the backend via WebSockets and REST endpoints.
+The backend handles validation, session management, and database operations.
+
+### Client (C# / .NET 10 / WinForms)
+
+- Located in `/client`
+- Entry point: `Program.cs`
+
+#### Base URL Configuration
+
+The backend base URL used by the client is defined in:
+
+`Constants.cs`
+
+Important formatting rules:
+
+- Do not include a URI `https` or `wss`
+- Do not include a colon `:`
+- Do not include leading slashes `//`
+- Do not include a trailing slash `/`
+
+Example (correct):
+
+`example.com`
+
+Example (incorrect):
+
+`https://example.com/`
+
+### Server (Node.js / Express)
+
+- Located in `/server`
+- Entry point: `server.js`
+- Uses Express for REST endpoints
+- Uses WebSockets for real-time communication
+- Requires a PostgreSQL database
+- Requires a valid `DATABASE_URL` environment variable
+
+The server will fail to start if PostgreSQL is not configured correctly.
+
+### Communication Flow
+
+User → C# Client → WebSocket/REST → Node.js Server → PostgreSQL
+
+```mermaid
+graph TD
+    User --> Client[C# Client]
+    Client -->|WebSocket| Server[Node.js Server]
+    Server --> Database[(PostgreSQL)]
+```
+
 ## 🛠️ Recommended Development Environment
 
 To ensure your environment matches production builds:
