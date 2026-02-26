@@ -42,7 +42,7 @@ const { authenticateGameServer } = require('./registry');
 const { getAllGames, upsertGame, removeGame } = require('./registry');
 const RCL_ADMIN_KEY = process.env.RCL_ADMIN_KEY;
 
-const { generateCode, verifyProfile } = require('./verification');
+const { generateCode, verifyProfile, unverifyUser } = require('./verification');
 
 // ----- Express App Setup -----
 const app = express();
