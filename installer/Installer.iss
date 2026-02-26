@@ -23,7 +23,7 @@ Source: "{#Root}\client\bin\Release\net10.0-windows\publish\*"; DestDir: "{app}"
 
 [Run]
 ; Silently run the app to register it as the Roblox launcher
-Filename: "{app}\ConsoleApp1.exe"; Flags: nowait runhidden
+Filename: "{app}\RobloxChatLauncher.exe"; Flags: nowait runhidden
 
 [Code]
 // -----------------------------------------------------
