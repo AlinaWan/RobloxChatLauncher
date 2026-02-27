@@ -65,7 +65,6 @@ async function removeGame(universeId) {
 
 module.exports = {
     authenticateGameServer,
-    pool,
     getAllGames,
     upsertGame,
     removeGame
