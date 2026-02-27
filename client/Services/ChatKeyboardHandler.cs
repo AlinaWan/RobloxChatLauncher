@@ -37,11 +37,14 @@ namespace RobloxChatLauncher.Services
             if (form.WindowState == FormWindowState.Minimized)
                 return;
 
-            // 2. Ignore all input if Roblox is NOT the active (focused) window
-            // We get the current foreground window and compare it to Roblox's handle
+            // 2. Ignore all input if Roblox OR the Chat Window is NOT the active (focused) window
+            // We get the current foreground window and compare it to Roblox's or the Chat Window's handle
             // This handles cases where the user alt-tabs away or clicks another window
             IntPtr foregroundWindow = NativeMethods.GetForegroundWindow();
-            if (!form.IsRobloxForegroundProcess())
+            // Check if the foreground window is Roblox OR if it's our Chat Window
+            bool isRobloxFocused = form.IsRobloxForegroundProcess();
+            bool isChatFocused = (foregroundWindow == form.Handle);
+            if (!isRobloxFocused && !isChatFocused)
                 return;
 
             if (!chatMode)
