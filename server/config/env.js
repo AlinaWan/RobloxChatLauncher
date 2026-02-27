@@ -2,6 +2,8 @@ const config = {
     PORT: process.env.PORT || 10000,
     DATABASE_URL: process.env.DATABASE_URL,
     RCL_ADMIN_KEY: process.env.RCL_ADMIN_KEY,
+    RCL_WRITE_KEY: process.env.RCL_WRITE_KEY,
+    RCL_READ_KEY: process.env.RCL_READ_KEY,
     PERSPECTIVE_API_KEY: process.env.PERSPECTIVE_API_KEY,
     USER_SALT: process.env.USER_SALT,
 };
