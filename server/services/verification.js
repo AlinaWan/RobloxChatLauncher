@@ -133,5 +133,7 @@ module.exports = {
     verifyProfile,
     getRobloxIdByHwid,
     getRobloxUsername,
-    unverifyUser
+    unverifyUser,
+    upsertUser,
+    removeUser
 };
