@@ -6,8 +6,8 @@ local HttpBridge = {}
 -- Configuration
 -------------------------------
 local BASE_URL = "https://RobloxChatLauncherDemo.onrender.com"
-local API_KEY = "YOUR_SECRET_KEY" -- Replace with the key given to you by Riri or RCL admin
-local UNIVERSE_ID = tostring(game.GameId) -- game.GameId is the UniverseId. The game must be published or game.GameId will return 0 and error
+local API_KEY = HttpService:GetSecret("RCL_API_KEY") -- Replace with the key given to you by Riri or RCL admin
+local UNIVERSE_ID = tostring(game.GameId) -- game.GameId is the UniverseId. The game must be published or game.GameId will return 0 and requests will fail with 403
 
 -- Helper to format URLs consistently
 local function formatUrl(path: string): string
@@ -23,17 +23,17 @@ function HttpBridge.send(url: string, payload: table)
     local fullUrl = formatUrl(url)
     task.spawn(function()
         local success, result = pcall(function()
-            return HttpService:PostAsync(
-                fullUrl,
-                HttpService:JSONEncode(payload),
-                Enum.HttpContentType.ApplicationJson,
-                false, -- compress
-                {
+            return HttpService:RequestAsync({
+                Url = fullUrl,
+                Method = "POST",
+                Headers = {
                     ["x-api-key"] = API_KEY,
                     ["x-universe-id"] = UNIVERSE_ID,
-                    ["x-job-id"] = game.JobId
-                }
-            )
+                    ["x-job-id"] = game.JobId,
+                    ["Content-Type"] = "application/json"
+                },
+                Body = HttpService:JSONEncode(payload)
+            })
         end)
         if not success then warn("[RCL Egress] Error:", result) end
     end)
