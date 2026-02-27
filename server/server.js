@@ -10,7 +10,7 @@ const Constants = require('./config/constants');
 const Env = require('./config/env');
 const { pool, initDatabase } = require('./db/postgresPool');
 const { isMessageAllowed } = require('./services/moderationService');
-const { generateCode, verifyProfile, unverifyUser } = require('./services/verification');
+const { getRobloxIdByHwid, getRobloxUsername, generateCode, verifyProfile, unverifyUser } = require('./services/verification');
 const { mailboxStore, pushToMailbox } = require('./services/mailboxService');
 const { authenticateGameServer, getAllGames, upsertGame, removeGame } = require('./services/registry');
 
@@ -343,7 +343,6 @@ wss.on('connection', (ws, req) => {
             // 1. JOIN LOGIC: Creates channel on the fly if it doesn't exist
             if (payload.type === 'join') {
                 const { channelId, hwid } = payload;
-                const { getRobloxIdByHwid, getRobloxUsername } = require('./verification');
 
                 // Only attempt database lookup if hwid was actually provided
                 let robloxId = null;
