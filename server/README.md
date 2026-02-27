@@ -20,7 +20,7 @@ If you choose to verify your Roblox account, we prioritize data minimization:
 ### What the server does NOT see:
 
 * **Your Public IP:** While Render (our hosting provider) processes your IP for standard internet communication, our application code does **not** log it or provide us with access to view it.
-* **Permanent Identifiers:** We do not permanent identifiers or track pseudo-anonymous IDs. The server only sees a temporary **Guest Label** based on the WebSocket connection port.
+* **Permanent Identifiers:** We do not use permanent identifiers, or even assign pseudo-anonymous IDs. The server only sees a temporary **Guest Label** based on the WebSocket connection port.
 
 > [!IMPORTANT]
 > **Guest labels change on every reconnect.** You can verify this by running `/rc` on the client. This reconnects the WebSocket and assigns you a new guest number. Note that ports may be reused across sessions over time.
