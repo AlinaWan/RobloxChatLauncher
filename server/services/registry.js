@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { pool } = require('./postgresPool');
+const { pool } = require('../db/postgresPool');
 
 /**
  * Validates the UniverseId and API Key against the PostgreSQL registry.

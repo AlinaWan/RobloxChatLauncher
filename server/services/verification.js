@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { pool } = require('./postgresPool');
+const { pool } = require('../db/postgresPool');
 
 // --- Pending verifications ---
 const pendingVerifications = new Map();
@@ -85,6 +85,22 @@ async function unverifyUser(req, res) {
         console.error("Unverify Error:", err);
         res.status(500).send("Server Error");
     }
+}
+
+// Add or Update a verified user manually
+async function upsertUser(hwid, robloxId) {
+    const query = `
+        INSERT INTO verified_users (hwid, roblox_id)
+        VALUES ($1, $2)
+        ON CONFLICT (hwid) 
+        DO UPDATE SET roblox_id = EXCLUDED.roblox_id;
+    `;
+    await pool.query(query, [hwid, robloxId]);
+}
+
+// Remove a verified user by HWID manually
+async function removeUser(hwid) {
+    await pool.query('DELETE FROM verified_users WHERE hwid = $1', [hwid]);
 }
 
 async function getRobloxUsername(userId) {
