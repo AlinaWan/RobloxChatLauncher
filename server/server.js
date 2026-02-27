@@ -8,6 +8,7 @@ const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 
 const Constants = require('./config/constants');
 const Env = require('./config/env');
+const { createApiKeyMiddleware } = require('./middleware/apiKeyAuth');
 const { pool, initDatabase } = require('./db/postgresPool');
 const { isMessageAllowed } = require('./services/moderationService');
 const { getRobloxIdByHwid, getRobloxUsername, generateCode, verifyProfile, unverifyUser, upsertUser, removeUser } = require('./services/verification');
@@ -114,13 +115,9 @@ async function processQueue() {
 }
 
 // --- Admin Authorization Middleware ---
-const validateAdmin = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader || authHeader !== `Bearer ${Env.RCL_ADMIN_KEY}`) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    next();
-};
+const validateAdmin = createApiKeyMiddleware([
+    Env.RCL_ADMIN_KEY
+]);
 
 // -----------------------
 // --- Admin Endpoints ---
