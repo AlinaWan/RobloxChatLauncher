@@ -1,8 +1,10 @@
 // Small helper module to manage a PostgreSQL connection pool using the 'pg' library.
 const { Pool } = require('pg');
 
+const Env = require('../config/env');
+
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: Env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
 
