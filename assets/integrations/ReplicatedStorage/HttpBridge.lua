@@ -5,7 +5,7 @@ local HttpBridge = {}
 -------------------------------
 -- Configuration
 -------------------------------
-local BASE_URL = "https://RobloxChatLauncherDemo.onrender.com"
+local BASE_URL = "https://RobloxChatLauncher.onrender.com"
 local API_KEY = HttpService:GetSecret("RCL_API_KEY") -- Replace with the key given to you by Riri or RCL admin
 local UNIVERSE_ID = tostring(game.GameId) -- game.GameId is the UniverseId. The game must be published or game.GameId will return 0 and requests will fail with 403
 

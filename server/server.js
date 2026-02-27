@@ -301,7 +301,7 @@ app.post('/echo', async (req, res) => {
 // --------------------------------------
 // WebSocket connection handling
 // Usage:
-// Connect: wss://RobloxChatLauncherDemo.onrender.com/
+// Connect: wss://RobloxChatLauncher.onrender.com/
 // Join: {"type": "join", "channelId": "c91feeaf-ef07-4a39-af05-a88032c358d2"}
 // channelId is the ID found using the RobloxAreaService class (a.k.a. JobId)
 // Chat: {"type": "message", "text": "Hello world!"}
