@@ -131,6 +131,9 @@ namespace RobloxChatLauncher
                 isWindowHidden = !isWindowHidden;
                 mainContainer.Visible = !isWindowHidden;
 
+                // Also hide the toggle button itself when the window is hidden
+                toggleBtn.Visible = !isWindowHidden;
+
                 // Update the visual state of the button
                 toggleBtn.IsActive = !isWindowHidden;
                 toggleBtn.Invalidate();
@@ -175,16 +178,6 @@ namespace RobloxChatLauncher
                 Size = new Size(45, 45),
                 Cursor = Cursors.Hand
             };
-
-            // Button click toggling visibility is buggy so prefer
-            // Using the Ctrl+Shift+C hotkey instead.
-            /*
-            toggleBtn.Clicked += (s, e) =>
-            {
-                isWindowHidden = !isWindowHidden;
-                mainContainer.Visible = !isWindowHidden;
-            };
-            */
 
             toggleBtn.Dragged += (s, delta) =>
             {

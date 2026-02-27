@@ -103,6 +103,11 @@ namespace RobloxChatLauncher
                     return true;
 
                 case "/confirm":
+                    if (_pendingRobloxId == 0)
+                    {
+                        chatBox.AppendText("[System]: ⚠️ Please run /verify <username> first!\r\n");
+                        return true;
+                    }
                     if (await _verifyService.ConfirmVerification(_pendingRobloxId))
                     {
                         chatBox.AppendText("[System]: 🎀 Account linked successfully!\r\n");
