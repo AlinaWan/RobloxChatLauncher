@@ -21,7 +21,10 @@ namespace RobloxChatLauncher.Services
             key == Keys.Back ||
             key == Keys.ControlKey ||
             key == Keys.ShiftKey ||
-            key == Keys.Menu; // Both alt keys
+            key == Keys.Menu || // Both alt keys
+            key == Keys.Left || key == Keys.Right ||
+            key == Keys.Up || key == Keys.Down;
+
 
         public ChatKeyboardHandler(ChatForm chatForm)
         {
@@ -62,6 +65,26 @@ namespace RobloxChatLauncher.Services
                     form.StartChatMode();
                     e.Handled = true;
                 }
+                return;
+            }
+
+            // --- NEW: Handle Ctrl Shortcuts ---
+            if (e.Control)
+            {
+                if (e.KeyCode == Keys.V)
+                {
+                    form.AppendTextFromKey(Clipboard.GetText());
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            // --- NEW: Handle Arrow Keys ---
+            if (e.KeyCode == Keys.Left || e.KeyCode == Keys.Right || e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+            {
+                // Pass the arrow key to the form to move the internal caret
+                form.HandleNavigation(e.KeyCode);
+                e.Handled = true;
                 return;
             }
 

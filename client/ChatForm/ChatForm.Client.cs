@@ -176,22 +176,31 @@ namespace RobloxChatLauncher
         }
         public async Task Send()
         {
-            if (string.IsNullOrWhiteSpace(rawInputText))
+            try
             {
-                ExitChatUI();
-                return;
+                if (string.IsNullOrWhiteSpace(rawInputText))
+                {
+                    ExitChatUI();
+                    return;
+                }
+
+                string userMessage = rawInputText;
+                ExitChatUI(); // Helper to reset targetOpacity/SyncInput
+
+                // 1. Check if it's a command first
+                bool isCommand = await HandleCommands(userMessage);
+
+                // 2. If not a command, send normally via WebSocket
+                if (!isCommand)
+                {
+                    await SendWebSocketMessage(userMessage);
+                }
             }
-
-            string userMessage = rawInputText;
-            ExitChatUI(); // Helper to reset targetOpacity/SyncInput
-
-            // 1. Check if it's a command first
-            bool isCommand = await HandleCommands(userMessage);
-
-            // 2. If not a command, send normally via WebSocket
-            if (!isCommand)
+            catch (Exception ex)
             {
-                await SendWebSocketMessage(userMessage);
+                this.Invoke((MethodInvoker)delegate {
+                    chatBox.AppendText($"[Error]: Failed to send message: {ex.Message}\r\n");
+                });
             }
         }
 

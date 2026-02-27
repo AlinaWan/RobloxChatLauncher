@@ -468,15 +468,26 @@ namespace RobloxChatLauncher
 
         public void AppendTextFromKey(string text)
         {
-            rawInputText += text;
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            // Insert text at current caret position
+            rawInputText = rawInputText.Insert(inputBox.CaretIndex, text);
+
+            // Move caret forward by the length of inserted text
+            inputBox.CaretIndex += text.Length;
             SyncInput();
         }
 
         public void Backspace()
         {
-            if (rawInputText.Length > 0)
-                rawInputText = rawInputText[..^1];
-            SyncInput();
+            if (rawInputText.Length > 0 && inputBox.CaretIndex > 0)
+            {
+                // Remove 1 char to the left of caret
+                rawInputText = rawInputText.Remove(inputBox.CaretIndex - 1, 1);
+                inputBox.CaretIndex--;
+                SyncInput();
+            }
         }
 
         public void CancelChatMode()
@@ -490,6 +501,38 @@ namespace RobloxChatLauncher
         {
             inputBox.RawText = rawInputText;
             inputBox.IsChatting = isChatting;
+
+            // Safety check to prevent index out of bounds
+            if (inputBox.CaretIndex > rawInputText.Length)
+                inputBox.CaretIndex = rawInputText.Length;
+
+            inputBox.Invalidate();
+        }
+
+        public string GetInputText() => rawInputText;
+
+        // Handle Arrow Keys
+        public void HandleNavigation(Keys key)
+        {
+            if (key == Keys.Left)
+            {
+                inputBox.CaretIndex = Math.Max(0, inputBox.CaretIndex - 1);
+            }
+            else if (key == Keys.Right)
+            {
+                inputBox.CaretIndex = Math.Min(rawInputText.Length, inputBox.CaretIndex + 1);
+            }
+            else if (key == Keys.Home)
+            {
+                inputBox.CaretIndex = 0;
+            }
+            else if (key == Keys.End)
+            {
+                inputBox.CaretIndex = rawInputText.Length;
+            }
+
+            // Reset timer so caret is immediately visible when moving
+            // caretVisible = true; 
             inputBox.Invalidate();
         }
 

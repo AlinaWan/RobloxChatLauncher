@@ -10,12 +10,11 @@
     class ChatInputBox : TextBox
     {
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool IsChatting
-        {
-            get; set;
-        }
+        public bool IsChatting { get; set; }
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string RawText { get; set; } = "";
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int CaretIndex { get; set; } = 0;
 
         bool caretVisible = true;
         System.Windows.Forms.Timer caretTimer;
@@ -46,19 +45,30 @@
         protected override void OnPaint(PaintEventArgs e)
         {
             e.Graphics.Clear(BackColor);
-
-            string text;
+            string displayText;
             Color color;
 
             if (!IsChatting && string.IsNullOrEmpty(RawText))
             {
-                text = "Press / key | Ctrl+Shift+C to hide";
-                color = Color.FromArgb(180, 200, 200, 200); // Gray placeholder
+                displayText = "Press / key | Ctrl+Shift+C to hide";
+                color = Color.FromArgb(180, 200, 200, 200);
             }
             else
             {
-                text = RawText + (IsChatting && caretVisible ? "|" : "");
-                color = ForeColor; // White text
+                // Logic: Insert the "|" at the CaretIndex position
+                // Ensure index stays within bounds safely
+                int safeIndex = Math.Max(0, Math.Min(CaretIndex, RawText.Length));
+
+                if (IsChatting && caretVisible)
+                {
+                    displayText = RawText.Insert(safeIndex, "|");
+                }
+                else
+                {
+                    // Draw a space where the caret would be to prevent text "jumping"
+                    displayText = RawText.Insert(safeIndex, " ");
+                }
+                color = ForeColor;
             }
 
             // Set a 10px margin so text doesn't hit the edge
@@ -66,7 +76,7 @@
 
             TextRenderer.DrawText(
                 e.Graphics,
-                text,
+                displayText,
                 Font,
                 textRect,
                 color,
