@@ -1,4 +1,12 @@
 --!language luau
+--[=[
+    Copyright (c) 2026 Riri a.k.a. Alina Wan <https://github.com/AlinaWan>
+
+    Source: https://github.com/AlinaWan/RobloxChatLauncher/blob/main/assets/integrations/
+    
+    Licensed under the MPL 2.0 license.
+    See https://www.mozilla.org/en-US/MPL/2.0/ for full text.
+--]=]
 local HttpService = game:GetService("HttpService")
 local HttpBridge = {}
 
