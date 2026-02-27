@@ -119,12 +119,23 @@ const validateAdmin = createApiKeyMiddleware([
     Env.RCL_ADMIN_KEY
 ]);
 
+const validateWrite = createApiKeyMiddleware([
+    Env.RCL_ADMIN_KEY,
+    Env.RCL_WRITE_KEY
+]);
+
+const validateRead = createApiKeyMiddleware([
+    Env.RCL_ADMIN_KEY,
+    Env.RCL_WRITE_KEY,
+    Env.RCL_READ_KEY
+]);
+
 // -----------------------
 // --- Admin Endpoints ---
 // -----------------------
 // ------- Registry ------
 // 1. List all registered universes
-app.get('/api/v1/admin/registry', validateAdmin, async (req, res) => {
+app.get('/api/v1/admin/registry', validateRead, async (req, res) => {
     try {
         const games = await getAllGames();
         res.json(games);
@@ -134,7 +145,7 @@ app.get('/api/v1/admin/registry', validateAdmin, async (req, res) => {
 });
 
 // 2. Add or Update a game (JSON Body: { "universeId": 123, "apiKey": "secret" })
-app.post('/api/v1/admin/registry', express.json(), validateAdmin, async (req, res) => {
+app.post('/api/v1/admin/registry', express.json(), validateWrite, async (req, res) => {
     const { universeId, apiKey } = req.body;
     if (!universeId || !apiKey) return res.status(400).send("Missing data");
 
@@ -158,7 +169,7 @@ app.delete('/api/v1/admin/registry/:id', validateAdmin, async (req, res) => {
 
 // ------- Verified ------
 // 1. List all verified users
-app.get('/api/v1/admin/verified', validateAdmin, async (req, res) => {
+app.get('/api/v1/admin/verified', validateRead, async (req, res) => {
     try {
         const result = await pool.query('SELECT hwid, roblox_id FROM verified_users ORDER BY roblox_id');
         res.json(result.rows); // Returns an array of objects { hwid, roblox_id }
@@ -170,7 +181,7 @@ app.get('/api/v1/admin/verified', validateAdmin, async (req, res) => {
 
 
 // 2. Add or Update a user (JSON Body: { "hwid": "...", "robloxId": 12345 })
-app.post('/api/v1/admin/verified', express.json(), validateAdmin, async (req, res) => {
+app.post('/api/v1/admin/verified', express.json(), validateWrite, async (req, res) => {
     const { hwid, robloxId } = req.body;
     if (!hwid || !robloxId) return res.status(400).send("Missing hwid or robloxId");
 
