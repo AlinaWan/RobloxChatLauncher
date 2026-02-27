@@ -106,14 +106,13 @@ namespace RobloxChatLauncher
                     if (await _verifyService.ConfirmVerification(_pendingRobloxId))
                     {
                         chatBox.AppendText("[System]: 🎀 Account linked successfully!\r\n");
+                        // Trigger a reconnection to update their name to their verified username immediately
+                        await RestartWebSocketAsync();
                     }
                     else
                     {
                         chatBox.AppendText("[System]: ❌ Code not found. Please check your profile.\r\n");
                     }
-
-                    // Trigger a reconnection to update their name to their verified username immediately
-                    await RestartWebSocketAsync();
                     return true;
 
                 case "/unverify":
