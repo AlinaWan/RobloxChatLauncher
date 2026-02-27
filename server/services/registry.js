@@ -5,10 +5,6 @@ const { pool } = require('../db/postgresPool');
 const { safeCompare } = require('../utils/secureCompare');
 const { hashKey } = require('../utils/hashKey');
 
-function hashKey(key) {
-    return crypto.createHash('sha256').update(key).digest('hex');
-}
-
 /**
  * Validates the UniverseId and API Key against the PostgreSQL registry.
  */
@@ -25,16 +21,20 @@ async function authenticateGameServer(universeId, apiKey) {
 
         const result = await pool.query(query, [universeId]);
 
+        // Always hash input
+        const hashedInput = hashKey(apiKey);
+
         if (result.rowCount === 0) {
-            // Still do fake compare to avoid oracle
-            const fakeKey = crypto.randomBytes(32).toString('hex');
-            safeCompare(apiKey, fakeKey);
+            // Fake compare to prevent oracle
+            const fake = '0'.repeat(64); // 64 hex chars (sha256 hex)
+            safeCompare(hashedInput, fake);
             return false;
         }
 
-        const storedKey = result.rows[0].api_key;
+        const storedHash = result.rows[0].api_key;
 
-        return safeCompare(apiKey, storedKey);
+        return safeCompare(hashedInput, storedHash);
+
     } catch (err) {
         console.error("Database Auth Error:", err);
         return false;
