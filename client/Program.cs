@@ -13,6 +13,14 @@ class Program
 
     static void Main(string[] args)
     {
+        // Check if we are being called by the Inno Setup Uninstaller
+        if (args.Length > 0 && args[0].Equals("--uninstall", StringComparison.OrdinalIgnoreCase))
+        {
+            RestoreRobloxRegistry();
+            return; // Exit immediately
+        }
+
+        // Else continue with normal launcher execution
         // Initial registration is now conditional on bootstrapper detection
         var robloxClient = RobloxLocator.ResolveRobloxPlayer();
         string exePath = Process.GetCurrentProcess().MainModule.FileName; // Path to our launcher executable
@@ -92,6 +100,35 @@ class Program
         catch (Exception ex)
         {
             MessageBox.Show($"Failed to write registry key: {ex.Message}");
+        }
+    }
+
+    // This method attempts to restore the original Roblox registry key during uninstallation
+    static void RestoreRobloxRegistry()
+    {
+        try
+        {
+            var originalClient = RobloxLocator.ResolveRobloxPlayer();
+            if (originalClient == null)
+                return;
+
+            const string keyPath = @"roblox-player\shell\open\command";
+
+            // Construct the original command string
+            // Bootstrappers and Vanilla usually expect the URI as the first argument
+            string originalCommand = $"\"{originalClient.ExecutablePath}\" \"%1\"";
+
+            using (var key = Registry.ClassesRoot.CreateSubKey(keyPath))
+            {
+                key.SetValue("", originalCommand);
+            }
+
+            Console.WriteLine($"Restored registry to: {originalCommand}");
+        }
+        catch (Exception ex)
+        {
+            // Since this runs hidden during uninstall, we log to a file or ignore
+            File.WriteAllText("uninstall_log.txt", ex.ToString());
         }
     }
 
