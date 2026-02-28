@@ -193,7 +193,7 @@ All commits **must follow [Conventional Commits v1.0.0](https://www.conventional
   <br>
   <p></p>
   
-    <h3>📥 Manual Installation</h3>
+<h3>📥 Manual Installation</h3>
   <h4>1️⃣ Prepare Directories</h4>
   <p>Open <b>PowerShell (Admin)</b>:</p>
   <pre><code>mkdir C:\Downloads
