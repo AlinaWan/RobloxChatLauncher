@@ -1,4 +1,6 @@
-﻿namespace RobloxChatLauncher.UI
+﻿using RobloxChatLauncher.Utils;
+
+namespace RobloxChatLauncher.UI
 {
     // --------------------------------------------------
     // Class for round hide/unhide button
@@ -30,7 +32,7 @@
         {
             this.DoubleBuffered = true; // Prevents flickering during animation
             this.SetStyle(ControlStyles.Selectable, false);
-            LoadRobloxIcons();
+            InitializeRobloxIcons();
 
             // Timer for the logic
             holdTimer = new System.Windows.Forms.Timer { Interval = HOLD_THRESHOLD };
@@ -111,29 +113,21 @@
             base.OnMouseUp(e);
         }
 
-        private void LoadRobloxIcons()
+        private void InitializeRobloxIcons()
         {
-            try
-            {
-                // Get the Roblox version folder to construct the path to the chat icons
-                string versionFolder = RobloxChatLauncher.Utils.RobloxLocator.GetVanillaRobloxVersionFolder();
-                string basePath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "Roblox", "Versions", versionFolder, "content", "textures", "ui", "TopBar");
+            // Load only the icons we need
+            var icons = RobloxIconLoader.LoadIcons(
+                "ui/TopBar/chatOn.png",
+                "ui/TopBar/chatOff.png"
+            );
 
-                // Roblox also has `chatOn@2x.png`, `chatOn@3x.png`, `chatOff@2x.png`, and `chatOff@3x.png`
-                // if needed in the future for higher DPI displays.
-                // There are also voice chat icons in `content/textures/ui/VoiceChat/` if voice chat
-                // support is ever added.
-                string pathOn = Path.Combine(basePath, "chatOn.png");
-                string pathOff = Path.Combine(basePath, "chatOff.png");
+            if (icons.TryGetValue("ui/TopBar/chatOn.png", out var loadedOn))
+                imgOn = loadedOn;
 
-                if (File.Exists(pathOn))
-                    imgOn = Image.FromFile(pathOn);
-                if (File.Exists(pathOff))
-                    imgOff = Image.FromFile(pathOff);
-            }
-            catch { /* Fallback to manual drawing or default icons if path fails */ }
+            if (icons.TryGetValue("ui/TopBar/chatOff.png", out var loadedOff))
+                imgOff = loadedOff;
+
+            // imgOn/imgOff are either loaded or remain null if not found
         }
 
         protected override void OnPaint(PaintEventArgs e)
