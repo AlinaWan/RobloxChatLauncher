@@ -161,9 +161,40 @@ All commits **must follow [Conventional Commits v1.0.0](https://www.conventional
 <details>
   <summary>Click to expand</summary>
   <br>
-  <p>Follow these steps to install .NET 10 and Roblox Chat Launcher <strong>without Git, GitHub CLI, or a browser</strong>. This guide is intended for usage in a minimal virtual machine for the purposes of testing; prefer conventional methods such as <code>git clone</code> elsewhere.</p>
+  <p>
+    Follow these steps to install .NET 10 and Roblox Chat Launcher 
+    <strong>without Git, GitHub CLI, or a browser</strong>. 
+    This guide is intended for usage in a minimal virtual machine for the purposes of testing; 
+    prefer conventional methods such as <code>git clone</code> elsewhere.
+  </p>
+
+  <h3>📥 One-Line Installation</h3>
+  <p>
+    Run the following in <b>PowerShell</b> to perform all setup steps automatically, 
+    including creating directories, installing .NET (Runtime or SDK), 
+    and downloading Roblox Chat Launcher (source or release executable):
+  </p>
+
+  <pre><code>iex (iwr -useb https://raw.githubusercontent.com/AlinaWan/RobloxChatLauncher/main/.github/scripts/setup_vm.ps1); setup -Mode SDK -Branch main
+</code></pre>
+
+  <p><strong>Options:</strong></p>
+  <ul>
+    <li><code>-Mode Runtime</code> – installs the .NET Desktop Runtime</li>
+    <li><code>-Mode SDK</code> – installs the full .NET SDK</li>
+    <li><code>-Branch &lt;branch|tag|commit&gt;</code> – download a specific branch, tag, commit hash, or release tag if -UseReleaseExe</li>
+    <li><code>-UseReleaseExe</code> – download the first release .exe instead of source code</li>
+  </ul>
+
+  <hr>
+
+<details>
+  <summary>Click to see manual setup steps instead</summary>
+  <br>
+  <p></p>
   
-  <h3>1️⃣ Prepare Directories</h3>
+    <h3>📥 Manual Installation</h3>
+  <h4>1️⃣ Prepare Directories</h4>
   <p>Open <b>PowerShell (Admin)</b>:</p>
   <pre><code>mkdir C:\Downloads
 mkdir C:\dotnet
@@ -171,7 +202,7 @@ cd C:\Downloads</code></pre>
 
   <hr>
 
-  <h3>2️⃣ Install .NET 10</h3>
+  <h4>2️⃣ Install .NET 10</h4>
   <p>Install .NET Desktop Runtime:</p>
   <pre><code>Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile C:\dotnet\dotnet-install.ps1
 powershell -ExecutionPolicy Bypass -File C:\dotnet\dotnet-install.ps1 -Runtime windowsdesktop -Channel 10.0
@@ -186,7 +217,7 @@ dotnet --info</code></pre>
 
   <hr>
 
-  <h3>3️⃣ Download RobloxChatLauncher</h3>
+  <h4>3️⃣ Download RobloxChatLauncher</h4>
   <p>Download the repository:</p>
   <pre><code>Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/refs/heads/main.zip" -OutFile "C:\Downloads\RobloxChatLauncher.zip"
 Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\Downloads\RobloxChatLauncher"</code></pre>
@@ -206,7 +237,8 @@ Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\
   
   <p>Or verify the executable exists:</p>
   <pre><code>Test-Path "C:\Downloads\Installer.exe"</code></pre>
-  
+</details>
+
 </details>
 
 ---
