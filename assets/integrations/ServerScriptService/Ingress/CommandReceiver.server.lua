@@ -76,21 +76,23 @@ local function handleIncomingRequest(input)
         ---------------------------------------------------------
         -- ROUTING LOGIC
         ---------------------------------------------------------
-        
+        local targetUserId = tonumber(target) -- Convert to number if it's a string that represents a UserID
+
         -- A. ROUTE TO SERVER: targetPlayer must be explicitly "Server"
         if target == Enums.Target.Server then
             handleServerCommand(payload)
 
         -- B. ROUTE TO PLAYER: targetPlayer is a string (username)
-        elseif type(target) == "number" then
+
+        elseif targetUserId then
             -- Use the UserID to find the player object directly
-            local player = Players:GetPlayerByUserId(target)
+            local player = Players:GetPlayerByUserId(targetUserId)
             
             if player then
                 -- Send the specific payload to the client
                 BridgeEvent:FireClient(player, payload)
             else
-                warn("[RCL Ingress] Player with ID " .. tostring(target) .. " not found in server.")
+                warn("[RCL Ingress] Player with ID " .. tostring(targetUserId) .. " not found in server.")
             end
 
         -- C. ERROR HANDLING: No target or invalid target type
