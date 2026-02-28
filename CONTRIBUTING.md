@@ -139,7 +139,8 @@ graph TD
 
     %% Bidirectional Flow
     Gate -.->|Yes: Fetch Commands| RS
-    RS --"HTTP POST: API Request"--> Auth
+    RS -- GET Mailbox --> Auth
+    RS --"POST Server Data"--> Auth
 
     %% Logic for the Queue
     Gate -.->|No: Expire in Queue| Queue
