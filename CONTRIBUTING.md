@@ -95,9 +95,42 @@ User → C# Client → WebSocket/REST → Node.js Server → PostgreSQL
 
 ```mermaid
 graph TD
-    User --> Client[C# Client]
-    Client -->|WebSocket| Server[Node.js Server]
-    Server --> Database[(PostgreSQL)]
+    %% User Layer
+    subgraph Clients [C# Clients]
+        U1[Guest User]
+        U2[Verified User]
+    end
+
+    %% Node.js Middleware
+    subgraph Server [Node.js Server]
+        Chat[Public Chat Relay]
+        Auth[Command Validator]
+        Queue[Roblox Command Queue]
+    end
+
+    %% Database
+    DB[(PostgreSQL)]
+
+    %% Roblox Integration
+    subgraph Roblox [Roblox Game Server]
+        RS[Roblox Script]
+    end
+
+    %% Flow 1: Public Chat (No DB check)
+    U1 <-->|WebSocket| Chat
+    U2 <-->|WebSocket| Chat
+    Chat <-->|Broadcast| U1
+    Chat <-->|Broadcast| U2
+
+    %% Flow 2: Verified Commands
+    U2 -->|Send Command| Auth
+    Auth -.->|Check Permissions| DB
+    DB -.->|Valid| Auth
+    Auth -->|Push to Queue| Queue
+
+    %% Flow 3: Roblox Integration (HTTP Polling)
+    RS --GET: Fetch Commands--> Queue
+    Queue --JSON Response--> RS
 ```
 
 ## 🛠️ Recommended Development Environment
