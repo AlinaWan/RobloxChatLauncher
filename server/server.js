@@ -15,6 +15,11 @@ const { getRobloxIdByHwid, getRobloxUsername, generateCode, verifyProfile, unver
 const { mailboxStore, pushToMailbox } = require('./services/mailboxService');
 const { authenticateGameServer, getAllGames, upsertGame, removeGame } = require('./services/registry');
 
+// Allowed mail types for the mail push endpoint
+const ALLOWED_MAIL_TYPES = new Set([
+    "Emote",
+]);
+
 // ----- Express App Setup -----
 const app = express();
 // Trust proxy (Render / Heroku / etc.)
@@ -248,6 +253,75 @@ app.get('/api/v1/commands', validateRegistry, (req, res) => {
 
     res.json(payloads);
 });
+
+// ----- Verified User Middleware -----
+const validateVerifiedUser = async (req, res, next) => {
+    const hwid = req.headers['x-hwid'];
+
+    if (!hwid) {
+        return res.status(401).json({ error: "Missing HWID header." });
+    }
+
+    try {
+        const robloxId = await getRobloxIdByHwid(hwid);
+
+        if (!robloxId) {
+            return res.status(403).json({ error: "User not verified." });
+        }
+
+        // Attach verified identity to request
+        req.robloxId = robloxId;
+        req.hwid = hwid;
+
+        next();
+    } catch (err) {
+        console.error("Verified middleware error:", err);
+        res.status(500).json({ error: "Verification failed." });
+    }
+};
+
+// ----------------------------------
+// ----- The Mail Push Endpoint -----
+// ----------------------------------
+app.post(
+    '/api/v1/mail',
+    express.json(),
+    validateVerifiedUser,
+    async (req, res) => {
+        const { jobId, type, targetPlayer, data } = req.body;
+
+        // 1. Validate required fields
+        if (!jobId || !type || !targetPlayer) {
+            return res.status(400).json({ error: "Missing required fields." });
+        }
+
+        // 2. Validate allowed type
+        if (!ALLOWED_MAIL_TYPES.has(type)) {
+            return res.status(400).json({ error: "Invalid mail type." });
+        }
+
+        // 3. Build final payload
+        const payload = {
+            type,
+            targetPlayer: req.robloxId,
+            data: data || {}
+        };
+
+        try {
+            pushToMailbox(jobId, payload);
+
+            console.log(`[MAIL] Sent by ${req.robloxId} | type: ${type} | jobId: ${jobId}`);
+            res.json({
+                status: "queued",
+                jobId,
+                expiresInMs: Constants.MAIL_TTL_MS
+            });
+        } catch (err) {
+            console.error("Mail push error:", err);
+            res.status(500).json({ error: "Failed to queue mail." });
+        }
+    }
+);
 
 // --------------------------------------
 // ----- The Verification Endpoints -----

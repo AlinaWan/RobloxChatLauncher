@@ -213,6 +213,50 @@ namespace RobloxChatLauncher
             SyncInput();
         }
 
+        private async Task SendEmoteMailAsync(string emoteName)
+        {
+            if (!Properties.Settings1.Default.IsVerified)
+            {
+                chatBox.AppendText("[System]: You must be verified to use /emote.\r\n");
+                return;
+            }
+
+            try
+            {
+                var payload = new
+                {
+                    jobId = channelId,
+                    type = "Emote",
+                    data = new
+                    {
+                        name = emoteName
+                    }
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Post,
+                    $"https://{Constants.Constants.BASE_URL}/api/v1/mail");
+
+                request.Content = new StringContent(
+                    JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json");
+
+                // IMPORTANT: HWID is required for server verification
+                request.Headers.Add("x-hwid", VerificationService.GetMachineId());
+
+                var response = await new HttpClient().SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    chatBox.AppendText("[System]: Failed to queue emote.\r\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                chatBox.AppendText($"[System]: Emote error: {ex.Message}\r\n");
+            }
+        }
+
         // Echo Logic
         private async Task ExecuteEchoRequest(string userMessage)
         {

@@ -28,7 +28,7 @@ end
     ```json
     {
         "type": "Emote",
-        "targetPlayer": "AlinaWan",
+        "targetPlayer": "12345",
         "data": {
             "name": "Dance"
         }
@@ -40,14 +40,14 @@ end
     [
         {
             "type": "Emote",
-            "targetPlayer": "AlinaWan",
+            "targetPlayer": "12345",
             "data": {
                 "name": "Dance"
             }
         },
         {
             "type": "Emote",
-            "targetPlayer": "builderman",
+            "targetPlayer": "67890",
             "data": {
                 "name": "Wave"
             }
@@ -82,14 +82,15 @@ local function handleIncomingRequest(input)
             handleServerCommand(payload)
 
         -- B. ROUTE TO PLAYER: targetPlayer is a string (username)
-        elseif type(target) == "string" then
-            local player = Players:FindFirstChild(target)
+        elseif type(target) == "number" then
+            -- Use the UserID to find the player object directly
+            local player = Players:GetPlayerByUserId(target)
             
             if player then
                 -- Send the specific payload to the client
                 BridgeEvent:FireClient(player, payload)
             else
-                warn("[RCL Ingress] Target player not found in server:", target)
+                warn("[RCL Ingress] Player with ID " .. tostring(target) .. " not found in server.")
             end
 
         -- C. ERROR HANDLING: No target or invalid target type
