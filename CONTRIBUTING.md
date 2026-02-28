@@ -104,33 +104,37 @@ graph TD
     %% Node.js Middleware
     subgraph Server [Node.js Server]
         Chat[Public Chat Relay]
-        Auth[Command Validator]
+        Auth[Command & API Validator]
         Queue[Roblox Command Queue]
     end
 
     %% Database
     DB[(PostgreSQL)]
 
-    %% Roblox Integration
-    subgraph Roblox [Roblox Game Server]
-        RS[Roblox Script]
-    end
-
-    %% Flow 1: Public Chat (No DB check)
+    %% Flow 1: Public Chat
     U1 <-->|WebSocket| Chat
     U2 <-->|WebSocket| Chat
-    Chat <-->|Broadcast| U1
-    Chat <-->|Broadcast| U2
 
-    %% Flow 2: Verified Commands
+    %% Flow 2: Verified Commands (Inbound)
     U2 -->|Send Command| Auth
     Auth -.->|Check Permissions| DB
     DB -.->|Valid| Auth
     Auth -->|Push to Queue| Queue
 
-    %% Flow 3: Roblox Integration (HTTP Polling)
-    RS --GET: Fetch Commands--> Queue
-    Queue --JSON Response--> RS
+    %% Flow 3: Roblox Integration
+    Queue -.-> Gate{Integration Enabled?}
+
+    subgraph Roblox_Instance [Roblox Game Server]
+        RS[Roblox Script]
+    end
+
+    %% Bidirectional Flow
+    Gate -.->|Yes: Fetch Commands| RS
+    
+    RS --HTTP POST: API Request--> Auth
+
+    %% Logic for the Queue
+    Gate -.->|No: Expire in Queue| Queue
 ```
 
 ## 🛠️ Recommended Development Environment
