@@ -28,7 +28,7 @@ end
     ```json
     {
         "type": "Emote",
-        "targetPlayer": "AlinaWan",
+        "targetPlayer": "12345",
         "data": {
             "name": "Dance"
         }
@@ -40,14 +40,14 @@ end
     [
         {
             "type": "Emote",
-            "targetPlayer": "AlinaWan",
+            "targetPlayer": "12345",
             "data": {
                 "name": "Dance"
             }
         },
         {
             "type": "Emote",
-            "targetPlayer": "builderman",
+            "targetPlayer": "67890",
             "data": {
                 "name": "Wave"
             }
@@ -76,20 +76,23 @@ local function handleIncomingRequest(input)
         ---------------------------------------------------------
         -- ROUTING LOGIC
         ---------------------------------------------------------
-        
+        local targetUserId = tonumber(target) -- Convert to number if it's a string that represents a UserID
+
         -- A. ROUTE TO SERVER: targetPlayer must be explicitly "Server"
         if target == Enums.Target.Server then
             handleServerCommand(payload)
 
         -- B. ROUTE TO PLAYER: targetPlayer is a string (username)
-        elseif type(target) == "string" then
-            local player = Players:FindFirstChild(target)
+
+        elseif targetUserId then
+            -- Use the UserID to find the player object directly
+            local player = Players:GetPlayerByUserId(targetUserId)
             
             if player then
                 -- Send the specific payload to the client
                 BridgeEvent:FireClient(player, payload)
             else
-                warn("[RCL Ingress] Target player not found in server:", target)
+                warn("[RCL Ingress] Player with ID " .. tostring(targetUserId) .. " not found in server.")
             end
 
         -- C. ERROR HANDLING: No target or invalid target type

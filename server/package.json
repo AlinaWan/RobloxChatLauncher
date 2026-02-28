@@ -1,7 +1,7 @@
 {
-    "name": "rcl-demo-server",
-    "version": "0.3.0",
-    "description": "Demo server for chat testing for Roblox Chat Launcher POC",
+    "name": "roblox-chat-launcher",
+    "version": "0.4.0",
+    "description": "Server for the Roblox Chat Launcher project and client",
     "main": "server.js",
     "scripts": {
         "start": "node server.js"
