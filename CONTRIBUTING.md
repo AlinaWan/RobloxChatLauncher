@@ -77,6 +77,10 @@ Example (incorrect):
 
 The server will fail to start if PostgreSQL is not configured correctly.
 
+> [!IMPORTANT]
+> **Security Recommendation:**  
+> PostgreSQL should not be exposed to the public internet. Only the backend server should have direct database access over a private or internal network.
+
 ### Communication Flow
 
 User → C# Client → WebSocket/REST → Node.js Server → PostgreSQL
