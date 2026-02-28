@@ -28,6 +28,14 @@ This guide covers everything you need to start contributing: environment setup, 
 
 ---
 
+## 🎀 Quick Start
+
+```powershell
+gh repo fork AlinaWan/RobloxChatLauncher --clone --remote=true; if($?){ cd RobloxChatLauncher; git checkout -b feat/your-feature-name }
+```
+
+---
+
 ## 🏗️ Architecture Overview
 
 Roblox Chat Launcher consists of:
