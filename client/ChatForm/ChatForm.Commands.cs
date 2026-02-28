@@ -140,6 +140,7 @@ namespace RobloxChatLauncher
                     await RestartWebSocketAsync();
                     return true;
 
+                // Only works if the user is verified and the Roblox game has Roblox Chat Launcher integration enabled
                 case "/emote":
                 case "/e":
                     if (string.IsNullOrWhiteSpace(args))
