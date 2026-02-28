@@ -8,6 +8,7 @@ namespace RobloxChatLauncher.Utils
     public static class RobloxIconLoader
     {
         private static readonly string BaseTexturesPath;
+        private static readonly Dictionary<string, Image> _cache = new Dictionary<string, Image>();
 
         static RobloxIconLoader()
         {
@@ -33,10 +34,23 @@ namespace RobloxChatLauncher.Utils
             if (string.IsNullOrEmpty(BaseTexturesPath))
                 return null;
 
+            // 1. Check Cache first (really elegant and fast)
+            if (_cache.TryGetValue(relativePath, out var cachedImage))
+                return cachedImage;
+
             try
             {
                 string fullPath = Path.Combine(BaseTexturesPath, relativePath.Replace('/', Path.DirectorySeparatorChar));
-                return File.Exists(fullPath) ? Image.FromFile(fullPath) : null;
+                if (!File.Exists(fullPath))
+                    return null;
+
+                // 2. Load without locking the file
+                using (var stream = new MemoryStream(File.ReadAllBytes(fullPath)))
+                {
+                    var img = Image.FromStream(stream);
+                    _cache[relativePath] = img; // Store for next time
+                    return img;
+                }
             }
             catch { return null; }
         }
