@@ -115,19 +115,9 @@ namespace RobloxChatLauncher.UI
 
         private void InitializeRobloxIcons()
         {
-            // Load only the icons we need
-            var icons = RobloxIconLoader.LoadIcons(
-                "ui/TopBar/chatOn.png",
-                "ui/TopBar/chatOff.png"
-            );
-
-            if (icons.TryGetValue("ui/TopBar/chatOn.png", out var loadedOn))
-                imgOn = loadedOn;
-
-            if (icons.TryGetValue("ui/TopBar/chatOff.png", out var loadedOff))
-                imgOff = loadedOff;
-
-            // imgOn/imgOff are either loaded or remain null if not found
+            // Load only what we need
+            imgOn = RobloxIconLoader.LoadIcon("ui/TopBar/chatOn.png");
+            imgOff = RobloxIconLoader.LoadIcon("ui/TopBar/chatOff.png");
         }
 
         protected override void OnPaint(PaintEventArgs e)

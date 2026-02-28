@@ -27,30 +27,18 @@ namespace RobloxChatLauncher.Utils
         /// <summary>
         /// Loads one or more icons from the Roblox textures folder.
         /// Paths are relative to the `textures/` folder.
-        /// Returns a dictionary of icon name → Image.
         /// </summary>
-        public static Dictionary<string, Image> LoadIcons(params string[] relativePaths)
+        public static Image LoadIcon(string relativePath)
         {
-            var result = new Dictionary<string, Image>();
-
             if (string.IsNullOrEmpty(BaseTexturesPath))
-                return result;
+                return null;
 
-            foreach (var relPath in relativePaths)
+            try
             {
-                try
-                {
-                    string fullPath = Path.Combine(BaseTexturesPath, relPath.Replace('/', Path.DirectorySeparatorChar));
-                    if (File.Exists(fullPath))
-                        result[relPath] = Image.FromFile(fullPath);
-                }
-                catch
-                {
-                    // ignore individual failures, fallback handled by caller
-                }
+                string fullPath = Path.Combine(BaseTexturesPath, relativePath.Replace('/', Path.DirectorySeparatorChar));
+                return File.Exists(fullPath) ? Image.FromFile(fullPath) : null;
             }
-
-            return result;
+            catch { return null; }
         }
     }
 }
