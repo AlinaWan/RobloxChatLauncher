@@ -106,14 +106,17 @@ graph TD
         Chat[Public Chat Relay]
         Auth[Command & API Validator]
         Queue[Roblox Command Queue]
+        ModAPI((3rd-Party Mod API))
     end
 
     %% Database
     DB[(PostgreSQL)]
 
-    %% Flow 1: Public Chat
+    %% Flow 1: Public Chat + Moderation
     U1 <-->|WebSocket| Chat
     U2 <-->|WebSocket| Chat
+    Chat -.->|Scan Content| ModAPI
+    ModAPI -.->|Flag/Filter| Chat
 
     %% Flow 2: Verified Commands (Inbound)
     U2 -->|Send Command| Auth
@@ -124,17 +127,27 @@ graph TD
     %% Flow 3: Roblox Integration
     Queue -.-> Gate{Integration Enabled?}
 
-    subgraph Roblox_Instance [Roblox Game Server]
-        RS[Roblox Script]
+    subgraph Roblox_Instance [Roblox Game Instances]
+        RS[HTTP Bridge]
+        RE((RemoteEvent))
+        
+        subgraph Roblox_Client [Player Client]
+            LS[LocalScript]
+            P[Player Character/UI]
+        end
     end
 
     %% Bidirectional Flow
     Gate -.->|Yes: Fetch Commands| RS
-    
-    RS --HTTP POST: API Request--> Auth
+    RS --"HTTP POST: API Request"--> Auth
 
     %% Logic for the Queue
     Gate -.->|No: Expire in Queue| Queue
+
+    %% Internal Roblox Routing
+    RS -->|FireClient| RE
+    RE -->|OnClientEvent| LS
+    LS -->|Execute Command| P
 ```
 
 ## 🛠️ Recommended Development Environment
