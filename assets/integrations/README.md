@@ -40,6 +40,16 @@ To securely communicate with the API, you must store your API key as an **Experi
 
 ---
 
+## 🚦 Performance & Rate Limiting
+
+To ensure stability and prevent script errors, keep the following limits in mind:
+
+* **Roblox HttpService Limits:** By default, each server instance can make up to 500 HTTP requests per minute.
+* **Ingress Bridge Polling:** The default Ingress script polls the mailbox at a rate of 1 request per second (60 requests/min). The polling loop runs once per server.
+* **Egress Scripts:** Egress scripts may send POST requests independently when triggered by in-game events (e.g., a player joining). Please be mindful that the combined total requests from all scripts do not exceed Roblox's limits.
+
+---
+
 ## 📄 License
 
 The `.lua` scripts in this directory are licensed under the [Mozilla Public License 2.0](LICENSE).
