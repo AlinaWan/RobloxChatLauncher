@@ -148,7 +148,7 @@ You will also need the [.NET 10.0 Desktop Runtime](https://dotnet.microsoft.com/
 
 It's not unlikely that Windows Smartscreen will show a popup when you run Roblox Chat Launcher for the first time. This happens because it's an unknown program, not because it's actually detected as being malicious. To dismiss it, just click on "More info" and then "Run anyway".
 
-Roblox Chat Launcher can be easily uninstalled simply by running the original `RobloxPlayerInstaller.exe`, which will register itself as the main launch command for Roblox again.
+Roblox Chat Launcher can be easily uninstalled through the `Add or remove programs` menu and will automatically restore your original Roblox client or bootstrapper as the default app.
 
 ## 📦 Compiling from Source
 
