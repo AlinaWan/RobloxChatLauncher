@@ -1,7 +1,7 @@
 Privacy Policy
 --------------
 
-Last Updated: February 25, 2026
+Last Updated: February 27, 2026
 
 This Privacy Policy explains how this service processes information when users send messages through the application.
 The service is designed with privacy-by-design principles and minimizes the collection and retention of personal data.
@@ -23,10 +23,12 @@ The service is designed with privacy-by-design principles and minimizes the coll
                               GUID (Hardware ID) on your local device. This ID is used to link your local installation to your Roblox 
                               User ID in our database.
         Storage & Persistence: If verified, your Hardware ID and associated Roblox User ID are stored in a persistent PostgreSQL database to 
-                               recognize your account across sessions. You may clear these identifiers locally at any time by modifying 
-                               your application settings.
+                               recognize your account across sessions.
         No IP Logging: Even during verification, we do not log or store your IP address. The system relies solely on the Hardware ID provided 
                        by your device and the public data provided by the Roblox API.
+        Right to Erasure: You may invoke your "Right to be Forgotten" at any time by running the '/unverify' command within the client. Executing
+                          this command sends an immediate deletion request to our server, which permanently purges your Hardware ID and linked
+                          Roblox User ID from our database and clears all associated data from your local device.
 
 3. Message Content & Content Moderation
     Messages submitted to the service are processed for the purpose of maintaining a safe and abuse-free environment. To assist with
