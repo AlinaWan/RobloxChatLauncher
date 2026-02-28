@@ -226,6 +226,7 @@ namespace RobloxChatLauncher
                 var payload = new
                 {
                     jobId = channelId,
+                    targetPlayer = "ignored", // The server will determine the actual target based on the JobId and HWID, so this is just a placeholder to satisfy the expected payload structure
                     type = "Emote",
                     data = new
                     {
