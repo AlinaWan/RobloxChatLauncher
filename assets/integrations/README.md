@@ -53,3 +53,5 @@ To ensure stability and prevent script errors, keep the following limits in mind
 ## 📄 License
 
 The `.lua` scripts in this directory are licensed under the [Mozilla Public License 2.0](LICENSE).
+
+Transparency: All code is open source, and you can review exactly how data is egressed from your game to our servers. No hidden operations or data collection occur beyond what the scripts explicitly show.
