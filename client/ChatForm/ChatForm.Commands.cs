@@ -111,10 +111,10 @@ namespace RobloxChatLauncher
                     else
                     {
                         chatBox.AppendText($"[System]: Fetching code for {args}...\r\n");
-                        var result = await _verifyService.StartVerification(args);
-                        _pendingRobloxId = result.RobloxId;
+                        var verifyResult = await _verifyService.StartVerification(args);
+                        _pendingRobloxId = verifyResult.RobloxId;
 
-                        chatBox.AppendText($"1. Copy this code: {result.Code}\r\n");
+                        chatBox.AppendText($"1. Copy this code: {verifyResult.Code}\r\n");
                         chatBox.AppendText($"2. Paste it into your Roblox Profile 'About' section.\r\n");
                         chatBox.AppendText($"3. Type /confirm to finish.\r\n");
                         chatBox.AppendText($"Your code will expire in 10 minutes.\r\n");
@@ -122,37 +122,36 @@ namespace RobloxChatLauncher
                     return true;
 
                 /// <summary>Confirms the Roblox account verification by checking the previously generated code against the user's Roblox profile, and if successful, links the account and refreshes the connection to update the username.</summary>
-            case "/confirm":
-                if (_pendingRobloxId == 0)
-                {
-                    chatBox.AppendText("[System]: ⚠️ Please run /verify <username> first!\r\n");
+                case "/confirm":
+                    if (_pendingRobloxId == 0)
+                    {
+                        chatBox.AppendText("[System]: ⚠️ Please run /verify <username> first!\r\n");
+                        return true;
+                    }
+
+                    var confirmResult = await _verifyService.ConfirmVerification(_pendingRobloxId);
+
+                    switch (confirmResult)
+                    {
+                        case VerificationResult.Success:
+                            chatBox.AppendText("[System]: 🎀 Account linked successfully!\r\n");
+                            // Trigger a reconnection to update their name to their verified username immediately
+                            await RestartWebSocketAsync();
+                            break;
+
+                        case VerificationResult.CodeNotFound:
+                            chatBox.AppendText("[System]: ❌ Code not found. Please check your profile and ensure you requested the correct username.\r\n");
+                            break;
+
+                        case VerificationResult.HardwareIdFailed:
+                            chatBox.AppendText("[System]: ⚠️ Could not read your device ID. Please restart the launcher and try again.\r\n");
+                            break;
+
+                        default:
+                            chatBox.AppendText("[System]: ❌ Verification failed due to a server error.\r\n");
+                            break;
+                    }
                     return true;
-                }
-            
-                var result = await _verifyService.ConfirmVerification(_pendingRobloxId);
-            
-                switch (result)
-                {
-                    case VerificationResult.Success:
-                        chatBox.AppendText("[System]: 🎀 Account linked successfully!\r\n");
-                        // Trigger a reconnection to update their name to their verified username immediately
-                        await RestartWebSocketAsync();
-                        break;
-            
-                    case VerificationResult.CodeNotFound:
-                        chatBox.AppendText("[System]: ❌ Code not found. Please check your profile and ensure you requested the correct username.\r\n");
-                        break;
-            
-                    case VerificationResult.HardwareIdFailed:
-                        chatBox.AppendText("[System]: ⚠️ Could not read your device ID. Please restart the launcher and try again.\r\n");
-                        break;
-            
-                    default:
-                        chatBox.AppendText("[System]: ❌ Verification failed due to a server error.\r\n");
-                        break;
-                }
-            
-                return true;
 
                 /// <summary>Unverifies the user's Roblox account by clearing local verification data and attempting to unlink the account on the server, then refreshes the connection to update the username to "Guest".</summary>
                 case "/unverify":
