@@ -121,9 +121,11 @@ namespace RobloxChatLauncher.Services
             try
             {
                 string hwid = GetMachineId();
+                long robloxId = Properties.Settings1.Default.RobloxUserId;
                 var payload = new
                 {
-                    hwid
+                    hwid,
+                    robloxId
                 };
                 var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
 

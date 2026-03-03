@@ -75,11 +75,19 @@ async function verifyProfile(req, res) {
 }
 
 async function unverifyUser(req, res) {
-    const { hwid } = req.body;
-    if (!hwid) return res.status(400).send("Hardware ID required");
+    const { hwid, robloxId } = req.body;
+    if (!hwid || !robloxId) return res.status(400).send("HWID and Roblox ID required");
 
     try {
-        await pool.query('DELETE FROM verified_users WHERE hwid = $1', [hwid]);
+        const result = await pool.query(
+            'DELETE FROM verified_users WHERE hwid = $1 AND roblox_id = $2',
+            [hwid, robloxId]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ success: false, message: "No matching record found" });
+        }
+
         res.json({ success: true, message: "Account unlinked successfully" });
     } catch (err) {
         console.error("Unverify Error:", err);
