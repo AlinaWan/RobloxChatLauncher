@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 
 using RobloxChatLauncher.Services;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace RobloxChatLauncher
 {
