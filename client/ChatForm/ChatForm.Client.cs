@@ -245,7 +245,7 @@ namespace RobloxChatLauncher
                 // IMPORTANT: HWID is required for server verification
                 request.Headers.Add("x-hwid", VerificationService.GetMachineId());
 
-                var response = await new HttpClient().SendAsync(request);
+                var response = await client.SendAsync(request);
 
                 if (!response.IsSuccessStatusCode)
                 {
