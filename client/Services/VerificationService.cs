@@ -7,6 +7,14 @@ using Newtonsoft.Json;
 
 namespace RobloxChatLauncher.Services
 {
+    public enum VerificationResult
+    {
+        Success,
+        CodeNotFound,
+        HardwareIdFailed,
+        ServerError
+    }
+
     public class VerificationService
     {
         private static readonly HttpClient client = new HttpClient();
@@ -31,7 +39,12 @@ namespace RobloxChatLauncher.Services
         {
             using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography"))
             {
-                return key?.GetValue("MachineGuid")?.ToString() ?? "unknown-hwid";
+                var value = key?.GetValue("MachineGuid")?.ToString();
+        
+                if (string.IsNullOrWhiteSpace(value))
+                    throw new Exception("Machine GUID not available");
+        
+                return value;
             }
         }
 
@@ -53,26 +66,54 @@ namespace RobloxChatLauncher.Services
             return (result.Code, result.RobloxId);
         }
 
-        public async Task<bool> ConfirmVerification(long robloxId)
+        public async Task<VerificationResult> ConfirmVerification(long robloxId)
         {
+            string hwid;
+        
+            try
+            {
+                hwid = GetMachineId();
+            }
+            catch
+            {
+                return VerificationResult.HardwareIdFailed;
+            }
+        
             var payload = new
             {
                 robloxId,
-                hwid = GetMachineId()
+                hwid
             };
+        
             var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync($"https://{Constants.Constants.BASE_URL}/api/v1/verify/confirm", content);
-
-            if (response.IsSuccessStatusCode)
+        
+            try
             {
-                // Save to local Settings managed by Windows LocalAppData
-                Properties.Settings1.Default.RobloxUserId = robloxId;
-                Properties.Settings1.Default.IsVerified = true;
-                Properties.Settings1.Default.Save();
-                return true;
+                var response = await client.PostAsync(
+                    $"https://{Constants.Constants.BASE_URL}/api/v1/verify/confirm",
+                    content
+                );
+        
+                if (response.IsSuccessStatusCode)
+                {
+                    Properties.Settings1.Default.RobloxUserId = robloxId;
+                    Properties.Settings1.Default.IsVerified = true;
+                    Properties.Settings1.Default.Save();
+        
+                    return VerificationResult.Success;
+                }
+        
+                if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    return VerificationResult.CodeNotFound;
+                }
+        
+                return VerificationResult.ServerError;
             }
-            return false;
+            catch
+            {
+                return VerificationResult.ServerError;
+            }
         }
 
         public async Task<bool> Unverify()
