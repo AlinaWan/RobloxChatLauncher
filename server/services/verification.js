@@ -1,10 +1,11 @@
 const axios = require('axios');
+
+const Constants = require('../config/constants');
 const { pool } = require('../db/postgresPool');
 
 // --- Pending verifications ---
 const pendingVerifications = new Map();
 // Structure: robloxId -> { code: string, expiresAt: number }
-const VERIFICATION_TTL_MS = 10 * 60 * 1000; // 10 minutes ttl for verification codes
 
 // Periodic cleanup for expired codes
 setInterval(() => {
@@ -32,7 +33,7 @@ async function generateCode(req, res) {
         const code = `RCL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
         // Store both code and expiration timestamp
-        pendingVerifications.set(robloxId, { code, expiresAt: Date.now() + VERIFICATION_TTL_MS });
+        pendingVerifications.set(robloxId, { code, expiresAt: Date.now() + Constants.VERIFICATION_TTL_MS });
         res.json({ code, robloxId });
     } catch (err) {
         console.error("Generate Error:", err);
