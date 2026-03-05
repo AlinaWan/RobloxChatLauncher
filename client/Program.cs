@@ -26,11 +26,11 @@ class Program
         string exePath = Process.GetCurrentProcess().MainModule.FileName; // Path to our launcher executable
         if (robloxClient == null)
         {
-            MessageBox.Show("Could not find a valid Roblox client.");
+            MessageBox.Show("Could not find a valid Roblox Client.");
             return;
         }
 
-        Console.WriteLine($"Resolved Roblox client: {robloxClient.Type} ({robloxClient.ExecutablePath})");
+        Console.WriteLine($"Resolved Roblox Client: {robloxClient.Type} ({robloxClient.ExecutablePath})");
 
         // If no URI argument is provided, we assume the launcher is being run directly and just register for the protocol without launching anything
         // i.e., first run to register, then launching a game from the website will pass the URI argument to us to trigger the chat form
@@ -43,7 +43,7 @@ class Program
 
         string uri = args[0];
 
-        // 1. Launch the Roblox client
+        // 1. Launch the Roblox Client
         // If it's a bootstrapper, it will handle launching Roblox itself
         // Otherwise we just launch Roblox directly here
         Process.Start(new ProcessStartInfo

@@ -5,12 +5,19 @@ using Newtonsoft.Json;
 
 using RobloxChatLauncher.Services;
 using RobloxChatLauncher.Utils;
+using RobloxChatLauncher.Core;
 
 namespace RobloxChatLauncher
 {
     [System.ComponentModel.DesignerCategory("Code")] // This covers the entire class so it only needs to be declared once here.
     public partial class ChatForm : Form
     {
+        // Channel IDs and WebSocket
+        private string channelId = "global";
+        private RobloxChatLauncher.Services.RobloxAreaService _robloxService;
+        private ClientWebSocket wsClient;
+        private CancellationTokenSource wsCts = new CancellationTokenSource(); // Make sure it's not null when the form starts or it will raise an exception at runtime
+
         // Declare the keyboard handler at the class level so the whole form can access it (e.g., to dispose on close)
         private ChatKeyboardHandler keyboardHandler;
 
@@ -20,6 +27,12 @@ namespace RobloxChatLauncher
         // Verification state tracking
         private VerificationService _verifyService = new VerificationService();
         private long _pendingRobloxId = 0;
+
+        internal static readonly HttpClient Client = new HttpClient()
+        {
+            // If the server doesn't respond in x seconds, throw an exception
+            Timeout = TimeSpan.FromSeconds(60) // Set to 60 as Render free-tier may take time to wake up
+        };
 
         // WebSocket connection and message handling
         private async Task ConnectWebSocket(CancellationToken ct)
@@ -41,7 +54,7 @@ namespace RobloxChatLauncher
                     this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connecting to server {channelId}...\r\n")));
 
                     // Use the passed 'ct' token here
-                    await wsClient.ConnectAsync(new Uri($"wss://{Constants.Constants.BASE_URL}/"), ct);
+                    await wsClient.ConnectAsync(new Uri($"wss://{Constants.BASE_URL}/"), ct);
 
                     var joinPayload = new
                     {
@@ -235,7 +248,7 @@ namespace RobloxChatLauncher
                 };
 
                 var request = new HttpRequestMessage(HttpMethod.Post,
-                    $"https://{Constants.Constants.BASE_URL}/api/v1/mail");
+                    $"https://{Constants.BASE_URL}/api/v1/mail");
 
                 request.Content = new StringContent(
                     JsonConvert.SerializeObject(payload),
@@ -245,7 +258,7 @@ namespace RobloxChatLauncher
                 // IMPORTANT: HWID is required for server verification
                 request.Headers.Add("x-hwid", VerificationService.GetMachineId());
 
-                var response = await client.SendAsync(request);
+                var response = await Client.SendAsync(request);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -267,7 +280,7 @@ namespace RobloxChatLauncher
                 // 2. Network Call
                 var content = new StringContent(userMessage, Encoding.UTF8, "text/plain");
                 // PaaS echo server for POC demo testing
-                var response = await client.PostAsync($"https://{Constants.Constants.BASE_URL}/echo", content);
+                var response = await Client.PostAsync($"https://{Constants.BASE_URL}/echo", content);
 
                 if (response.IsSuccessStatusCode)
                 {

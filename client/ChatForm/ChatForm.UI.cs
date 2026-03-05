@@ -57,12 +57,6 @@ namespace RobloxChatLauncher
         bool isChatting;
         string rawInputText = "";
 
-        // Channel IDs and WebSocket
-        private string channelId = "global";
-        private RobloxChatLauncher.Services.RobloxAreaService _robloxService;
-        private ClientWebSocket wsClient;
-        private CancellationTokenSource wsCts = new CancellationTokenSource(); // Make sure it's not null when the form starts or it will raise an exception at runtime
-
         // Sets a rounded region for the given control as
         // Windows Forms does not natively support rounded corners.
         private void SetRoundedRegion(Control control, int radius)
@@ -117,12 +111,6 @@ namespace RobloxChatLauncher
             NativeMethods.GetWindowThreadProcessId(fg, out uint pid);
             return pid == (uint)robloxProcess.Id;
         }
-
-        private static readonly HttpClient client = new HttpClient()
-        {
-            // If the server doesn't respond in x seconds, throw an exception
-            Timeout = TimeSpan.FromSeconds(60) // Set to 60 as Render free-tier may take time to wake up
-        };
 
         public void ToggleVisibility()
         {

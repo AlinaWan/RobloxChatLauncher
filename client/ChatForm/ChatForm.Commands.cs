@@ -40,7 +40,7 @@ namespace RobloxChatLauncher
                                        $"And of course, credits to you 💖\r\n");
                     return true;
 
-                /// <summary>Triggers an asynchronous restart of the WebSocket client to refresh the server connection.</summary>
+                /// <summary>Triggers an asynchronous restart of the WebSocket Client to refresh the server connection.</summary>
                 case "/reconnect":
                 case "/rc":
                     await RestartWebSocketAsync(); // Calls RestartWebSocketAsync() in Client.cs

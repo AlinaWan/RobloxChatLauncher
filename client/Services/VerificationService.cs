@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 
+using RobloxChatLauncher.Core;
+using RobloxChatLauncher;
+
 namespace RobloxChatLauncher.Services
 {
     public enum VerificationResult
@@ -17,8 +20,6 @@ namespace RobloxChatLauncher.Services
 
     public class VerificationService
     {
-        private static readonly HttpClient client = new HttpClient();
-
         // Helper class to handle deserialization
         private class VerificationResponse
         {
@@ -56,7 +57,7 @@ namespace RobloxChatLauncher.Services
             };
             var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"https://{Constants.Constants.BASE_URL}/api/v1/verify/generate", content);
+            var response = await ChatForm.Client.PostAsync($"https://{Constants.BASE_URL}/api/v1/verify/generate", content);
             var json = await response.Content.ReadAsStringAsync();
 
             // Deserialize into our helper class
@@ -89,8 +90,8 @@ namespace RobloxChatLauncher.Services
         
             try
             {
-                var response = await client.PostAsync(
-                    $"https://{Constants.Constants.BASE_URL}/api/v1/verify/confirm",
+                var response = await ChatForm.Client.PostAsync(
+                    $"https://{Constants.BASE_URL}/api/v1/verify/confirm",
                     content
                 );
         
@@ -130,7 +131,7 @@ namespace RobloxChatLauncher.Services
                 var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
 
                 // 1. Tell the server to delete the link
-                var response = await client.PostAsync($"https://{Constants.Constants.BASE_URL}/api/v1/verify/unverify", content);
+                var response = await ChatForm.Client.PostAsync($"https://{Constants.BASE_URL}/api/v1/verify/unverify", content);
 
                 // 2. Clear local settings regardless of server response
                 Properties.Settings1.Default.RobloxUserId = 0;

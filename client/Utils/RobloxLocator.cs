@@ -2,7 +2,7 @@
 
 namespace RobloxChatLauncher.Utils
 {
-    // Helps differentiate between the vanilla Roblox client and bootstrappers
+    // Helps differentiate between the vanilla Roblox Client and bootstrappers
     // public enum my beloved
     public enum RobloxClientType
     {
@@ -14,7 +14,7 @@ namespace RobloxChatLauncher.Utils
 
     public static class RobloxLocator
     {
-        // Resolves either a bootstrapper client or the vanilla Roblox client
+        // Resolves either a bootstrapper Client or the vanilla Roblox Client
         public static RobloxClientInfo ResolveRobloxPlayer()
         {
             // List of known bootstrappers to check for in the registry. The first one found will be used.
@@ -22,7 +22,7 @@ namespace RobloxChatLauncher.Utils
 
             foreach (string bootstrapper in bootstrappers)
             {
-                // Check the Uninstall key for the bootstrapper's icon path. If it exists, we assume it's a valid Roblox client and return it.
+                // Check the Uninstall key for the bootstrapper's icon path. If it exists, we assume it's a valid Roblox Client and return it.
                 using var key = Registry.CurrentUser.OpenSubKey($@"Software\Microsoft\Windows\CurrentVersion\Uninstall\{bootstrapper}");
                 string rawPath = key?.GetValue("DisplayIcon") as string;
 

@@ -1,4 +1,4 @@
-namespace RobloxChatLauncher.Constants
+namespace RobloxChatLauncher.Core
 {
     public static class Constants
     {
