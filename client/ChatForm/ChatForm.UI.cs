@@ -33,7 +33,7 @@ namespace RobloxChatLauncher
         TextBox chatBox;
         ChatInputBox inputBox;
         RoundButton toggleBtn;
-        internal bool isWindowHidden = false;
+        internal bool isWindowHidden { get; private set; } = false;
         bool overlayTopMostActive;
 
         System.Windows.Forms.Timer fadeTimer;
