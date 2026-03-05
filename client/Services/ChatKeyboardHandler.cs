@@ -59,6 +59,11 @@ namespace RobloxChatLauncher.Services
                     e.Handled = true;
                     return;
                 }
+
+                // If the chat window is hidden, don't start chat mode or intercept the slash key
+                if (form.isWindowHidden)
+                    return;
+
                 if (e.KeyCode == Keys.OemQuestion) // slash key
                 {
                     chatMode = true;
