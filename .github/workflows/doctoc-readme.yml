@@ -23,7 +23,7 @@ jobs:
           node-version: "20"
 
       - name: DocToc README.md
-        run: npx doctoc README.md --maxlevel 3
+        run: npx doctoc@2.3.0 README.md --maxlevel 3
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
