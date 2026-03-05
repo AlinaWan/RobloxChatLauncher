@@ -8,6 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <StartupObject>Program</StartupObject>
+    <ApplicationIcon>..\assets\brand\rcl_icon-variable.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

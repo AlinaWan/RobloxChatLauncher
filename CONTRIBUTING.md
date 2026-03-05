@@ -2,8 +2,8 @@
 > Privacy is the cornerstone of this project. Every contribution must prioritize user anonymity and data minimization. We do not accept features that require telemetry, invasive tracking, or the collection of personally identifiable information (PII).
 
 <p align="center">
-    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/readme/rcl_logo_dark.png#gh-dark-mode-only" width="580">
-    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/readme/rcl_logo_light.png#gh-light-mode-only" width="580">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_dark.png#gh-dark-mode-only" width="580">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_light.png#gh-light-mode-only" width="580">
 </p>
 
 <div align="center">
@@ -287,8 +287,8 @@ Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\
 Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/a1b2c3d.zip" -OutFile "C:\Downloads\RobloxChatLauncher.zip"
 Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\Downloads\RobloxChatLauncher"</code></pre>
 
-  <p>Or the Installer.exe of a release:</p>
-  <pre><code>Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/releases/download/v1.0.0/Installer.exe" -OutFile "C:\Downloads\Installer.exe"</code></pre>
+  <p>Or the RobloxChatLauncherInstaller.exe of a release:</p>
+  <pre><code>Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/releases/download/v1.0.0/RobloxChatLauncherInstaller.exe" -OutFile "C:\Downloads\Installer.exe"</code></pre>
 
   <hr>
 
@@ -296,7 +296,7 @@ Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\
   <pre><code>Get-ChildItem "C:\Downloads\RobloxChatLauncher"</code></pre>
   
   <p>Or verify the executable exists:</p>
-  <pre><code>Test-Path "C:\Downloads\Installer.exe"</code></pre>
+  <pre><code>Test-Path "C:\Downloads\RobloxChatLauncherInstaller.exe"</code></pre>
 </details>
 
 </details>

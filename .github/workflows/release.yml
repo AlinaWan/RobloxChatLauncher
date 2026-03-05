@@ -54,7 +54,7 @@ jobs:
           }
 
           # Perform the replacement and force UTF8
-          $content -replace "^AppVersion=.*", "AppVersion=$tag" | 
+          $content -replace "^#define AppVersion.*", "#define AppVersion `"$tag`"" | 
             Set-Content $path -Encoding UTF8
           
           Write-Host "Successfully updated AppVersion to $tag in $path 💖"
@@ -113,8 +113,8 @@ jobs:
 
       - name: Sign the installer (Blob)
         run: |
-          cosign sign-blob ./installer/Installer.exe `
-            --bundle ./installer/Installer.exe.cosign.bundle `
+          cosign sign-blob ./installer/RobloxChatLauncherInstaller.exe `
+            --bundle ./installer/RobloxChatLauncherInstaller.exe.cosign.bundle `
             --yes `
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -125,7 +125,7 @@ jobs:
       - name: Attest Build Provenance
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: 'installer/Installer.exe'
+          subject-path: 'installer/RobloxChatLauncherInstaller.exe'
 
       # ---------------------------
       # Create GitHub Release

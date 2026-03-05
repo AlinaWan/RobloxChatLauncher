@@ -1,18 +1,21 @@
+#define AppVersion "1.0.0" ; Do not manually update this version; it is auto-updated by release workflow
 #define Root ".."
 
 [Setup]
 ; In Inno Setup you must use double curly braces at the start of the GUID to escape the character
 AppId={{B0BACAFE-D326-4A7B-B6BA-1437C0DEBABE}
 AppName=Roblox Chat Launcher
-AppVersion=1.0.0 ; Do not manually update this version; it is auto-updated by release workflow
+AppVersion={#AppVersion}
 AppVerName=Roblox Chat Launcher
 DefaultDirName={pf}\AlinaWan\RobloxChatLauncher
 DefaultGroupName=Roblox Chat Launcher
 OutputDir=.
-OutputBaseFilename=Installer
+OutputBaseFilename=RobloxChatLauncherInstaller
 Compression=lzma
 SolidCompression=yes
 LicenseFile={#Root}\LICENSE
+SetupIconFile={#Root}\assets\brand\rcl_icon-variable.ico
+UninstallDisplayIcon={app}\RobloxChatLauncher.exe
 
 [Files]
 Source: "{#Root}\LICENSE"; DestDir: "{app}"
@@ -20,6 +23,10 @@ Source: "{#Root}\PRIVACY"; DestDir: "{app}"
 Source: "{#Root}\TERMS"; DestDir: "{app}"
 ; Copy everything from the publish folder
 Source: "{#Root}\client\bin\Release\net10.0-windows\publish\*"; DestDir: "{app}"
+
+[Icons]
+Name: "{autoprograms}\Roblox Chat Launcher"; Filename: "{app}\RobloxChatLauncher.exe"; IconFileName: "{app}\RobloxChatLauncher.exe"
+Name: "{autodesktop}\Roblox Chat Launcher"; Filename: "{app}\RobloxChatLauncher.exe"; IconFileName: "{app}\RobloxChatLauncher.exe"
 
 [Run]
 ; Silently run the app to register it as the Roblox launcher

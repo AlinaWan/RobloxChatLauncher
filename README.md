@@ -2,8 +2,8 @@
 > The only official place to download Roblox Chat Launcher is [this GitHub repository](https://github.com/AlinaWan/RobloxChatLauncher). Any other websites offering downloads or claiming to be us are not owned by us.
 
 <p align="center">
-    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/readme/rcl_logo_dark.png#gh-dark-mode-only" width="580">
-    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/readme/rcl_logo_light.png#gh-light-mode-only" width="580">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_dark.png#gh-dark-mode-only" width="580">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_light.png#gh-light-mode-only" width="580">
 </p>
 
 <!--
@@ -29,7 +29,7 @@
 
 [![Discord Server](https://img.shields.io/discord/1476208199689572508?label=Discord%20Server&style=for-the-badge&logo=discord)](https://discord.gg/mhe2bX3dtH)
 [![GitHub Stars](https://img.shields.io/github/stars/AlinaWan/RobloxChatLauncher?style=for-the-badge&label=people%20supporting%20free%20chat%20%5Bstars%5D&color=yellow)](https://github.com/AlinaWan/RobloxChatLauncher/stargazers)
-[![GitHub Downloads](https://img.shields.io/github/downloads/AlinaWan/RobloxChatLauncher/Installer.exe?style=for-the-badge&color=green)](https://github.com/AlinaWan/RobloxChatLauncher/releases)
+[![GitHub Downloads](https://img.shields.io/github/downloads/AlinaWan/RobloxChatLauncher/total?style=for-the-badge&color=green)](https://github.com/AlinaWan/RobloxChatLauncher/releases)
 
 </div>
 
@@ -254,7 +254,7 @@ To ensure the installer hasn't been tampered with, every release is signed using
 If you have the GitHub CLI installed:
 
 ```powershell
-gh attestation verify Installer.exe --repo AlinaWan/RobloxChatLauncher
+gh attestation verify RobloxChatLauncherInstaller.exe --repo AlinaWan/RobloxChatLauncher
 ```
 
 ### Verify with Cosign
@@ -262,7 +262,7 @@ gh attestation verify Installer.exe --repo AlinaWan/RobloxChatLauncher
 If you prefer Cosign, download the `.exe` and the `.cosign.bundle` from the release page:
 
 ```powershell
-cosign verify-blob Installer.exe --bundle Installer.exe.cosign.bundle --certificate-identity-regexp "https://github.com/AlinaWan/RobloxChatLauncher/" --certificate-oidc-issuer https://token.actions.githubusercontent.com
+cosign verify-blob RobloxChatLauncherInstaller.exe --bundle RobloxChatLauncherInstaller.exe.cosign.bundle --certificate-identity-regexp "https://github.com/AlinaWan/RobloxChatLauncher/" --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
 ## Terms of Service
