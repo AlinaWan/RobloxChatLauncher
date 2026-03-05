@@ -36,7 +36,7 @@
 
 ----
 
-A proof-of-concept launcher designed to restore and modernize the Roblox social experience because Roblox is removing in-game communication unless users provide pictures of their face or government IDs.
+A full stack launcher ecosystem designed to restore and modernize the Roblox social experience because Roblox is removing in-game communication unless users provide pictures of their face or government IDs.
 
 <!-- Preview images start -->
 <p align="center">
