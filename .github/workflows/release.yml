@@ -94,7 +94,7 @@ jobs:
         working-directory: ./installer
         shell: pwsh
         run: |
-          $installer = Get-ChildItem Installer*.exe | Select-Object -First 1
+          $installer = Get-ChildItem RobloxChatLauncherInstaller*.exe | Select-Object -First 1
           if (-not $installer) {
             Write-Error "Installer executable not found. Mind checking what happened babe? 🎀"
             exit 1
@@ -103,7 +103,7 @@ jobs:
           $hash = Get-FileHash $installer.FullName -Algorithm SHA256 |
             Select-Object -ExpandProperty Hash
 
-          Set-Content -Encoding ASCII -Path Installer.exe.sha256 -Value $hash
+          Set-Content -Encoding ASCII -Path RobloxChatLauncherInstaller.exe.sha256 -Value $hash
 
       # ---------------------------
       # Sign and attest the installer with Cosign
@@ -143,8 +143,8 @@ jobs:
             ---
           generate_release_notes: true # This appends the "What's Changed" section below the body
           files: |
-            installer/Installer*.exe
-            installer/Installer.exe.sha256
-            installer/Installer.exe.cosign.bundle
+            installer/RobloxChatLauncherInstaller*.exe
+            installer/RobloxChatLauncherInstaller.exe.sha256
+            installer/RobloxChatLauncherInstaller.exe.cosign.bundle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
