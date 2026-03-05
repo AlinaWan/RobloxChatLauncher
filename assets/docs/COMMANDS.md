@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | /help | `/?` | Opens the external command documentation URL. | - |
 | /about | `/credits` | Displays application metadata including developer credits, build environment, and source code links. | - |
-| /reconnect | `/rc` | Triggers an asynchronous restart of the WebSocket client to refresh the server connection. | - |
+| /reconnect | `/rc` | Triggers an asynchronous restart of the WebSocket Client to refresh the server connection. | - |
 | /echo | - | Echoes the provided arguments back to the chat box using an HTTP communication with the server. | args: The text to be echoed back. |
 | /clear | `/cls`, `/c` | Clears all text from the chat box. | - |
 | /id | `/channel` | Displays the current channel ID in the chat box. | - |
