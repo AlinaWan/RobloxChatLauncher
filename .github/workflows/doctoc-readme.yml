@@ -16,9 +16,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          # This ensures we are on a branch, not a detached head
-          ref: ${{ github.ref }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -31,5 +28,5 @@ jobs:
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(docs): DocToc README.md [skip ci]"
+          commit_message: "docs(readme): DocToc README.md [skip ci]"
           file_pattern: 'README.md'
