@@ -1,0 +1,36 @@
+name: Check Build
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'client/**'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ "main" ]
+    paths:
+      - 'client/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET SDK 10.0.101
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: "10.0.101"
+
+    - name: Restore dependencies
+      working-directory: ./client
+      run: dotnet restore
+
+    - name: Compile app
+      working-directory: ./client
+      run: dotnet build -c Release
