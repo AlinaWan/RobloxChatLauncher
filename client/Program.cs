@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Win32;
-
 using RobloxChatLauncher;
-using RobloxChatLauncher.Utils;
 using RobloxChatLauncher.Services;
+using RobloxChatLauncher.Utils;
 
 class Program
 {
@@ -36,8 +36,27 @@ class Program
         // i.e., first run to register, then launching a game from the website will pass the URI argument to us to trigger the chat form
         if (args.Length == 0)
         {
-            RegisterAsRobloxLauncher();
-            Console.WriteLine($"Launcher registered. ({exePath})");
+            if (RegisterAsRobloxLauncher())
+            {
+                // Provide visual feedback
+                using (NotifyIcon trayIcon = new NotifyIcon())
+                {
+                    // Pull the icon from current executable
+                    trayIcon.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+                    trayIcon.Visible = true;
+
+                    trayIcon.ShowBalloonTip(
+                        3000,
+                        "Roblox Chat Launcher",
+                        "Successfully registered! The next time you launch a game from the Roblox website, the chat overlay will start automatically.",
+                        ToolTipIcon.None // Set ToolTipIcon to None to the your app's icon
+                    );
+
+                    Thread.Sleep(1000);
+                }
+
+                Console.WriteLine($"Launcher registered. ({exePath})");
+            }
             return;
         }
 
@@ -74,7 +93,7 @@ class Program
         chatThread.Start();
     }
 
-    static void RegisterAsRobloxLauncher()
+    static bool RegisterAsRobloxLauncher()
     {
         try
         {
@@ -96,10 +115,12 @@ class Program
                     }
                 }
             }
+            return true;
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Failed to write registry key: {ex.Message}");
+            MessageBox.Show($"Failed to write registry key: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
         }
     }
 
