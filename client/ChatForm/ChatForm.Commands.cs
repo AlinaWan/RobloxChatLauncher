@@ -88,6 +88,8 @@ namespace RobloxChatLauncher
                 /// <summary>Opens the debug console window.</summary>
                 case "/console":
                 case "/debug":
+                case "/openconsole":
+                case "/opendebug":
                     OpenDebugConsole();
                     return true;
 
