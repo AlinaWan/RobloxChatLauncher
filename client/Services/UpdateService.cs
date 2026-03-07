@@ -3,13 +3,13 @@ using System.Net.Http.Json;
 using Microsoft.Win32;
 using Semver;
 
+using RobloxChatLauncher.Core;
+
 namespace RobloxChatLauncher.Services
 {
     public class UpdateService
     {
-        private const string RepoOwner = "AlinaWan";
-        private const string RepoName = "RobloxChatLauncher";
-        private const string RegistryPath = @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{B0BACAFE-D326-4A7B-B6BA-1437C0DEBABE}_is1";
+        private static readonly string RegistryPath = $@"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{Constants.APP_GUID}";
 
         public static async Task CheckAndDownloadUpdate(bool includePrerelease, Action<string> logCallback)
         {
@@ -37,11 +37,11 @@ namespace RobloxChatLauncher.Services
                 {
                     if (!includePrerelease)
                     {
-                        targetRelease = await ChatForm.Client.GetFromJsonAsync<GitHubRelease>($"https://api.github.com/repos/{RepoOwner}/{RepoName}/releases/latest");
+                        targetRelease = await ChatForm.Client.GetFromJsonAsync<GitHubRelease>($"https://api.github.com/repos/{Constants.REPO_OWNER}/{Constants.REPO_NAME}/releases/latest");
                     }
                     else
                     {
-                        var releases = await ChatForm.Client.GetFromJsonAsync<List<GitHubRelease>>($"https://api.github.com/repos/{RepoOwner}/{RepoName}/releases?per_page=5");
+                        var releases = await ChatForm.Client.GetFromJsonAsync<List<GitHubRelease>>($"https://api.github.com/repos/{Constants.REPO_OWNER}/{Constants.REPO_NAME}/releases?per_page=5");
                         targetRelease = releases?.OrderByDescending(r => SemVersion.Parse(r.TagName, SemVersionStyles.Any), SemVersion.PrecedenceComparer).FirstOrDefault();
                     }
                 }
