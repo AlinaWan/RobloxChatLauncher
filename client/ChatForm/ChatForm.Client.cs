@@ -3,6 +3,7 @@ using System.Text;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 
+using RobloxChatLauncher.Localization;
 using RobloxChatLauncher.Services;
 using RobloxChatLauncher.Utils;
 using RobloxChatLauncher.Core;
@@ -51,7 +52,7 @@ namespace RobloxChatLauncher
                     wsClient?.Dispose();
                     wsClient = new ClientWebSocket();
 
-                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connecting to server {channelId}...\r\n")));
+                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.ConnectingToServer, channelId)}\r\n")));
 
                     // Use the passed 'ct' token here
                     await wsClient.ConnectAsync(new Uri($"wss://{Constants.BASE_URL}/"), ct);
@@ -70,7 +71,7 @@ namespace RobloxChatLauncher
                     await wsClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(json)),
                         WebSocketMessageType.Text, true, ct);
 
-                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connected successfully!\r\n")));
+                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[{Strings.System}]: {Strings.ConnectedSuccessfully}\r\n")));
 
                     _ = Task.Run(() => ReceiveLoop(ct), ct);
                     return;
@@ -82,7 +83,7 @@ namespace RobloxChatLauncher
 
                     if (i == maxRetries)
                     {
-                        this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[System]: Connection failed: {ex.Message}\r\n")));
+                        this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.ConnectionFailed, ex.Message)}\r\n")));
                     }
                     else
                     {
@@ -163,20 +164,20 @@ namespace RobloxChatLauncher
                             switch (reason)
                             {
                                 case "moderation":
-                                    messageText = "Your message was not sent as it violates community guidelines.";
+                                    messageText = $"{Strings.MessageRejectedModeration}";
                                     break;
                                 case "queue_full":
-                                    messageText = "Your message was rejected because the server queue is full. Please try again shortly.";
+                                    messageText = $"{Strings.MessageRejectedQueueFull}";
                                     break;
                                 case "api_error":
-                                    messageText = "Your message could not be processed due to a server error. Please try again.";
+                                    messageText = $"{Strings.MessageRejectedApiError}";
                                     break;
                                 default:
-                                    messageText = "Your message was not sent due to unknown reasons.";
+                                    messageText = $"{Strings.MessageRejectedUnknown}";
                                     break;
                             }
 
-                            chatBox.AppendText($"[System]: {messageText}\r\n");
+                            chatBox.AppendText($"[{Strings.System}]: {messageText}\r\n");
                         }
                     });
                 }
@@ -184,7 +185,7 @@ namespace RobloxChatLauncher
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                chatBox.AppendText($"[System]: WS Receive Error: {ex.Message}\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.WSReceiveError, ex.Message)}\r\n");
             }
         }
         public async Task Send()
@@ -212,7 +213,7 @@ namespace RobloxChatLauncher
             catch (Exception ex)
             {
                 this.Invoke((MethodInvoker)delegate {
-                    chatBox.AppendText($"[Error]: Failed to send message: {ex.Message}\r\n");
+                    chatBox.AppendText($"[{Strings.Error}]: {string.Format(Strings.FailedToSendMessage, ex.Message)}\r\n");
                 });
             }
         }
@@ -230,7 +231,7 @@ namespace RobloxChatLauncher
         {
             if (!Properties.Settings1.Default.IsVerified)
             {
-                chatBox.AppendText("[System]: You must be verified to use /emote.\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {Strings.MustBeVerifiedEmote}\r\n");
                 return;
             }
 
@@ -262,12 +263,12 @@ namespace RobloxChatLauncher
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    chatBox.AppendText("[System]: Failed to queue emote.\r\n");
+                    chatBox.AppendText($"[{Strings.System}]: {Strings.FailedToQueueEmote}\r\n");
                 }
             }
             catch (Exception ex)
             {
-                chatBox.AppendText($"[System]: Emote error: {ex.Message}\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.EmoteError, ex.Message)}\r\n");
             }
         }
 
@@ -288,7 +289,7 @@ namespace RobloxChatLauncher
 
                     this.Invoke((MethodInvoker)delegate
                     {
-                        chatBox.AppendText($"[Server]: {echoResponse} (Only you can see this message.)\r\n");
+                        chatBox.AppendText($"[{Strings.Server}]: {string.Format(Strings.EchoResponse, echoResponse)}\r\n");
                     });
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
@@ -301,16 +302,16 @@ namespace RobloxChatLauncher
                     switch (reason)
                     {
                         case "moderation":
-                            messageText = "Your message was not sent as it violates community guidelines.";
+                            messageText = $"{Strings.MessageRejectedModeration}";
                             break;
                         case "queue_full":
-                            messageText = "Your message was rejected because the server queue is full. Please try again shortly.";
+                            messageText = $"{Strings.MessageRejectedQueueFull}";
                             break;
                         case "api_error":
-                            messageText = "Your message could not be processed due to a server error. Please try again.";
+                            messageText = $"{Strings.MessageRejectedApiError}";
                             break;
                         default:
-                            messageText = "Your message was not sent due to unknown reasons.";
+                            messageText = $"{Strings.MessageRejectedUnknown}";
                             break;
                     }
 
@@ -325,7 +326,7 @@ namespace RobloxChatLauncher
             {
                 this.Invoke((MethodInvoker)delegate
                 {
-                    chatBox.AppendText("[System]: Request timed out. (Render server may be waking up)\r\n");
+                    chatBox.AppendText($"[{Strings.System}]: {Strings.RequestTimedOut}\r\n");
                 });
             }
             // 4. Catch General Errors (DNS, No Internet, etc.)
@@ -333,7 +334,7 @@ namespace RobloxChatLauncher
             {
                 this.Invoke((MethodInvoker)delegate
                 {
-                    chatBox.AppendText($"[System]: Connection error: {ex.Message}\r\n");
+                    chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.ConnectionError, ex.Message)}\r\n");
                 });
             }
             finally
@@ -354,7 +355,7 @@ namespace RobloxChatLauncher
             // Don't append the user's own message here; the server will broadcast it back
             if (wsClient == null || wsClient.State != WebSocketState.Open)
             {
-                chatBox.AppendText("[System]: WebSocket not connected. Use '/rc' or '/reconnect' to connect to server.\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {Strings.WSNotConnected}\r\n");
                 return;
             }
 
@@ -374,11 +375,11 @@ namespace RobloxChatLauncher
             }
             catch (TaskCanceledException)
             {
-                chatBox.AppendText("[System]: WS send timed out. (Render server may be waking up)\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {Strings.WSSendTimedOut}\r\n");
             }
             catch (Exception ex)
             {
-                chatBox.AppendText($"[System]: WS Send Error: {ex.Message}\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.WSSendError, ex.Message)}\r\n");
             }
         }
 
@@ -406,12 +407,12 @@ namespace RobloxChatLauncher
         {
             if (string.IsNullOrWhiteSpace(args))
             {
-                chatBox.AppendText("[System]: Usage: /mute <speaker>\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {Strings.UsageMute}\r\n");
             }
             else
             {
                 mutedUsers.Add(args.Trim());
-                chatBox.AppendText($"[System]: Speaker '{args.Trim()}' has been muted.\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.MutedSpeaker, args.Trim())}\r\n");
             }
             return true;
         }
@@ -420,16 +421,16 @@ namespace RobloxChatLauncher
         {
             if (string.IsNullOrWhiteSpace(args))
             {
-                chatBox.AppendText("[System]: Usage: /unmute <speaker>\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {Strings.UsageUnmute}\r\n");
                 return true;
             }
 
             string speaker = args.Trim();
 
             if (mutedUsers.Remove(speaker))
-                chatBox.AppendText($"[System]: Speaker '{speaker}' has been unmuted.\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.UnmutedSpeaker, speaker)}\r\n");
             else
-                chatBox.AppendText($"[System]: Speaker '{speaker}' was not muted.\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.SpeakerNotMuted, speaker)}\r\n");
 
             return true;
         }
@@ -460,7 +461,7 @@ namespace RobloxChatLauncher
 
             if (string.IsNullOrEmpty(target) || string.IsNullOrEmpty(msg))
             {
-                chatBox.AppendText("[System]: Usage: /w \"<speaker 12345>\" message or /w <speaker> message\r\n");
+                chatBox.AppendText($"[{Strings.System}]: {Strings.UsageWhisper}\r\n");
                 return true;
             }
 
@@ -491,10 +492,10 @@ namespace RobloxChatLauncher
                     }
                 }
 
-                Console.Title = "Roblox Chat Launcher Debugger";
+                Console.Title = $"{Strings.DebugConsoleTitle}";
                 Console.WriteLine("===================================================");
-                Console.WriteLine($"DEBUG CONSOLE INITIALIZED AT {DateTime.Now}");
-                Console.WriteLine($"Use '/closeconsole or '/closedebug' to close");
+                Console.WriteLine($"{string.Format(Strings.DebugConsoleInitialized, DateTime.Now)}");
+                Console.WriteLine($"{Strings.DebugConsoleUseClose}");
                 Console.WriteLine("===================================================");
             }
         }

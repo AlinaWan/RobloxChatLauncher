@@ -59,7 +59,7 @@ namespace RobloxChatLauncher
                 /// <summary>Displays the current channel ID in the chat box.</summary>
                 case "/id":
                 case "/channel":
-                    chatBox.AppendText($"[System]: Current Channel ID: {channelId}\r\n");
+                    chatBox.AppendText($"[{Strings.System}]: {Strings.CurrentChannelID}: {channelId}\r\n");
                     return true;
 
                 /// <summary>Opens the default web browser to the GitHub issues page for reporting bugs or requesting features.</summary>
@@ -100,7 +100,7 @@ namespace RobloxChatLauncher
                 /// <summary>Checks for updates on GitHub and, if a new version is available, the application will restart automatically to install the update.</summary>
                 /// <param>args: Optional argument "prerelease" to include prerelease versions in the update check.</param>
                 case "/update":
-                    chatBox.AppendText("[System]: Checking for updates...\r\n");
+                    chatBox.AppendText($"[{Strings.System}]: {Strings.CheckingForUpdates}\r\n");
                     try
                     {
                         // If the user types "/update prerelease", check for prereleases
@@ -110,13 +110,13 @@ namespace RobloxChatLauncher
                         await Task.Run(async () => {
                             await UpdateService.CheckAndDownloadUpdate(includePrerelease, (status) => {
                                 // This invokes back to the UI thread to update the chatBox safely
-                                this.Invoke(new Action(() => chatBox.AppendText($"[System]: {status}\r\n")));
+                                this.Invoke(new Action(() => chatBox.AppendText($"[{Strings.System}]: {status}\r\n")));
                             });
                         });
                     }
                     catch (Exception ex)
                     {
-                        chatBox.AppendText($"[Error]: Update check failed. {ex.Message}\r\n");
+                        chatBox.AppendText($"[{Strings.Error}]: {string.Format(Strings.UpdateCheckFailed, ex.Message)}\r\n");
                     }
                     return true;
 
@@ -125,18 +125,15 @@ namespace RobloxChatLauncher
                 case "/verify":
                     if (string.IsNullOrWhiteSpace(args))
                     {
-                        chatBox.AppendText("[System]: Usage: /verify <RobloxUsername>\r\n");
+                        chatBox.AppendText($"[{Strings.System}]: {Strings.UsageVerify}\r\n");
                     }
                     else
                     {
-                        chatBox.AppendText($"[System]: Fetching code for {args}...\r\n");
+                        chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.FetchingCode, args)}\r\n");
                         var verifyResult = await _verifyService.StartVerification(args);
                         _pendingRobloxId = verifyResult.RobloxId;
 
-                        chatBox.AppendText($"1. Copy this code: {verifyResult.Code}\r\n");
-                        chatBox.AppendText($"2. Paste it into your Roblox Profile 'About' section.\r\n");
-                        chatBox.AppendText($"3. Type /confirm to finish.\r\n");
-                        chatBox.AppendText($"Your code will expire in 10 minutes.\r\n");
+                        chatBox.AppendText($"{string.Format(Strings.VerifyStepsText, verifyResult.Code)}\r\n");
                     }
                     return true;
 
@@ -144,7 +141,7 @@ namespace RobloxChatLauncher
                 case "/confirm":
                     if (_pendingRobloxId == 0)
                     {
-                        chatBox.AppendText("[System]: ⚠️ Please run /verify <username> first!\r\n");
+                        chatBox.AppendText($"[{Strings.System}]: {Strings.RunVerifyFirst}\r\n");
                         return true;
                     }
 
@@ -153,21 +150,21 @@ namespace RobloxChatLauncher
                     switch (confirmResult)
                     {
                         case VerificationResult.Success:
-                            chatBox.AppendText("[System]: 🎀 Account linked successfully!\r\n");
+                            chatBox.AppendText($"[{Strings.System}]: {Strings.AccountLinked}\r\n");
                             // Trigger a reconnection to update their name to their verified username immediately
                             await RestartWebSocketAsync();
                             break;
 
                         case VerificationResult.CodeNotFound:
-                            chatBox.AppendText("[System]: ❌ Code not found. Please check your profile and ensure you requested the correct username.\r\n");
+                            chatBox.AppendText($"[{Strings.System}]: {Strings.CodeNotFound}\r\n");
                             break;
 
                         case VerificationResult.HardwareIdFailed:
-                            chatBox.AppendText("[System]: ⚠️ Could not read your device ID. Please restart the launcher and try again.\r\n");
+                            chatBox.AppendText($"[{Strings.System}]: {Strings.HardwareIdFailed}\r\n");
                             break;
 
                         default:
-                            chatBox.AppendText("[System]: ❌ Verification failed due to a server error.\r\n");
+                            chatBox.AppendText($"[{Strings.System}]: {Strings.VerificationFailed}\r\n");
                             break;
                     }
                     return true;
@@ -175,18 +172,18 @@ namespace RobloxChatLauncher
                 /// <summary>Unverifies the user's Roblox account by clearing local verification data and attempting to unlink the account on the server, then refreshes the connection to update the username to "Guest".</summary>
                 case "/unverify":
                 case "/logout":
-                    chatBox.AppendText("[System]: Unlinking your Roblox account and clearing local data...\r\n");
+                    chatBox.AppendText($"[{Strings.System}]: {Strings.UnlinkingAccount}\r\n");
                     bool unverified = await _verifyService.Unverify();
 
                     if (unverified)
                     {
-                        chatBox.AppendText("[System]: 🗑️ Successfully unverified. You are now a Guest.\r\n");
+                        chatBox.AppendText($"[{Strings.System}]: {Strings.UnverifiedSuccess}\r\n");
                     }
                     else
                     {
                         // Even if the server call fails, we cleared local settings, 
                         // so the user is effectively a guest now anyway.
-                        chatBox.AppendText("[System]: Local data cleared. (Server sync may have failed).\r\n");
+                        chatBox.AppendText($"[{Strings.System}]: {Strings.LocalDataCleared}\r\n");
                     }
 
                     // Trigger a reconnection to update their name to "Guest" immediately
@@ -199,7 +196,7 @@ namespace RobloxChatLauncher
                 case "/e":
                     if (string.IsNullOrWhiteSpace(args))
                     {
-                        chatBox.AppendText("[System]: Usage: /emote <name>\r\n");
+                        chatBox.AppendText($"[{Strings.System}]: {Strings.UsageEmote}\r\n");
                     }
                     else
                     {
@@ -208,7 +205,7 @@ namespace RobloxChatLauncher
                     return true;
 
                 default:
-                    chatBox.AppendText($"[System]: Unknown command '{command}'. Use '/?' or '/help' for a list of commands.\r\n");
+                    chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.UnknownCommand, command)}\r\n");
                     return true; // Return true so it doesn't send the bad command to the server
             }
         }
@@ -224,7 +221,7 @@ namespace RobloxChatLauncher
             }
             catch (Exception ex)
             {
-                chatBox.AppendText($"[Error]: Could not open link. {ex.Message}\r\n");
+                chatBox.AppendText($"[{Strings.Error}]: {string.Format(Strings.CouldNotOpenLink, ex.Message)}\r\n");
             }
         }
     }

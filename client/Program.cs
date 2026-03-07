@@ -2,7 +2,9 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Win32;
+
 using RobloxChatLauncher;
+using RobloxChatLauncher.Localization;
 using RobloxChatLauncher.Services;
 using RobloxChatLauncher.Utils;
 
@@ -26,11 +28,11 @@ class Program
         string exePath = Process.GetCurrentProcess().MainModule.FileName; // Path to our launcher executable
         if (robloxClient == null)
         {
-            MessageBox.Show("Could not find a valid Roblox Client.");
+            MessageBox.Show($"{Strings.CouldNotFindClient}");
             return;
         }
 
-        Console.WriteLine($"Resolved Roblox Client: {robloxClient.Type} ({robloxClient.ExecutablePath})");
+        Console.WriteLine($"{string.Format(Strings.ResolvedClientInfo, robloxClient.Type, robloxClient.ExecutablePath)}");
 
         // If no URI argument is provided, we assume the launcher is being run directly and just register for the protocol without launching anything
         // i.e., first run to register, then launching a game from the website will pass the URI argument to us to trigger the chat form
@@ -47,15 +49,15 @@ class Program
 
                     trayIcon.ShowBalloonTip(
                         3000,
-                        "Roblox Chat Launcher",
-                        "Successfully registered! The next time you launch a game from the Roblox website, the chat overlay will start automatically.",
-                        ToolTipIcon.None // Set ToolTipIcon to None to the your app's icon
+                        $"{Strings.LauncherRegisteredBalloonTitle}",
+                        $"{Strings.LauncherRegisteredBalloonText}",
+                        ToolTipIcon.None // Set ToolTipIcon to None to use the app's icon
                     );
 
                     Thread.Sleep(1000);
                 }
 
-                Console.WriteLine($"Launcher registered. ({exePath})");
+                Console.WriteLine($"{string.Format(Strings.LauncherRegistered, exePath)}");
             }
             return;
         }
@@ -119,7 +121,7 @@ class Program
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Failed to write registry key: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"{string.Format(Strings.RegistryWriteFailed, ex.Message)}", $"{Strings.Error}", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return false;
         }
     }
@@ -144,7 +146,7 @@ class Program
                 key.SetValue("", originalCommand);
             }
 
-            Console.WriteLine($"Restored registry to: {originalCommand}");
+            Console.WriteLine($"{string.Format(Strings.RestoredRegistry, originalCommand)}");
         }
         catch (Exception ex)
         {

@@ -7,6 +7,8 @@
     using System.Drawing;
     using System.Windows.Forms;
 
+    using RobloxChatLauncher.Localization;
+
     class ChatInputBox : TextBox
     {
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -50,7 +52,7 @@
 
             if (!IsChatting && string.IsNullOrEmpty(RawText))
             {
-                displayText = "Press / key | Ctrl+Shift+C to hide";
+                displayText = $"{Strings.ChatInputBoxText}";
                 color = Color.FromArgb(180, 200, 200, 200);
             }
             else

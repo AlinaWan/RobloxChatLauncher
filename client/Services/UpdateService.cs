@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Microsoft.Win32;
 using Semver;
 
+using RobloxChatLauncher.Localization;
 using RobloxChatLauncher.Core;
 
 namespace RobloxChatLauncher.Services
@@ -21,7 +22,7 @@ namespace RobloxChatLauncher.Services
 
                 if (subKey == null)
                 {
-                    logCallback?.Invoke("Running from source; update skipped.");
+                    logCallback?.Invoke($"{Strings.RunningFromSource}");
                     return;
                 }
 
@@ -47,13 +48,13 @@ namespace RobloxChatLauncher.Services
                 }
                 catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    logCallback?.Invoke("No stable releases found. Use '/update prerelease' to check for alpha/beta versions.");
+                    logCallback?.Invoke($"{Strings.NoStableReleases}");
                     return;
                 }
 
                 if (targetRelease == null)
                 {
-                    logCallback?.Invoke("Could not find any releases.");
+                    logCallback?.Invoke($"{Strings.CouldNotFindReleases}");
                     return;
                 }
 
@@ -66,14 +67,14 @@ namespace RobloxChatLauncher.Services
                     if (asset == null)
                         return;
 
-                    logCallback?.Invoke($"Downloading update ({localVersion} → {remoteVersion})...");
+                    logCallback?.Invoke($"{string.Format(Strings.DownloadingUpdate, localVersion, remoteVersion)}");
 
                     // Download to Temp folder
                     string tempPath = Path.Combine(Path.GetTempPath(), asset.Name);
                     var data = await ChatForm.Client.GetByteArrayAsync(asset.DownloadUrl);
                     await File.WriteAllBytesAsync(tempPath, data);
 
-                    logCallback?.Invoke("Installing update... The app will close shortly.");
+                    logCallback?.Invoke($"{Strings.InstallingUpdate}");
 
                     string logPath = Path.Combine(Path.GetTempPath(), "RobloxChatLauncher_install_log.txt");
 
@@ -90,7 +91,7 @@ namespace RobloxChatLauncher.Services
                 }
                 else
                 {
-                    logCallback?.Invoke($"Already up to date ({localVersion})");
+                    logCallback?.Invoke($"{string.Format(Strings.AlreadyUpToDate, localVersion)}");
                 }
             }
             catch (Exception ex)

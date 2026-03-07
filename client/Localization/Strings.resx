@@ -125,15 +125,201 @@ Server written in Node.js 🌸 Hosted on Render.com
 Source: https://github.com/AlinaWan/RobloxChatLauncher
 And of course, credits to you 💖</value>
   </data>
+  <data name="AccountLinked" xml:space="preserve">
+    <value>🎀 Account linked successfully!</value>
+  </data>
+  <data name="AlreadyUpToDate" xml:space="preserve">
+    <value>Already up to date ({0})</value>
+  </data>
+  <data name="ChatInputBoxText" xml:space="preserve">
+    <value>Press / key | Ctrl+Shift+C to hide</value>
+  </data>
+  <data name="CheckingForUpdates" xml:space="preserve">
+    <value>Checking for updates...</value>
+  </data>
+  <data name="CodeNotFound" xml:space="preserve">
+    <value>❌ Code not found. Please check your profile and ensure you requested the correct username.</value>
+  </data>
+  <data name="ConnectedSuccessfully" xml:space="preserve">
+    <value>Connected successfully!</value>
+  </data>
+  <data name="ConnectingToServer" xml:space="preserve">
+    <value>Connecting to server {0}...</value>
+  </data>
+  <data name="ConnectionError" xml:space="preserve">
+    <value>Connection error: {0}</value>
+  </data>
+  <data name="ConnectionFailed" xml:space="preserve">
+    <value>Connection failed: {0}</value>
+  </data>
+  <data name="CouldNotFindClient" xml:space="preserve">
+    <value>Could not find a valid Roblox Client.</value>
+  </data>
+  <data name="CouldNotFindReleases" xml:space="preserve">
+    <value>Could not find any releases.</value>
+  </data>
+  <data name="CouldNotOpenLink" xml:space="preserve">
+    <value>Could not open link. {0}</value>
+  </data>
+  <data name="CurrentChannelID" xml:space="preserve">
+    <value>Current Channel ID</value>
+  </data>
+  <data name="DebugConsoleInitialized" xml:space="preserve">
+    <value>DEBUG CONSOLE INITIALIZED AT {0}</value>
+  </data>
+  <data name="DebugConsoleTitle" xml:space="preserve">
+    <value>Roblox Chat Launcher Debugger</value>
+  </data>
+  <data name="DebugConsoleUseClose" xml:space="preserve">
+    <value>Use '/closeconsole or '/closedebug' to close</value>
+  </data>
+  <data name="DownloadingUpdate" xml:space="preserve">
+    <value>Downloading update ({0} → {1})...</value>
+  </data>
+  <data name="EchoResponse" xml:space="preserve">
+    <value>{0} (Only you can see this message.)</value>
+  </data>
+  <data name="EmoteError" xml:space="preserve">
+    <value>Emote error: {0}</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="FailedToQueueEmote" xml:space="preserve">
+    <value>Failed to queue emote.</value>
+  </data>
+  <data name="FailedToSendMessage" xml:space="preserve">
+    <value>Failed to send message: {0}</value>
+  </data>
+  <data name="FetchingCode" xml:space="preserve">
+    <value>Fetching code for {0}...</value>
+  </data>
+  <data name="HardwareIdFailed" xml:space="preserve">
+    <value>⚠️ Could not read your device ID. Please restart the launcher and try again.</value>
+  </data>
+  <data name="InstallingUpdate" xml:space="preserve">
+    <value>Installing update... The app will close shortly.</value>
+  </data>
+  <data name="LauncherRegistered" xml:space="preserve">
+    <value>Launcher registered. ({0})</value>
+  </data>
+  <data name="LauncherRegisteredBalloonText" xml:space="preserve">
+    <value>Successfully registered! The next time you launch a game from the Roblox website, the chat overlay will start automatically.</value>
+  </data>
+  <data name="LauncherRegisteredBalloonTitle" xml:space="preserve">
+    <value>Roblox Chat Launcher</value>
+  </data>
+  <data name="LocalDataCleared" xml:space="preserve">
+    <value>Local data cleared. (Server sync may have failed).</value>
+  </data>
+  <data name="MessageRejectedApiError" xml:space="preserve">
+    <value>Your message could not be processed due to a server error. Please try again.</value>
+  </data>
+  <data name="MessageRejectedModeration" xml:space="preserve">
+    <value>Your message was not sent as it violates community guidelines.</value>
+  </data>
+  <data name="MessageRejectedQueueFull" xml:space="preserve">
+    <value>Your message was rejected because the server queue is full. Please try again shortly.</value>
+  </data>
+  <data name="MessageRejectedUnknown" xml:space="preserve">
+    <value>Your message was not sent due to unknown reasons.</value>
+  </data>
+  <data name="MustBeVerifiedEmote" xml:space="preserve">
+    <value>You must be verified to use /emote.</value>
+  </data>
+  <data name="MutedSpeaker" xml:space="preserve">
+    <value>Speaker '{0}' has been muted.</value>
+  </data>
+  <data name="NoStableReleases" xml:space="preserve">
+    <value>No stable releases found. Use '/update prerelease' to check for alpha/beta versions.</value>
+  </data>
   <data name="OpeningWebsite" xml:space="preserve">
     <value>Opening website...</value>
+  </data>
+  <data name="RegistryWriteFailed" xml:space="preserve">
+    <value>Failed to write registry key: {0}</value>
+  </data>
+  <data name="RequestTimedOut" xml:space="preserve">
+    <value>Request timed out. (Render server may be waking up)</value>
+  </data>
+  <data name="ResolvedClientInfo" xml:space="preserve">
+    <value>Resolved Roblox Client: {0} ({1})</value>
+  </data>
+  <data name="RestoredRegistry" xml:space="preserve">
+    <value>Restored registry to: {0}</value>
+  </data>
+  <data name="RunningFromSource" xml:space="preserve">
+    <value>Running from source; update skipped.</value>
+  </data>
+  <data name="RunVerifyFirst" xml:space="preserve">
+    <value>⚠️ Please run /verify &lt;username&gt; first!</value>
+  </data>
+  <data name="Server" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="SpeakerNotMuted" xml:space="preserve">
+    <value>Speaker '{0}' was not muted.</value>
   </data>
   <data name="StartupText" xml:space="preserve">
     <value>Made with ❤︎ by Riri
 Chat '/update' to check for updates.
 Chat '/?' or '/help' for a list of chat commands.</value>
   </data>
+  <data name="SwitchingServer" xml:space="preserve">
+    <value>Switching server...</value>
+  </data>
   <data name="System" xml:space="preserve">
     <value>System</value>
+  </data>
+  <data name="UnknownCommand" xml:space="preserve">
+    <value>Unknown command '{0}'. Use '/?' or '/help' for a list of commands.</value>
+  </data>
+  <data name="UnlinkingAccount" xml:space="preserve">
+    <value>Unlinking your Roblox account and clearing local data...</value>
+  </data>
+  <data name="UnmutedSpeaker" xml:space="preserve">
+    <value>Speaker '{0}' has been unmuted.</value>
+  </data>
+  <data name="UnverifiedSuccess" xml:space="preserve">
+    <value>🗑️ Successfully unverified. You are now a Guest.</value>
+  </data>
+  <data name="UpdateCheckFailed" xml:space="preserve">
+    <value>Update check failed. {0}</value>
+  </data>
+  <data name="UsageEmote" xml:space="preserve">
+    <value>Usage: /emote &lt;name&gt;</value>
+  </data>
+  <data name="UsageMute" xml:space="preserve">
+    <value>Usage: /mute &lt;speaker&gt;</value>
+  </data>
+  <data name="UsageUnmute" xml:space="preserve">
+    <value>Usage: /unmute &lt;speaker&gt;</value>
+  </data>
+  <data name="UsageVerify" xml:space="preserve">
+    <value>Usage: /verify &lt;RobloxUsername&gt;</value>
+  </data>
+  <data name="UsageWhisper" xml:space="preserve">
+    <value>Usage: /w "&lt;speaker 12345&gt;" message or /w &lt;speaker&gt; message</value>
+  </data>
+  <data name="VerificationFailed" xml:space="preserve">
+    <value>❌ Verification failed due to a server error.</value>
+  </data>
+  <data name="VerifyStepsText" xml:space="preserve">
+    <value>1. Copy this code: {0}
+2. Paste it into your Roblox Profile 'About' section.
+3. Type /confirm to finish.
+Your code will expire in 10 minutes.</value>
+  </data>
+  <data name="WSNotConnected" xml:space="preserve">
+    <value>WebSocket not connected. Use '/rc' or '/reconnect' to connect to server.</value>
+  </data>
+  <data name="WSReceiveError" xml:space="preserve">
+    <value>WS Receive Error: {0}</value>
+  </data>
+  <data name="WSSendError" xml:space="preserve">
+    <value>WS Send Error: {0}</value>
+  </data>
+  <data name="WSSendTimedOut" xml:space="preserve">
+    <value>WS send timed out. (Render server may be waking up)</value>
   </data>
 </root>

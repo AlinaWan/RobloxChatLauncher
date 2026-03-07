@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
-using System.Net.WebSockets;
 using System.Windows.Forms;
 
 using RobloxChatLauncher.Localization;
@@ -388,7 +387,7 @@ namespace RobloxChatLauncher
                         // chatBox.AppendText($"[Server]: Server instance found!\r\n");
                     }
                     else
-                        chatBox.AppendText($"[Server]: Switching server...\r\n");
+                        chatBox.AppendText($"[{Strings.Server}]: {Strings.SwitchingServer}\r\n");
                 });
 
                 await RestartWebSocketAsync(); // Reconnect to the WebSocket

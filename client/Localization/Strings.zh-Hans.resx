@@ -125,15 +125,201 @@ Riri 倾情打造 ❤︎
 源码地址：https://github.com/AlinaWan/RobloxChatLauncher
 当然，还要感谢最棒的你 💖</value>
   </data>
+  <data name="AccountLinked" xml:space="preserve">
+    <value>🎀 账号已成功绑定！</value>
+  </data>
+  <data name="AlreadyUpToDate" xml:space="preserve">
+    <value>已是最新版本 ({0})</value>
+  </data>
+  <data name="ChatInputBoxText" xml:space="preserve">
+    <value>按 / 键 | Ctrl+Shift+C 以隐藏</value>
+  </data>
+  <data name="CheckingForUpdates" xml:space="preserve">
+    <value>正在检查更新...</value>
+  </data>
+  <data name="CodeNotFound" xml:space="preserve">
+    <value>❌ 未找到验证码。请检查您的个人资料并确保填写的用户名正确。</value>
+  </data>
+  <data name="ConnectedSuccessfully" xml:space="preserve">
+    <value>连接成功！</value>
+  </data>
+  <data name="ConnectingToServer" xml:space="preserve">
+    <value>正在连接到服务器 {0}...</value>
+  </data>
+  <data name="ConnectionError" xml:space="preserve">
+    <value>连接错误: {0}</value>
+  </data>
+  <data name="ConnectionFailed" xml:space="preserve">
+    <value>连接失败: {0}</value>
+  </data>
+  <data name="CouldNotFindClient" xml:space="preserve">
+    <value>未找到有效的 Roblox 客户端。</value>
+  </data>
+  <data name="CouldNotFindReleases" xml:space="preserve">
+    <value>未发现可用版本。</value>
+  </data>
+  <data name="CouldNotOpenLink" xml:space="preserve">
+    <value>无法打开链接: {0}</value>
+  </data>
+  <data name="CurrentChannelID" xml:space="preserve">
+    <value>当前频道 ID</value>
+  </data>
+  <data name="DebugConsoleInitialized" xml:space="preserve">
+    <value>调试控制台已于 {0} 初始化</value>
+  </data>
+  <data name="DebugConsoleTitle" xml:space="preserve">
+    <value>Roblox Chat Launcher 调试器</value>
+  </data>
+  <data name="DebugConsoleUseClose" xml:space="preserve">
+    <value>输入 '/closeconsole' 或 '/closedebug' 以关闭</value>
+  </data>
+  <data name="DownloadingUpdate" xml:space="preserve">
+    <value>正在下载更新 ({0} → {1})...</value>
+  </data>
+  <data name="EchoResponse" xml:space="preserve">
+    <value>{0}（只有你能看到此消息）</value>
+  </data>
+  <data name="EmoteError" xml:space="preserve">
+    <value>Emote发送出错: {0}</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="FailedToQueueEmote" xml:space="preserve">
+    <value>Emote队列发送失败。</value>
+  </data>
+  <data name="FailedToSendMessage" xml:space="preserve">
+    <value>发送消息失败: {0}</value>
+  </data>
+  <data name="FetchingCode" xml:space="preserve">
+    <value>正在获取 {0} 的验证码...</value>
+  </data>
+  <data name="HardwareIdFailed" xml:space="preserve">
+    <value>⚠️ 无法读取设备 ID。请重启启动器后重试。</value>
+  </data>
+  <data name="InstallingUpdate" xml:space="preserve">
+    <value>正在安装更新…程序即将关闭。</value>
+  </data>
+  <data name="LauncherRegistered" xml:space="preserve">
+    <value>启动器已注册。({0})</value>
+  </data>
+  <data name="LauncherRegisteredBalloonText" xml:space="preserve">
+    <value>注册成功！下次从 Roblox 网站启动游戏时，聊天覆盖将自动启动。</value>
+  </data>
+  <data name="LauncherRegisteredBalloonTitle" xml:space="preserve">
+    <value>Roblox Chat Launcher</value>
+  </data>
+  <data name="LocalDataCleared" xml:space="preserve">
+    <value>本地数据已清除。（服务器同步可能已失败）</value>
+  </data>
+  <data name="MessageRejectedApiError" xml:space="preserve">
+    <value>服务器消息处理失败，请重试。</value>
+  </data>
+  <data name="MessageRejectedModeration" xml:space="preserve">
+    <value>您的消息未发送，因为违反了社区准则/规范。</value>
+  </data>
+  <data name="MessageRejectedQueueFull" xml:space="preserve">
+    <value>您的消息被拒绝，因为服务器队列已满，请稍后再试。</value>
+  </data>
+  <data name="MessageRejectedUnknown" xml:space="preserve">
+    <value>您的消息未发送，原因未知。</value>
+  </data>
+  <data name="MustBeVerifiedEmote" xml:space="preserve">
+    <value>必须完成验证方可使用 /emote。</value>
+  </data>
+  <data name="MutedSpeaker" xml:space="preserve">
+    <value>发言者 '{0}' 已被静音。</value>
+  </data>
+  <data name="NoStableReleases" xml:space="preserve">
+    <value>未找到稳定版本。使用 '/update prerelease' 检查 alpha/beta 版本。</value>
+  </data>
   <data name="OpeningWebsite" xml:space="preserve">
     <value>正在打开网页...</value>
+  </data>
+  <data name="RegistryWriteFailed" xml:space="preserve">
+    <value>写入注册表键失败: {0}</value>
+  </data>
+  <data name="RequestTimedOut" xml:space="preserve">
+    <value>请求超时。（Render 服务器可能正在启动）</value>
+  </data>
+  <data name="ResolvedClientInfo" xml:space="preserve">
+    <value>已解析 Roblox 客户端: {0} ({1})</value>
+  </data>
+  <data name="RestoredRegistry" xml:space="preserve">
+    <value>已将注册表恢复为: {0}</value>
+  </data>
+  <data name="RunningFromSource" xml:space="preserve">
+    <value>正在从源码运行；跳过更新。</value>
+  </data>
+  <data name="RunVerifyFirst" xml:space="preserve">
+    <value>⚠️ 请先运行 /verify &lt;用户名&gt;！</value>
+  </data>
+  <data name="Server" xml:space="preserve">
+    <value>服务器</value>
+  </data>
+  <data name="SpeakerNotMuted" xml:space="preserve">
+    <value>发言者 '{0}' 没有被静音。</value>
   </data>
   <data name="StartupText" xml:space="preserve">
     <value>Riri 倾情打造 ❤︎
 输入 '/update' 以检查更新。
 输入 '/?' 或 '/help' 以查看聊天命令列表。</value>
   </data>
+  <data name="SwitchingServer" xml:space="preserve">
+    <value>正在切换服务器...</value>
+  </data>
   <data name="System" xml:space="preserve">
     <value>系统</value>
+  </data>
+  <data name="UnknownCommand" xml:space="preserve">
+    <value>未知指令 '{0}'。使用 '/?' 或 '/help' 查看命令列表。</value>
+  </data>
+  <data name="UnlinkingAccount" xml:space="preserve">
+    <value>正在解绑 Roblox 账号并清除本地数据...</value>
+  </data>
+  <data name="UnmutedSpeaker" xml:space="preserve">
+    <value>发言者 '{0}' 已解除静音。</value>
+  </data>
+  <data name="UnverifiedSuccess" xml:space="preserve">
+    <value>🗑️ 已成功解除验证。您现在是访客。</value>
+  </data>
+  <data name="UpdateCheckFailed" xml:space="preserve">
+    <value>更新检查失败: {0}</value>
+  </data>
+  <data name="UsageEmote" xml:space="preserve">
+    <value>用法: /emote &lt;名称&gt;</value>
+  </data>
+  <data name="UsageMute" xml:space="preserve">
+    <value>用法: /mute &lt;发言者&gt;</value>
+  </data>
+  <data name="UsageUnmute" xml:space="preserve">
+    <value>用法: /unmute &lt;发言者&gt;</value>
+  </data>
+  <data name="UsageVerify" xml:space="preserve">
+    <value>用法: /verify &lt;Roblox用户名&gt;</value>
+  </data>
+  <data name="UsageWhisper" xml:space="preserve">
+    <value>用法: /w "&lt;发言者 12345&gt;" 消息 或 /w &lt;发言者&gt; 消息</value>
+  </data>
+  <data name="VerificationFailed" xml:space="preserve">
+    <value>❌ 由于服务器错误，验证失败。</value>
+  </data>
+  <data name="VerifyStepsText" xml:space="preserve">
+    <value>1. 复制此验证码: {0}
+2. 粘贴到 Roblox 个人资料“关于”栏中。
+3. 输入 /confirm 完成。
+您的验证码将在 10 分钟后过期。</value>
+  </data>
+  <data name="WSNotConnected" xml:space="preserve">
+    <value>WebSocket 未连接。使用 '/rc' 或 '/reconnect' 以连接服务器。</value>
+  </data>
+  <data name="WSReceiveError" xml:space="preserve">
+    <value>WebSocket 接收错误: {0}</value>
+  </data>
+  <data name="WSSendError" xml:space="preserve">
+    <value>WebSocket 发送错误: {0}</value>
+  </data>
+  <data name="WSSendTimedOut" xml:space="preserve">
+    <value>WebSocket 发送超时。（Render 服务器可能正在启动）</value>
   </data>
 </root>

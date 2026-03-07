@@ -75,11 +75,407 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 🎀 Account linked successfully!.
+        /// </summary>
+        public static string AccountLinked {
+            get {
+                return ResourceManager.GetString("AccountLinked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Already up to date ({0}).
+        /// </summary>
+        public static string AlreadyUpToDate {
+            get {
+                return ResourceManager.GetString("AlreadyUpToDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Press / key | Ctrl+Shift+C to hide.
+        /// </summary>
+        public static string ChatInputBoxText {
+            get {
+                return ResourceManager.GetString("ChatInputBoxText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking for updates....
+        /// </summary>
+        public static string CheckingForUpdates {
+            get {
+                return ResourceManager.GetString("CheckingForUpdates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ❌ Code not found. Please check your profile and ensure you requested the correct username..
+        /// </summary>
+        public static string CodeNotFound {
+            get {
+                return ResourceManager.GetString("CodeNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connected successfully!.
+        /// </summary>
+        public static string ConnectedSuccessfully {
+            get {
+                return ResourceManager.GetString("ConnectedSuccessfully", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting to server {0}....
+        /// </summary>
+        public static string ConnectingToServer {
+            get {
+                return ResourceManager.GetString("ConnectingToServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection error: {0}.
+        /// </summary>
+        public static string ConnectionError {
+            get {
+                return ResourceManager.GetString("ConnectionError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection failed: {0}.
+        /// </summary>
+        public static string ConnectionFailed {
+            get {
+                return ResourceManager.GetString("ConnectionFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find a valid Roblox Client..
+        /// </summary>
+        public static string CouldNotFindClient {
+            get {
+                return ResourceManager.GetString("CouldNotFindClient", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find any releases..
+        /// </summary>
+        public static string CouldNotFindReleases {
+            get {
+                return ResourceManager.GetString("CouldNotFindReleases", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not open link. {0}.
+        /// </summary>
+        public static string CouldNotOpenLink {
+            get {
+                return ResourceManager.GetString("CouldNotOpenLink", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current Channel ID.
+        /// </summary>
+        public static string CurrentChannelID {
+            get {
+                return ResourceManager.GetString("CurrentChannelID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DEBUG CONSOLE INITIALIZED AT {0}.
+        /// </summary>
+        public static string DebugConsoleInitialized {
+            get {
+                return ResourceManager.GetString("DebugConsoleInitialized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Roblox Chat Launcher Debugger.
+        /// </summary>
+        public static string DebugConsoleTitle {
+            get {
+                return ResourceManager.GetString("DebugConsoleTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use &apos;/closeconsole or &apos;/closedebug&apos; to close.
+        /// </summary>
+        public static string DebugConsoleUseClose {
+            get {
+                return ResourceManager.GetString("DebugConsoleUseClose", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Downloading update ({0} → {1})....
+        /// </summary>
+        public static string DownloadingUpdate {
+            get {
+                return ResourceManager.GetString("DownloadingUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (Only you can see this message.).
+        /// </summary>
+        public static string EchoResponse {
+            get {
+                return ResourceManager.GetString("EchoResponse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Emote error: {0}.
+        /// </summary>
+        public static string EmoteError {
+            get {
+                return ResourceManager.GetString("EmoteError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to queue emote..
+        /// </summary>
+        public static string FailedToQueueEmote {
+            get {
+                return ResourceManager.GetString("FailedToQueueEmote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to send message: {0}.
+        /// </summary>
+        public static string FailedToSendMessage {
+            get {
+                return ResourceManager.GetString("FailedToSendMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fetching code for {0}....
+        /// </summary>
+        public static string FetchingCode {
+            get {
+                return ResourceManager.GetString("FetchingCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠️ Could not read your device ID. Please restart the launcher and try again..
+        /// </summary>
+        public static string HardwareIdFailed {
+            get {
+                return ResourceManager.GetString("HardwareIdFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installing update... The app will close shortly..
+        /// </summary>
+        public static string InstallingUpdate {
+            get {
+                return ResourceManager.GetString("InstallingUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Launcher registered. ({0}).
+        /// </summary>
+        public static string LauncherRegistered {
+            get {
+                return ResourceManager.GetString("LauncherRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully registered! The next time you launch a game from the Roblox website, the chat overlay will start automatically..
+        /// </summary>
+        public static string LauncherRegisteredBalloonText {
+            get {
+                return ResourceManager.GetString("LauncherRegisteredBalloonText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Roblox Chat Launcher.
+        /// </summary>
+        public static string LauncherRegisteredBalloonTitle {
+            get {
+                return ResourceManager.GetString("LauncherRegisteredBalloonTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Local data cleared. (Server sync may have failed)..
+        /// </summary>
+        public static string LocalDataCleared {
+            get {
+                return ResourceManager.GetString("LocalDataCleared", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your message could not be processed due to a server error. Please try again..
+        /// </summary>
+        public static string MessageRejectedApiError {
+            get {
+                return ResourceManager.GetString("MessageRejectedApiError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your message was not sent as it violates community guidelines..
+        /// </summary>
+        public static string MessageRejectedModeration {
+            get {
+                return ResourceManager.GetString("MessageRejectedModeration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your message was rejected because the server queue is full. Please try again shortly..
+        /// </summary>
+        public static string MessageRejectedQueueFull {
+            get {
+                return ResourceManager.GetString("MessageRejectedQueueFull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your message was not sent due to unknown reasons..
+        /// </summary>
+        public static string MessageRejectedUnknown {
+            get {
+                return ResourceManager.GetString("MessageRejectedUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must be verified to use /emote..
+        /// </summary>
+        public static string MustBeVerifiedEmote {
+            get {
+                return ResourceManager.GetString("MustBeVerifiedEmote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Speaker &apos;{0}&apos; has been muted..
+        /// </summary>
+        public static string MutedSpeaker {
+            get {
+                return ResourceManager.GetString("MutedSpeaker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No stable releases found. Use &apos;/update prerelease&apos; to check for alpha/beta versions..
+        /// </summary>
+        public static string NoStableReleases {
+            get {
+                return ResourceManager.GetString("NoStableReleases", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Opening website....
         /// </summary>
         public static string OpeningWebsite {
             get {
                 return ResourceManager.GetString("OpeningWebsite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to write registry key: {0}.
+        /// </summary>
+        public static string RegistryWriteFailed {
+            get {
+                return ResourceManager.GetString("RegistryWriteFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Request timed out. (Render server may be waking up).
+        /// </summary>
+        public static string RequestTimedOut {
+            get {
+                return ResourceManager.GetString("RequestTimedOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resolved Roblox Client: {0} ({1}).
+        /// </summary>
+        public static string ResolvedClientInfo {
+            get {
+                return ResourceManager.GetString("ResolvedClientInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restored registry to: {0}.
+        /// </summary>
+        public static string RestoredRegistry {
+            get {
+                return ResourceManager.GetString("RestoredRegistry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running from source; update skipped..
+        /// </summary>
+        public static string RunningFromSource {
+            get {
+                return ResourceManager.GetString("RunningFromSource", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠️ Please run /verify &lt;username&gt; first!.
+        /// </summary>
+        public static string RunVerifyFirst {
+            get {
+                return ResourceManager.GetString("RunVerifyFirst", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Server.
+        /// </summary>
+        public static string Server {
+            get {
+                return ResourceManager.GetString("Server", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Speaker &apos;{0}&apos; was not muted..
+        /// </summary>
+        public static string SpeakerNotMuted {
+            get {
+                return ResourceManager.GetString("SpeakerNotMuted", resourceCulture);
             }
         }
         
@@ -95,11 +491,167 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Switching server....
+        /// </summary>
+        public static string SwitchingServer {
+            get {
+                return ResourceManager.GetString("SwitchingServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to System.
         /// </summary>
         public static string System {
             get {
                 return ResourceManager.GetString("System", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown command &apos;{0}&apos;. Use &apos;/?&apos; or &apos;/help&apos; for a list of commands..
+        /// </summary>
+        public static string UnknownCommand {
+            get {
+                return ResourceManager.GetString("UnknownCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unlinking your Roblox account and clearing local data....
+        /// </summary>
+        public static string UnlinkingAccount {
+            get {
+                return ResourceManager.GetString("UnlinkingAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Speaker &apos;{0}&apos; has been unmuted..
+        /// </summary>
+        public static string UnmutedSpeaker {
+            get {
+                return ResourceManager.GetString("UnmutedSpeaker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 🗑️ Successfully unverified. You are now a Guest..
+        /// </summary>
+        public static string UnverifiedSuccess {
+            get {
+                return ResourceManager.GetString("UnverifiedSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update check failed. {0}.
+        /// </summary>
+        public static string UpdateCheckFailed {
+            get {
+                return ResourceManager.GetString("UpdateCheckFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: /emote &lt;name&gt;.
+        /// </summary>
+        public static string UsageEmote {
+            get {
+                return ResourceManager.GetString("UsageEmote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: /mute &lt;speaker&gt;.
+        /// </summary>
+        public static string UsageMute {
+            get {
+                return ResourceManager.GetString("UsageMute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: /unmute &lt;speaker&gt;.
+        /// </summary>
+        public static string UsageUnmute {
+            get {
+                return ResourceManager.GetString("UsageUnmute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: /verify &lt;RobloxUsername&gt;.
+        /// </summary>
+        public static string UsageVerify {
+            get {
+                return ResourceManager.GetString("UsageVerify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: /w &quot;&lt;speaker 12345&gt;&quot; message or /w &lt;speaker&gt; message.
+        /// </summary>
+        public static string UsageWhisper {
+            get {
+                return ResourceManager.GetString("UsageWhisper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ❌ Verification failed due to a server error..
+        /// </summary>
+        public static string VerificationFailed {
+            get {
+                return ResourceManager.GetString("VerificationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 1. Copy this code: {0}
+        ///2. Paste it into your Roblox Profile &apos;About&apos; section.
+        ///3. Type /confirm to finish.
+        ///Your code will expire in 10 minutes..
+        /// </summary>
+        public static string VerifyStepsText {
+            get {
+                return ResourceManager.GetString("VerifyStepsText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WebSocket not connected. Use &apos;/rc&apos; or &apos;/reconnect&apos; to connect to server..
+        /// </summary>
+        public static string WSNotConnected {
+            get {
+                return ResourceManager.GetString("WSNotConnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WS Receive Error: {0}.
+        /// </summary>
+        public static string WSReceiveError {
+            get {
+                return ResourceManager.GetString("WSReceiveError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WS Send Error: {0}.
+        /// </summary>
+        public static string WSSendError {
+            get {
+                return ResourceManager.GetString("WSSendError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WS send timed out. (Render server may be waking up).
+        /// </summary>
+        public static string WSSendTimedOut {
+            get {
+                return ResourceManager.GetString("WSSendTimedOut", resourceCulture);
             }
         }
     }
