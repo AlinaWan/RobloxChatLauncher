@@ -85,6 +85,8 @@ begin
     // If the installer was launched with /SILENT or /VERYSILENT, skip the popups
     if WizardSilent then
     begin
+      Log('WARNING: .NET 10.0 not found during silent install.');
+      Result := True;
       Exit;
     end;
     
@@ -119,11 +121,9 @@ var
 { Logic to enable/disable Next button based on selection }
 procedure UpdateNextButton(Sender: TObject);
 begin
-  if WizardSilent then
-  begin
-    WizardForm.NextButton.Enabled := True;
-    Exit;
-  end;
+  // If silent, we don't need to toggle the Next button's enabled state
+  if WizardSilent then Exit;
+
   { We add 'Assigned' checks to ensure the pages exist before checking IDs }
   if Assigned(TermsPage) and (WizardForm.CurPageID = TermsPage.ID) then
     WizardForm.NextButton.Enabled := TermsAcceptedRadio.Checked
@@ -134,11 +134,11 @@ end;
 { Helper function to skip pages during silent install }
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
-  // If the install is silent, skip the custom Terms and Privacy pages
   Result := False;
   if WizardSilent then
   begin
-    if (PageID = TermsPage.ID) or (PageID = PrivacyPage.ID) then
+    if (Assigned(TermsPage) and (PageID = TermsPage.ID)) or 
+       (Assigned(PrivacyPage) and (PageID = PrivacyPage.ID)) then
       Result := True;
   end;
 end;
@@ -162,45 +162,52 @@ procedure InitializeWizard();
 var
   TermsPath, PrivacyPath: string;
 begin
-  { --- 1. TERMS OF SERVICE PAGE --- }
+
   { wpLicense means it comes right after the standard License page }
   TermsPage := CreateOutputMsgMemoPage(wpLicense, 
     'Terms of Service Agreement', 'Please read the following important information before continuing.',
     'Please read the following Terms of Service Agreement. You must accept the terms of this agreement before continuing with the installation.', '');
-  
-  TermsPage.RichEditViewer.Height := WizardForm.LicenseMemo.Height;
-  
-  ExtractTemporaryFile('TERMS');
-  TermsPath := ExpandConstant('{tmp}\TERMS');
-  TermsPage.RichEditViewer.Lines.LoadFromFile(TermsPath);
 
-  TermsAcceptedRadio := CreateLicenseRadio(TermsPage, WizardForm.LicenseAcceptedRadio, 'I accept the agreement');
-  TermsNotAcceptedRadio := CreateLicenseRadio(TermsPage, WizardForm.LicenseNotAcceptedRadio, 'I do not accept the agreement');
-  TermsNotAcceptedRadio.Checked := True;
-
-  { --- 2. PRIVACY POLICY PAGE --- }
   { We use TermsPage.ID so this appears right after the Terms page }
   PrivacyPage := CreateOutputMsgMemoPage(TermsPage.ID, 
     'Privacy Policy Agreement', 'Please read the following important information before continuing.',
     'Please read the following Privacy Policy Agreement. You must accept the terms of this agreement before continuing with the installation.', '');
 
-  PrivacyPage.RichEditViewer.Height := WizardForm.LicenseMemo.Height;
+  if not WizardSilent then
+  begin
+    { --- 1. TERMS OF SERVICE PAGE --- }
+    TermsPage.RichEditViewer.Height := WizardForm.LicenseMemo.Height;
+    
+    ExtractTemporaryFile('TERMS');
+    TermsPath := ExpandConstant('{tmp}\TERMS');
+    TermsPage.RichEditViewer.Lines.LoadFromFile(TermsPath);
 
-  ExtractTemporaryFile('PRIVACY');
-  PrivacyPath := ExpandConstant('{tmp}\PRIVACY');
-  PrivacyPage.RichEditViewer.Lines.LoadFromFile(PrivacyPath);
+    TermsAcceptedRadio := CreateLicenseRadio(TermsPage, WizardForm.LicenseAcceptedRadio, 'I accept the agreement');
+    TermsNotAcceptedRadio := CreateLicenseRadio(TermsPage, WizardForm.LicenseNotAcceptedRadio, 'I do not accept the agreement');
+    TermsNotAcceptedRadio.Checked := True;
 
-  PrivacyAcceptedRadio := CreateLicenseRadio(PrivacyPage, WizardForm.LicenseAcceptedRadio, 'I accept the agreement');
-  PrivacyNotAcceptedRadio := CreateLicenseRadio(PrivacyPage, WizardForm.LicenseNotAcceptedRadio, 'I do not accept the agreement');
-  PrivacyNotAcceptedRadio.Checked := True;
+    { --- 2. PRIVACY POLICY PAGE --- }
+    PrivacyPage.RichEditViewer.Height := WizardForm.LicenseMemo.Height;
+
+    ExtractTemporaryFile('PRIVACY');
+    PrivacyPath := ExpandConstant('{tmp}\PRIVACY');
+    PrivacyPage.RichEditViewer.Lines.LoadFromFile(PrivacyPath);
+
+    PrivacyAcceptedRadio := CreateLicenseRadio(PrivacyPage, WizardForm.LicenseAcceptedRadio, 'I accept the agreement');
+    PrivacyNotAcceptedRadio := CreateLicenseRadio(PrivacyPage, WizardForm.LicenseNotAcceptedRadio, 'I do not accept the agreement');
+    PrivacyNotAcceptedRadio.Checked := True;
+  end;
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  { Ensure the Next button state is correct when the user navigates to these pages }
-  if (CurPageID = TermsPage.ID) or (CurPageID = PrivacyPage.ID) then
+  if not WizardSilent then
   begin
-    UpdateNextButton(nil);
+    { Ensure the Next button state is correct when the user navigates to these pages }
+    if (CurPageID = TermsPage.ID) or (CurPageID = PrivacyPage.ID) then
+    begin
+      UpdateNextButton(nil);
+    end;
   end;
 end;
 
