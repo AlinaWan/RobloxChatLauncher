@@ -401,7 +401,7 @@ namespace RobloxChatLauncher
             // chatBox.AppendText("[Server]: Searching for Roblox server instance...\r\n");
 
             chatBox.AppendText("Made with ❤︎ by Riri.\r\n");
-            chatBox.AppendText("Check for updates at github.com/AlinaWan/RobloxChatLauncher\r\n");
+            chatBox.AppendText("Chat '/update' to check for updates.\r\n");
             chatBox.AppendText("Chat '/?' or '/help' for a list of chat commands.\r\n");
 
             // --- End Roblox Log Monitor ---

@@ -100,6 +100,29 @@ namespace RobloxChatLauncher
                     CloseDebugConsole();
                     return true;
 
+                /// <summary>Checks for updates on GitHub and, if a new version is available, the application will restart automatically to install the update.</summary>
+                /// <param>args: Optional argument "prerelease" to include prerelease versions in the update check.</param>
+                case "/update":
+                    chatBox.AppendText("[System]: Checking for updates...\r\n");
+                    try
+                    {
+                        // If the user types "/update prerelease", check for prereleases
+                        bool includePrerelease = args.ToLower().Contains("prerelease");
+
+                        // We use Task.Run so the UI doesn't freeze while downloading
+                        await Task.Run(async () => {
+                            await UpdateService.CheckAndDownloadUpdate(includePrerelease, (status) => {
+                                // This invokes back to the UI thread to update the chatBox safely
+                                this.Invoke(new Action(() => chatBox.AppendText($"[System]: {status}\r\n")));
+                            });
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        chatBox.AppendText($"[Error]: Update check failed. {ex.Message}\r\n");
+                    }
+                    return true;
+
                 /// <summary>Initiates the Roblox account verification process by fetching a unique code for the given Roblox username.</summary>
                 /// <param>args: The Roblox username to verify.</param>
                 case "/verify":

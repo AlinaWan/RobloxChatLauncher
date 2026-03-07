@@ -16,6 +16,7 @@ SolidCompression=yes
 LicenseFile={#Root}\LICENSE
 SetupIconFile={#Root}\assets\brand\rcl_icon-variable.ico
 UninstallDisplayIcon={app}\RobloxChatLauncher.exe
+CloseApplications=yes
 
 [Files]
 Source: "{#Root}\LICENSE"; DestDir: "{app}"
@@ -81,6 +82,12 @@ begin
 
   if not IsDotNet10Installed() then
   begin
+    // If the installer was launched with /SILENT or /VERYSILENT, skip the popups
+    if WizardSilent then
+    begin
+      Exit;
+    end;
+    
     if MsgBox('.NET Desktop Runtime 10.0 was not detected.' #13#13 +
               'Would you like to download and install it now?', mbConfirmation, MB_YESNO) = IDYES then
     begin
@@ -152,7 +159,7 @@ begin
 
   TermsAcceptedRadio := CreateLicenseRadio(TermsPage, WizardForm.LicenseAcceptedRadio, 'I accept the agreement');
   TermsNotAcceptedRadio := CreateLicenseRadio(TermsPage, WizardForm.LicenseNotAcceptedRadio, 'I do not accept the agreement');
-  TermsNotAcceptedRadio.Checked := True;
+  if WizardSilent then TermsAcceptedRadio.Checked := True else TermsNotAcceptedRadio.Checked := True;
 
   { --- 2. PRIVACY POLICY PAGE --- }
   { We use TermsPage.ID so this appears right after the Terms page }
@@ -168,7 +175,7 @@ begin
 
   PrivacyAcceptedRadio := CreateLicenseRadio(PrivacyPage, WizardForm.LicenseAcceptedRadio, 'I accept the agreement');
   PrivacyNotAcceptedRadio := CreateLicenseRadio(PrivacyPage, WizardForm.LicenseNotAcceptedRadio, 'I do not accept the agreement');
-  PrivacyNotAcceptedRadio.Checked := True;
+  if WizardSilent then PrivacyAcceptedRadio.Checked := True else PrivacyNotAcceptedRadio.Checked := True;
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
