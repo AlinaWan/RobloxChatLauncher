@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.Windows.Forms;
 
+using RobloxChatLauncher.Localization;
 using RobloxChatLauncher.Services;
 
 namespace RobloxChatLauncher
@@ -26,18 +28,13 @@ namespace RobloxChatLauncher
                 case "/help":
                 case "/?":
                     OpenUrl("https://github.com/AlinaWan/RobloxChatLauncher/tree/main/assets/docs/COMMANDS.md");
-                    chatBox.AppendText("[System]: Opening website...\r\n");
+                    chatBox.AppendText($"[{Strings.System}]: {Strings.OpeningWebsite}\r\n");
                     return true;
 
                 /// <summary>Displays application metadata including developer credits, build environment, and source code links.</summary>
                 case "/about":
                 case "/credits":
-                    chatBox.AppendText($"About Roblox Chat Launcher:\r\n" +
-                                       $"Made with ❤︎ by Riri.\r\n" +
-                                       $"Developed in VS 2026 🎀 Built with .NET / WinForms.\r\n" +
-                                       $"Server written in Node.js 🌸 Hosted on Render.com.\r\n" +
-                                       $"Source: https://github.com/AlinaWan/RobloxChatLauncher\r\n" +
-                                       $"And of course, credits to you 💖\r\n");
+                    chatBox.AppendText($"{Strings.AboutText}\r\n");
                     return true;
 
                 /// <summary>Triggers an asynchronous restart of the WebSocket Client to refresh the server connection.</summary>
@@ -69,7 +66,7 @@ namespace RobloxChatLauncher
                 case "/bug":
                 case "/issue":
                     OpenUrl("https://github.com/AlinaWan/RobloxChatLauncher/issues/new");
-                    chatBox.AppendText("[System]: Opening website...\r\n");
+                    chatBox.AppendText($"[{Strings.System}]: {Strings.OpeningWebsite}\r\n");
                     return true;
 
                 /// <summary>Handles muting a user by their username, preventing their messages from appearing in the chat box.</summary>

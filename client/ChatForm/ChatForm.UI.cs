@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Net.WebSockets;
 using System.Windows.Forms;
 
+using RobloxChatLauncher.Localization;
 using RobloxChatLauncher.UI;
 using RobloxChatLauncher.Utils;
 
@@ -400,9 +401,7 @@ namespace RobloxChatLauncher
             channelId = "global";
             // chatBox.AppendText("[Server]: Searching for Roblox server instance...\r\n");
 
-            chatBox.AppendText("Made with ❤︎ by Riri.\r\n");
-            chatBox.AppendText("Chat '/update' to check for updates.\r\n");
-            chatBox.AppendText("Chat '/?' or '/help' for a list of chat commands.\r\n");
+            chatBox.AppendText($"{Strings.StartupText}\r\n");
 
             // --- End Roblox Log Monitor ---
         }
