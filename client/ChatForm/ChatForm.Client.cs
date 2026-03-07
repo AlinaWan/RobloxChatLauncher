@@ -496,10 +496,6 @@ namespace RobloxChatLauncher
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
                 Console.InputEncoding = System.Text.Encoding.UTF8;
 
-                // To test Simplified Chinese:
-                Thread.CurrentThread.CurrentUICulture = new CultureInfo("zh-Hans");
-                Thread.CurrentThread.CurrentCulture = new CultureInfo("zh-Hans");
-
                 Console.Title = $"{Strings.DebugConsoleTitle}";
                 Console.WriteLine($"{Strings.DebugConsoleHorizontalRule}");
                 Console.WriteLine($"{string.Format(Strings.DebugConsoleInitialized, DateTime.Now)}");
