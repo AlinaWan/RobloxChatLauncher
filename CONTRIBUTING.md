@@ -28,6 +28,30 @@ This guide covers everything you need to start contributing: environment setup, 
 
 ---
 
+## 💡 How to Contribute
+
+We follow a "Discussion First" workflow. To ensure your time is well-spent and your contribution aligns with the project’s roadmap, please follow these steps:
+
+### 1. Identify a Task
+
+* **New Ideas:** If you have a feature idea or found a bug, please open a [new issue](https://github.com/AlinaWan/RobloxChatLauncher/issues/new) to discuss first.
+* **Existing Tasks:** Browse the [Issue Tracker](https://github.com/AlinaWan/RobloxChatLauncher/issues) for issues labeled `help wanted` or `good first issue`.
+
+### 2. Propose Your Plan
+
+Before writing code, leave a comment on the issue stating you would like to work on it. Your comment should briefly explain:
+
+* How your approach aims to solve the problem and how you plan to implement the feature.
+* Any new libraries, dependencies, or tools you plan to introduce.
+* If applicable, what part of the codebase you plan to modify.
+* If applicable, why this change is needed and other alternatives you've considered.
+
+### 3. Get the Green Light
+
+Once a maintainer acknowledges your plan and assigns you to the issue, you are clear to start!
+
+---
+
 ## 🎀 Quick Start
 
 ```powershell
