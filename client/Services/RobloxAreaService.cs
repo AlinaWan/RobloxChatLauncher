@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
+using RobloxChatLauncher.Localization;
+
 namespace RobloxChatLauncher.Services
 {
     public class RobloxAreaService : IDisposable
@@ -25,15 +27,15 @@ namespace RobloxChatLauncher.Services
             _robloxProcess = robloxProc;
             _sessionStartTime = robloxProc.StartTime;
 
-            Console.WriteLine($"[DEBUG]: Watcher: Searching for logs in: {_logDirectory}");
+            Console.WriteLine($"[{Strings.Debug}]: {Strings.Watcher}: {string.Format(Strings.SearchingForLogs, _logDirectory)}");
             if (!Directory.Exists(_logDirectory))
             {
-                Console.WriteLine("[DEBUG]: Watcher: ERROR: Log directory does not exist!");
+                Console.WriteLine($"[{Strings.Debug}]: {Strings.Watcher}: {Strings.Error}: {Strings.LogDirectoryDoesNotExist}");
                 return;
             }
 
             var files = Directory.GetFiles(_logDirectory, "*.log");
-            Console.WriteLine($"[DEBUG]: Watcher: Found {files.Length} log files.");
+            Console.WriteLine($"[{Strings.Debug}]: {Strings.Watcher}: {string.Format(Strings.FoundLogFiles, files.Length)}");
 
             _cts = new CancellationTokenSource();
             Task.Run(() => WatchLoop(_cts.Token));
@@ -64,7 +66,7 @@ namespace RobloxChatLauncher.Services
 
         private async Task TailFile(string filePath, CancellationToken token)
         {
-            Console.WriteLine($"[DEBUG]: Watcher: Initializing {Path.GetFileName(filePath)}");
+            Console.WriteLine($"[{Strings.Debug}]: {Strings.Watcher}: {string.Format(Strings.InitializingFilePath, Path.GetFileName(filePath))}");
 
             try
             {
@@ -73,18 +75,18 @@ namespace RobloxChatLauncher.Services
                 // ONLY fire the event if it's a NEW JobId
                 if (initialJobId != null && initialJobId != _currentJobId)
                 {
-                    Console.WriteLine($"[DEBUG]: Watcher: Found NEW JobId on startup: {initialJobId}");
+                    Console.WriteLine($"[{Strings.Debug}]: {Strings.Watcher}: {string.Format(Strings.FoundNewJobIdOnStartup, initialJobId)}");
                     _currentJobId = initialJobId;
                     OnJobIdChanged?.Invoke(this, _currentJobId);
                 }
                 else if (initialJobId == _currentJobId)
                 {
-                    Console.WriteLine("[DEBUG]: Watcher: JobId hasn't changed, skipping UI update.");
+                    Console.WriteLine($"[{Strings.Debug}]: {Strings.Watcher}: {Strings.JobIdHasntChanged}");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[DEBUG]: Watcher: Startup scan failed: {ex.Message}");
+                Console.WriteLine($"[{Strings.Debug}]: {Strings.Watcher}: {string.Format(Strings.StartupScanFailed, ex.Message)}");
             }
 
             // 2. REAL-TIME TAILING
@@ -98,7 +100,7 @@ namespace RobloxChatLauncher.Services
                 var newest = GetNewestLog();
                 if (newest != null && newest.FullName != filePath)
                 {
-                    Console.WriteLine("[DEBUG]: Watcher: Switching to newer log file.");
+                    Console.WriteLine($"[{Strings.Debug}]: {Strings.Watcher}: {Strings.SwitchingToNewerLogFile}");
                     break;
                 }
 

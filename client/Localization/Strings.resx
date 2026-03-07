@@ -164,6 +164,12 @@ And of course, credits to you 💖</value>
   <data name="CurrentChannelID" xml:space="preserve">
     <value>Current Channel ID</value>
   </data>
+  <data name="Debug" xml:space="preserve">
+    <value>Debug</value>
+  </data>
+  <data name="DebugConsoleHorizontalRule" xml:space="preserve">
+    <value>===================================================</value>
+  </data>
   <data name="DebugConsoleInitialized" xml:space="preserve">
     <value>DEBUG CONSOLE INITIALIZED AT {0}</value>
   </data>
@@ -194,11 +200,23 @@ And of course, credits to you 💖</value>
   <data name="FetchingCode" xml:space="preserve">
     <value>Fetching code for {0}...</value>
   </data>
+  <data name="FoundLogFiles" xml:space="preserve">
+    <value>Found {0} log files.</value>
+  </data>
+  <data name="FoundNewJobIdOnStartup" xml:space="preserve">
+    <value>Found NEW JobId on startup: {0}</value>
+  </data>
   <data name="HardwareIdFailed" xml:space="preserve">
     <value>⚠️ Could not read your device ID. Please restart the launcher and try again.</value>
   </data>
+  <data name="InitializingFilePath" xml:space="preserve">
+    <value>Initializing {0}</value>
+  </data>
   <data name="InstallingUpdate" xml:space="preserve">
     <value>Installing update... The app will close shortly.</value>
+  </data>
+  <data name="JobIdHasntChanged" xml:space="preserve">
+    <value>JobId hasn't changed, skipping UI update.</value>
   </data>
   <data name="LauncherRegistered" xml:space="preserve">
     <value>Launcher registered. ({0})</value>
@@ -211,6 +229,9 @@ And of course, credits to you 💖</value>
   </data>
   <data name="LocalDataCleared" xml:space="preserve">
     <value>Local data cleared. (Server sync may have failed).</value>
+  </data>
+  <data name="LogDirectoryDoesNotExist" xml:space="preserve">
+    <value>Log directory does not exist!</value>
   </data>
   <data name="MessageRejectedApiError" xml:space="preserve">
     <value>Your message could not be processed due to a server error. Please try again.</value>
@@ -254,11 +275,17 @@ And of course, credits to you 💖</value>
   <data name="RunVerifyFirst" xml:space="preserve">
     <value>⚠️ Please run /verify &lt;username&gt; first!</value>
   </data>
+  <data name="SearchingForLogs" xml:space="preserve">
+    <value>Searching for logs in: {0}</value>
+  </data>
   <data name="Server" xml:space="preserve">
     <value>Server</value>
   </data>
   <data name="SpeakerNotMuted" xml:space="preserve">
     <value>Speaker '{0}' was not muted.</value>
+  </data>
+  <data name="StartupScanFailed" xml:space="preserve">
+    <value>Startup scan failed:</value>
   </data>
   <data name="StartupText" xml:space="preserve">
     <value>Made with ❤︎ by Riri
@@ -267,6 +294,9 @@ Chat '/?' or '/help' for a list of chat commands.</value>
   </data>
   <data name="SwitchingServer" xml:space="preserve">
     <value>Switching server...</value>
+  </data>
+  <data name="SwitchingToNewerLogFile" xml:space="preserve">
+    <value>Switching to newer log file.</value>
   </data>
   <data name="System" xml:space="preserve">
     <value>System</value>
@@ -309,6 +339,9 @@ Chat '/?' or '/help' for a list of chat commands.</value>
 2. Paste it into your Roblox Profile 'About' section.
 3. Type /confirm to finish.
 Your code will expire in 10 minutes.</value>
+  </data>
+  <data name="Watcher" xml:space="preserve">
+    <value>Watcher</value>
   </data>
   <data name="WSNotConnected" xml:space="preserve">
     <value>WebSocket not connected. Use '/rc' or '/reconnect' to connect to server.</value>
