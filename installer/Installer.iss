@@ -119,11 +119,28 @@ var
 { Logic to enable/disable Next button based on selection }
 procedure UpdateNextButton(Sender: TObject);
 begin
+  if WizardSilent then
+  begin
+    WizardForm.NextButton.Enabled := True;
+    Exit;
+  end;
   { We add 'Assigned' checks to ensure the pages exist before checking IDs }
   if Assigned(TermsPage) and (WizardForm.CurPageID = TermsPage.ID) then
     WizardForm.NextButton.Enabled := TermsAcceptedRadio.Checked
   else if Assigned(PrivacyPage) and (WizardForm.CurPageID = PrivacyPage.ID) then
     WizardForm.NextButton.Enabled := PrivacyAcceptedRadio.Checked;
+end;
+
+{ Helper function to skip pages during silent install }
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  // If the install is silent, skip the custom Terms and Privacy pages
+  Result := False;
+  if WizardSilent then
+  begin
+    if (PageID = TermsPage.ID) or (PageID = PrivacyPage.ID) then
+      Result := True;
+  end;
 end;
 
 { Helper function to create and place the radio buttons }
@@ -159,7 +176,7 @@ begin
 
   TermsAcceptedRadio := CreateLicenseRadio(TermsPage, WizardForm.LicenseAcceptedRadio, 'I accept the agreement');
   TermsNotAcceptedRadio := CreateLicenseRadio(TermsPage, WizardForm.LicenseNotAcceptedRadio, 'I do not accept the agreement');
-  if WizardSilent then TermsAcceptedRadio.Checked := True else TermsNotAcceptedRadio.Checked := True;
+  TermsNotAcceptedRadio.Checked := True;
 
   { --- 2. PRIVACY POLICY PAGE --- }
   { We use TermsPage.ID so this appears right after the Terms page }
@@ -175,7 +192,7 @@ begin
 
   PrivacyAcceptedRadio := CreateLicenseRadio(PrivacyPage, WizardForm.LicenseAcceptedRadio, 'I accept the agreement');
   PrivacyNotAcceptedRadio := CreateLicenseRadio(PrivacyPage, WizardForm.LicenseNotAcceptedRadio, 'I do not accept the agreement');
-  if WizardSilent then PrivacyAcceptedRadio.Checked := True else PrivacyNotAcceptedRadio.Checked := True;
+  PrivacyNotAcceptedRadio.Checked := True;
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
