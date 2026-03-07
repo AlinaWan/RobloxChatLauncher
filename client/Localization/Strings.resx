@@ -159,7 +159,7 @@ And of course, credits to you 💖</value>
     <value>Could not find any releases.</value>
   </data>
   <data name="CouldNotOpenLink" xml:space="preserve">
-    <value>Could not open link. {0}</value>
+    <value>Could not open link: {0}</value>
   </data>
   <data name="CurrentChannelID" xml:space="preserve">
     <value>Current Channel ID</value>
@@ -171,7 +171,7 @@ And of course, credits to you 💖</value>
     <value>Roblox Chat Launcher Debugger</value>
   </data>
   <data name="DebugConsoleUseClose" xml:space="preserve">
-    <value>Use '/closeconsole or '/closedebug' to close</value>
+    <value>Use '/closeconsole' or '/closedebug' to close</value>
   </data>
   <data name="DownloadingUpdate" xml:space="preserve">
     <value>Downloading update ({0} → {1})...</value>
@@ -284,7 +284,7 @@ Chat '/?' or '/help' for a list of chat commands.</value>
     <value>🗑️ Successfully unverified. You are now a Guest.</value>
   </data>
   <data name="UpdateCheckFailed" xml:space="preserve">
-    <value>Update check failed. {0}</value>
+    <value>Update check failed: {0}</value>
   </data>
   <data name="UsageEmote" xml:space="preserve">
     <value>Usage: /emote &lt;name&gt;</value>

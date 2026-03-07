@@ -174,7 +174,7 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not open link. {0}.
+        ///   Looks up a localized string similar to Could not open link: {0}.
         /// </summary>
         public static string CouldNotOpenLink {
             get {
@@ -210,7 +210,7 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use &apos;/closeconsole or &apos;/closedebug&apos; to close.
+        ///   Looks up a localized string similar to Use &apos;/closeconsole&apos; or &apos;/closedebug&apos; to close.
         /// </summary>
         public static string DebugConsoleUseClose {
             get {
@@ -545,7 +545,7 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update check failed. {0}.
+        ///   Looks up a localized string similar to Update check failed: {0}.
         /// </summary>
         public static string UpdateCheckFailed {
             get {
