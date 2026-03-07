@@ -180,13 +180,13 @@ Riri 倾情打造 ❤︎
     <value>{0}（只有你能看到此消息）</value>
   </data>
   <data name="EmoteError" xml:space="preserve">
-    <value>Emote发送出错: {0}</value>
+    <value>动作发送出错: {0}</value>
   </data>
   <data name="Error" xml:space="preserve">
     <value>错误</value>
   </data>
   <data name="FailedToQueueEmote" xml:space="preserve">
-    <value>Emote队列发送失败。</value>
+    <value>动作队列发送失败。</value>
   </data>
   <data name="FailedToSendMessage" xml:space="preserve">
     <value>发送消息失败: {0}</value>
@@ -216,7 +216,7 @@ Riri 倾情打造 ❤︎
     <value>服务器消息处理失败，请重试。</value>
   </data>
   <data name="MessageRejectedModeration" xml:space="preserve">
-    <value>您的消息未发送，因为违反了社区准则/规范。</value>
+    <value>您的消息未发送，因为违反了社区准则。</value>
   </data>
   <data name="MessageRejectedQueueFull" xml:space="preserve">
     <value>您的消息被拒绝，因为服务器队列已满，请稍后再试。</value>
@@ -272,7 +272,7 @@ Riri 倾情打造 ❤︎
     <value>系统</value>
   </data>
   <data name="UnknownCommand" xml:space="preserve">
-    <value>未知指令 '{0}'。使用 '/?' 或 '/help' 查看命令列表。</value>
+    <value>未知命令 '{0}'。使用 '/?' 或 '/help' 查看命令列表。</value>
   </data>
   <data name="UnlinkingAccount" xml:space="preserve">
     <value>正在解绑 Roblox 账号并清除本地数据...</value>
@@ -306,7 +306,7 @@ Riri 倾情打造 ❤︎
   </data>
   <data name="VerifyStepsText" xml:space="preserve">
     <value>1. 复制此验证码: {0}
-2. 粘贴到 Roblox 个人资料“关于”栏中。
+2. 粘贴到 Roblox 个人资料“简介”栏中。
 3. 输入 /confirm 完成。
 您的验证码将在 10 分钟后过期。</value>
   </data>
