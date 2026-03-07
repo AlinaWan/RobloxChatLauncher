@@ -315,4 +315,5 @@ Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\
 * [ ] Builds successfully.
 * [ ] Commits follow Conventional Commits.
 * [ ] Changes documented clearly.
+* [ ] Used `Localization.Strings.Key` for all UI text.
 * [ ] I agree that my contributions will be licensed under the **GNU GPLv3**.
