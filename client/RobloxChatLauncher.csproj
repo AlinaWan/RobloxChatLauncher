@@ -23,20 +23,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Localization\Strings.zh-Hans.Designer.cs">
-      <DependentUpon>Strings.zh-Hans.resx</DependentUpon>
+    <Compile Update="Localization\Strings.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Update="Properties\Settings1.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings1.settings</DependentUpon>
-    </Compile>
-    <Compile Update="Localization\Strings.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
