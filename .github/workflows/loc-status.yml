@@ -1,0 +1,29 @@
+name: Auto-generate Localization Status
+
+permissions:
+  contents: write
+
+on:
+  push:
+    paths:
+      - 'client/Localization'
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v3
+        with:
+            dotnet-version: '10.0.x'
+
+      - name: Generate MD
+        run: dotnet run .github/scripts/AuditLoc.cs
+
+      - name: Commit and Push
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs(readme): Auto-generate localization status [skip ci]"
+          file_pattern: 'README.md'

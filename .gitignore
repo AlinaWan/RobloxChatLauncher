@@ -76,9 +76,11 @@ nunit-*.xml
 # Node.js
 node_modules/
 
-# Executable binaries
-*.exe
+# Inno Setup installer executable
+*Installer.exe
 
-# Assets source and Photoshop files
-assets_src/
-*.psd
+# Designer.cs file for non-neutral localization resources
+# When adding any new .resx file, Visual Studio automatically generates a corresponding .Designer.cs file.
+# These files are not needed in source control as only the neutral culture's .Designer.cs file is used and synced with the keys.
+# This will match files like `Strings.ru.Designer.cs` but not `Strings.Designer.cs`.
+Strings.*.Designer.cs

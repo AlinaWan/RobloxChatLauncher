@@ -1,4 +1,7 @@
-﻿#:package Microsoft.CodeAnalysis.CSharp@4.12.0
+﻿// Usage:
+//     dotnet run .github/scripts/GenerateDocs.cs
+
+#:package Microsoft.CodeAnalysis.CSharp@4.12.0
 
 using System;
 using System.IO;

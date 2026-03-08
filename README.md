@@ -33,6 +33,14 @@
 
 </div>
 
+<!-- START CI GENERATED LOCALIZATION STATUS TABLE; DO NOT REMOVE COMMENT -->
+
+| Language | Status |
+| :--- | :--- |
+| **en** | ![100.0%](https://geps.dev/progress/100) |
+| **zh-Hans** | ![100.0%](https://geps.dev/progress/100) |
+
+<!-- END CI GENERATED LOCALIZATION STATUS TABLE; DO NOT REMOVE COMMENT -->
 
 ----
 
