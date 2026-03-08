@@ -52,6 +52,61 @@ Once a maintainer acknowledges your plan and assigns you to the issue, you are c
 
 ---
 
+## 🌍 Contributing Localizations 
+
+<details>
+<summary>Click to expand</summary>
+<br>
+  <p>
+  Follow these steps to create and contribute a new localization for the Roblox Chat Launcher client.
+  </p>
+
+### Steps
+
+1. Open the solution file (`RobloxChatLauncher.sln`) in **Visual Studio 2026**.
+
+2. In the Solution Explorer, navigate to the `Localization` folder.
+
+3. Open **any `Strings.resx` file**.
+
+   Visual Studio will display a **combined localization table** showing all languages side-by-side.
+
+4. Create a new language file:
+
+   Right-click the folder → **Add → New Item → Resources File**
+
+   Name it using the language code format:
+
+   ```
+   Strings.<language-code>.resx
+   ```
+
+   Examples:
+
+   ```
+   Strings.ru.resx   (Russian)
+   Strings.fr.resx   (French)
+   Strings.de.resx   (German)
+   Strings.ja.resx   (Japanese)
+   ```
+
+5. After creating the file, it will appear as a **new column in the localization table**.
+
+6. Use the other languages in the table as a reference and **fill in your translations**.
+
+### Tips
+
+- Keep translations **short and consistent with the UI**.
+- **Placeholders like `{0}`, `{1}`, `{2}`, etc. must remain present in the translation**.
+  - Example (correct): `User {0} joined server {1}` → `К серверу {1} присоединился пользователь {0}`
+  - Example (incorrect): `User {0} joined server {1}` → `К серверу {1} присоединился новый участник`
+- Do **not rename existing keys**.
+- If a string is unclear, leave a comment in the pull request.
+
+</details>
+
+---
+
 ## 🎀 Quick Start
 
 ```powershell
