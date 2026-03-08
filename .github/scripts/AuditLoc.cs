@@ -156,7 +156,7 @@ public class ReadmeUpdater
 
         if (startIndex == -1 || endIndex == -1)
         {
-            throw new Exception("Could not find the injection comments in {_filePath}");
+            throw new Exception($"Could not find the injection comments in {_filePath}");
         }
 
         // Replace everything between the tags with our new table
