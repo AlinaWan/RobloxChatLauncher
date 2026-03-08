@@ -132,8 +132,10 @@ public class ReadmeUpdater
         var sb = new StringBuilder();
         sb.AppendLine(StartTag);
         sb.AppendLine();
+        sb.AppendLine("<div align=\"center\">");
+        sb.AppendLine();
         sb.AppendLine("| Language | Status |");
-        sb.AppendLine("| :--- | :--- |");
+        sb.AppendLine("| :--- | :---: |");
 
         foreach (var item in data)
         {
@@ -143,6 +145,8 @@ public class ReadmeUpdater
             sb.AppendLine($"| **{item.Locale}** | {status} |");
         }
 
+        sb.AppendLine();
+        sb.AppendLine("</div>");
         sb.AppendLine();
         sb.Append(EndTag);
 

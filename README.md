@@ -35,10 +35,14 @@
 
 <!-- START CI GENERATED LOCALIZATION STATUS TABLE; DO NOT REMOVE COMMENT -->
 
+<div align="center">
+
 | Language | Status |
-| :--- | :--- |
+| :--- | :---: |
 | **en** | ![100.0%](https://geps.dev/progress/100) |
 | **zh-Hans** | ![100.0%](https://geps.dev/progress/100) |
+
+</div>
 
 <!-- END CI GENERATED LOCALIZATION STATUS TABLE; DO NOT REMOVE COMMENT -->
 
