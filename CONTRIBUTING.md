@@ -97,6 +97,9 @@ Once a maintainer acknowledges your plan and assigns you to the issue, you are c
 ### Tips
 
 - Keep translations **short and consistent with the UI**.
+- **Placeholders like `{0}`, `{1}`, `{2}`, etc. must remain present in the translation**.
+  - Example (correct): `User {0} joined server {1}` → `К серверу {1} присоединился пользователь {0}`
+  - Example (incorrect): `User {0} joined server {1}` → `К серверу {1} присоединился новый участник`
 - Do **not rename existing keys**.
 - If a string is unclear, leave a comment in the pull request.
 
