@@ -285,7 +285,7 @@ And of course, credits to you 💖</value>
     <value>Speaker '{0}' was not muted.</value>
   </data>
   <data name="StartupScanFailed" xml:space="preserve">
-    <value>Startup scan failed:</value>
+    <value>Startup scan failed: {0}</value>
   </data>
   <data name="StartupText" xml:space="preserve">
     <value>Made with ❤︎ by Riri
@@ -342,6 +342,12 @@ Your code will expire in 10 minutes.</value>
   </data>
   <data name="Watcher" xml:space="preserve">
     <value>Watcher</value>
+  </data>
+  <data name="WhisperFrom" xml:space="preserve">
+    <value>From {0}</value>
+  </data>
+  <data name="WhisperTo" xml:space="preserve">
+    <value>To {0}</value>
   </data>
   <data name="WSNotConnected" xml:space="preserve">
     <value>WebSocket not connected. Use '/rc' or '/reconnect' to connect to server.</value>

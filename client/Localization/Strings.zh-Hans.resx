@@ -343,6 +343,12 @@ Riri 倾情打造 ❤︎
   <data name="Watcher" xml:space="preserve">
     <value>监视器</value>
   </data>
+  <data name="WhisperFrom" xml:space="preserve">
+    <value>{0} 发来</value>
+  </data>
+  <data name="WhisperTo" xml:space="preserve">
+    <value>发给 {0}</value>
+  </data>
   <data name="WSNotConnected" xml:space="preserve">
     <value>WebSocket 未连接。使用 '/rc' 或 '/reconnect' 以连接服务器。</value>
   </data>

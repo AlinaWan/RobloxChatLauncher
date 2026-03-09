@@ -499,13 +499,15 @@ wss.on('connection', (ws, req) => {
                     const clients = channels.get(currentChannel);
                     let found = false;
 
+                    // 1. Send to the Recipient
                     clients.forEach(client => {
                         // 1. Send to the Recipient
                         if (client.senderName === targetName) {
                             client.send(JSON.stringify({
                                 type: 'message',
                                 text: payload.text,
-                                sender: `From ${ws.senderName}`
+                                sender: ws.senderName, // Raw name for client-side mute check
+                                whisperType: 'from'    // Client will prepend "From "
                             }));
                             found = true;
                         }
@@ -516,7 +518,8 @@ wss.on('connection', (ws, req) => {
                     ws.send(JSON.stringify({
                         type: 'message',
                         text: payload.text,
-                        sender: `To ${targetName}`
+                        sender: targetName,   // Raw name for client-side mute check
+                        whisperType: 'to'     // Client will prepend "To "
                     }));
 
                     if (!found) {

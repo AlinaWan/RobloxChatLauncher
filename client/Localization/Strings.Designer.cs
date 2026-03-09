@@ -552,7 +552,7 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Startup scan failed:.
+        ///   Looks up a localized string similar to Startup scan failed: {0}.
         /// </summary>
         public static string StartupScanFailed {
             get {
@@ -715,6 +715,24 @@ namespace RobloxChatLauncher.Localization {
         public static string Watcher {
             get {
                 return ResourceManager.GetString("Watcher", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From {0}.
+        /// </summary>
+        public static string WhisperFrom {
+            get {
+                return ResourceManager.GetString("WhisperFrom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To {0}.
+        /// </summary>
+        public static string WhisperTo {
+            get {
+                return ResourceManager.GetString("WhisperTo", resourceCulture);
             }
         }
         
