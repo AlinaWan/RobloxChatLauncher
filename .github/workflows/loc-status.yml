@@ -6,7 +6,7 @@ permissions:
 on:
   push:
     paths:
-      - 'client/Localization'
+      - 'client/Localization/**'
 
 jobs:
   docs:
