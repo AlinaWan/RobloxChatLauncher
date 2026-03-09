@@ -134,25 +134,20 @@ namespace RobloxChatLauncher
                         {
                             string sender = (string)data.sender;
                             string text = (string)data.text;
+                            string whisperType = (string)data.whisperType; // New field
 
-                            string rawName = sender;
+                            // 1. Check mute status using the raw sender name
+                            if (!mutedUsers.Contains(sender))
+                            {
+                                string displaySender = sender;
 
-                            // Handle whisper message formats to extract the actual speaker name for mute checking
-                            // If it's an incoming whisper: "From Guest 12345"
-                            if (sender.StartsWith("From "))
-                            {
-                                rawName = sender.Substring(5); // Remove "From "
-                            }
-                            // If it's an outgoing whisper: "To Guest 12345"
-                            else if (sender.StartsWith("To "))
-                            {
-                                rawName = sender.Substring(3); // Remove "To "
-                            }
+                                // 2. Handle display formatting client-side
+                                if (whisperType == "from")
+                                    displaySender = $"{string.Format(Strings.WhisperFrom, sender)}";
+                                else if (whisperType == "to")
+                                    displaySender = $"{string.Format(Strings.WhisperTo, sender)}";
 
-                            // Now check the cleaned name against the mute list
-                            if (!mutedUsers.Contains(rawName))
-                            {
-                                chatBox.AppendText($"[{sender}]: {text}\r\n");
+                                chatBox.AppendText($"[{displaySender}]: {text}\r\n");
                             }
                         }
                         // Rejection handling
