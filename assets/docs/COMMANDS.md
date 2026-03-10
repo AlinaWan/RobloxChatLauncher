@@ -14,8 +14,7 @@
 | /mute | - | Handles muting a user by their username, preventing their messages from appearing in the chat box. | args: The username of the user to mute. |
 | /unmute | - | Handles unmuting a user by their username, allowing their messages to appear in the chat box again. | args: The username of the user to unmute. |
 | /whisper | `/w` | Handles sending a private whisper message to another user. | args: The username and message in the format "username message". |
-| /console | `/debug`, `/openconsole`, `/opendebug` | Opens the debug console window. | - |
-| /closeconsole | `/closedebug` | Closes the debug console window. | - |
+| /console | `/debug` | Opens or closes the debug console window. | - |
 | /update | - | Checks for updates on GitHub and, if a new version is available, the application will restart automatically to install the update. | args: Optional argument "prerelease" to include prerelease versions in the update check. |
 | /verify | - | Initiates the Roblox account verification process by fetching a unique code for the given Roblox username. | args: The Roblox username to verify. |
 | /confirm | - | Confirms the Roblox account verification by checking the previously generated code against the user's Roblox profile, and if successful, links the account and refreshes the connection to update the username. | - |
