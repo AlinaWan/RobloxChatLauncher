@@ -29,6 +29,9 @@ namespace RobloxChatLauncher
         private VerificationService _verifyService = new VerificationService();
         private long _pendingRobloxId = 0;
 
+        // Bool to track if the debug console is currently open
+        private bool _isDebugConsoleOpen = false;
+
         internal static readonly HttpClient Client = new HttpClient()
         {
             // If the server doesn't respond in x seconds, throw an exception
@@ -464,60 +467,56 @@ namespace RobloxChatLauncher
             return true;
         }
 
-        private void OpenDebugConsole()
+        private void HandleDebugConsole()
         {
-            // Create the window
-            if (NativeMethods.AllocConsole())
+            if (!_isDebugConsoleOpen)
             {
-                // Re-route the standard output streams so Console.WriteLine actually works
-                var writer = new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true };
-                Console.SetOut(writer);
-                Console.SetError(writer);
-
-                // Get the handle to the console window
-                IntPtr consoleWindow = NativeMethods.GetConsoleWindow();
-                if (consoleWindow != IntPtr.Zero)
+                // Create the window
+                if (NativeMethods.AllocConsole())
                 {
-                    // Get the system menu for the console and delete the Close (SC_CLOSE) option
-                    // This prevents users from accidentally closing the console and crashing the entire app since it's a child window of the main form
-                    IntPtr sysMenu = NativeMethods.GetSystemMenu(consoleWindow, false);
-                    if (sysMenu != IntPtr.Zero)
+                    _isDebugConsoleOpen = true;
+
+                    // Re-route the standard output streams so Console.WriteLine actually works
+                    var writer = new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true };
+                    Console.SetOut(writer);
+                    Console.SetError(writer);
+
+                    // Get the handle to the console window
+                    IntPtr consoleWindow = NativeMethods.GetConsoleWindow();
+                    if (consoleWindow != IntPtr.Zero)
                     {
-                        NativeMethods.DeleteMenu(sysMenu, NativeMethods.SC_CLOSE, NativeMethods.MF_BYCOMMAND);
+                        // Get the system menu for the console and delete the Close (SC_CLOSE) option
+                        // This prevents users from accidentally closing the console and crashing the entire app since it's a child window of the main form
+                        IntPtr sysMenu = NativeMethods.GetSystemMenu(consoleWindow, false);
+                        if (sysMenu != IntPtr.Zero)
+                        {
+                            NativeMethods.DeleteMenu(sysMenu, NativeMethods.SC_CLOSE, NativeMethods.MF_BYCOMMAND);
+                        }
                     }
+
+                    // Set the output to UTF-8 so it can render the characters correctly
+                    Console.OutputEncoding = System.Text.Encoding.UTF8;
+                    Console.InputEncoding = System.Text.Encoding.UTF8;
+
+                    Console.Title = $"{Strings.DebugConsoleTitle}";
+                    Console.WriteLine($"{Strings.DebugConsoleHorizontalRule}");
+                    Console.WriteLine($"{string.Format(Strings.DebugConsoleInitialized, DateTime.Now)}");
+                    Console.WriteLine($"{Strings.DebugConsoleUseClose}");
+                    Console.WriteLine($"{Strings.DebugConsoleHorizontalRule}");
                 }
+            }
+            else
+            {
+                _isDebugConsoleOpen = false;
 
-                // Set the output to UTF-8 so it can render the characters correctly
-                Console.OutputEncoding = System.Text.Encoding.UTF8;
-                Console.InputEncoding = System.Text.Encoding.UTF8;
+                // Redirect output back to null so the app doesn't crash 
+                // trying to write to a console that no longer exists
+                Console.SetOut(TextWriter.Null);
+                Console.SetError(TextWriter.Null);
 
-                Console.Title = $"{Strings.DebugConsoleTitle}";
-                Console.WriteLine($"{Strings.DebugConsoleHorizontalRule}");
-                Console.WriteLine($"{string.Format(Strings.DebugConsoleInitialized, DateTime.Now)}");
-                Console.WriteLine($"{Strings.DebugConsoleUseClose}");
-                Console.WriteLine($"{Strings.DebugConsoleHorizontalRule}");
+                NativeMethods.FreeConsole();
             }
         }
-
-        private void CloseDebugConsole()
-        {
-            // Redirect output back to null so the app doesn't crash 
-            // trying to write to a console that no longer exists
-            Console.SetOut(TextWriter.Null);
-            Console.SetError(TextWriter.Null);
-
-            NativeMethods.FreeConsole();
-        }
-
-        // Commented out because it will always force a Global
-        // connection before the JobId is found
-        /*
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-            _ = ConnectWebSocket(wsCts.Token);
-        }
-        */
 
         // Comprehensive cleanup on form close to ensure all resources are properly released and no memory leaks occur
         protected override void OnFormClosed(FormClosedEventArgs e)

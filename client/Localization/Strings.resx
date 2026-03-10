@@ -177,7 +177,7 @@ And of course, credits to you 💖</value>
     <value>Roblox Chat Launcher Debugger</value>
   </data>
   <data name="DebugConsoleUseClose" xml:space="preserve">
-    <value>Use '/closeconsole' or '/closedebug' to close</value>
+    <value>Use '/console' or '/debug' again to close</value>
   </data>
   <data name="DownloadingUpdate" xml:space="preserve">
     <value>Downloading update ({0} → {1})...</value>

@@ -228,7 +228,7 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use &apos;/closeconsole&apos; or &apos;/closedebug&apos; to close.
+        ///   Looks up a localized string similar to Use &apos;/console&apos; or &apos;/debug&apos; again to close.
         /// </summary>
         public static string DebugConsoleUseClose {
             get {

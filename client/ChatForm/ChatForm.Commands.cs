@@ -85,18 +85,10 @@ namespace RobloxChatLauncher
                 case "/w":
                     return await HandleWhisperAsync(args);
 
-                /// <summary>Opens the debug console window.</summary>
+                /// <summary>Opens or closes the debug console window.</summary>
                 case "/console":
                 case "/debug":
-                case "/openconsole":
-                case "/opendebug":
-                    OpenDebugConsole();
-                    return true;
-
-                /// <summary>Closes the debug console window.</summary>
-                case "/closeconsole":
-                case "/closedebug":
-                    CloseDebugConsole();
+                    HandleDebugConsole();
                     return true;
 
                 /// <summary>Checks for updates on GitHub and, if a new version is available, the application will restart automatically to install the update.</summary>

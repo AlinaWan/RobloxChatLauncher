@@ -132,7 +132,7 @@ Riri 倾情打造 ❤︎
     <value>已是最新版本 ({0})</value>
   </data>
   <data name="ChatInputBoxText" xml:space="preserve">
-    <value>按 / 键 | Ctrl+Shift+C 以隐藏</value>
+    <value>按 / 键 | Ctrl+Shift+C 隐藏</value>
   </data>
   <data name="CheckingForUpdates" xml:space="preserve">
     <value>正在检查更新...</value>
@@ -177,7 +177,7 @@ Riri 倾情打造 ❤︎
     <value>Roblox Chat Launcher 调试器</value>
   </data>
   <data name="DebugConsoleUseClose" xml:space="preserve">
-    <value>输入 '/closeconsole' 或 '/closedebug' 以关闭</value>
+    <value>再次使用 '/console' 或 '/debug' 关闭</value>
   </data>
   <data name="DownloadingUpdate" xml:space="preserve">
     <value>正在下载更新 ({0} → {1})...</value>
