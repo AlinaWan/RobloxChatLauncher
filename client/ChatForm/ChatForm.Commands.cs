@@ -117,6 +117,7 @@ namespace RobloxChatLauncher
                 /// <summary>Initiates the Roblox account verification process by fetching a unique code for the given Roblox username.</summary>
                 /// <param>args: The Roblox username to verify.</param>
                 case "/verify":
+                case "/login":
                     if (string.IsNullOrWhiteSpace(args))
                     {
                         chatBox.AppendText($"[{Strings.System}]: {Strings.UsageVerify}\r\n");
