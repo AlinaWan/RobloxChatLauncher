@@ -1,12 +1,8 @@
-using System;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Win32;
-using Newtonsoft.Json;
-
 using RobloxChatLauncher.Core;
-using RobloxChatLauncher;
 
 namespace RobloxChatLauncher.Services
 {
@@ -23,13 +19,13 @@ namespace RobloxChatLauncher.Services
         // Helper class to handle deserialization
         private class VerificationResponse
         {
-            [JsonProperty("code")]
+            [JsonPropertyName("code")]
             public string Code
             {
                 get; set;
             }
 
-            [JsonProperty("robloxId")]
+            [JsonPropertyName("robloxId")]
             public long RobloxId
             {
                 get; set;
@@ -55,16 +51,16 @@ namespace RobloxChatLauncher.Services
             {
                 robloxUsername = username
             };
-            var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
             var response = await ChatForm.Client.PostAsync($"https://{Constants.BASE_URL}/api/v1/verify/generate", content);
             var json = await response.Content.ReadAsStringAsync();
 
             // Deserialize into our helper class
-            var result = JsonConvert.DeserializeObject<VerificationResponse>(json);
-
+            var result = JsonSerializer.Deserialize<VerificationResponse>(json);
+            
             // Map the class properties to the ValueTuple requested by the method signature
-            return (result.Code, result.RobloxId);
+            return (result?.Code ?? string.Empty, result?.RobloxId ?? 0);
         }
 
         public async Task<VerificationResult> ConfirmVerification(long robloxId)
@@ -86,7 +82,7 @@ namespace RobloxChatLauncher.Services
                 hwid
             };
         
-            var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
         
             try
             {
@@ -128,7 +124,7 @@ namespace RobloxChatLauncher.Services
                     hwid,
                     robloxId
                 };
-                var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
                 // 1. Tell the server to delete the link
                 var response = await ChatForm.Client.PostAsync($"https://{Constants.BASE_URL}/api/v1/verify/unverify", content);

@@ -1,8 +1,9 @@
 using System.Globalization;
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 using RobloxChatLauncher.Core;
 using RobloxChatLauncher.Localization;
 using RobloxChatLauncher.Services;
@@ -69,7 +70,7 @@ namespace RobloxChatLauncher
                             ? Services.VerificationService.GetMachineId()
                             : null
                     };
-                    string json = JsonConvert.SerializeObject(joinPayload);
+                    string json = JsonSerializer.Serialize(joinPayload);
 
                     await wsClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(json)),
                         WebSocketMessageType.Text, true, ct);
@@ -128,16 +129,16 @@ namespace RobloxChatLauncher
                     }
 
                     var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    dynamic data = JsonConvert.DeserializeObject(message);
-
+                    var data = JsonNode.Parse(message);
+                    var dataType = data?["type"]?.ToString();
                     this.Invoke((MethodInvoker)delegate
                     {
                         // Normal chat message
-                        if (data.type == "message")
+                        if (dataType == "message")
                         {
-                            string sender = (string)data.sender;
-                            string text = (string)data.text;
-                            string whisperType = (string)data.whisperType; // New field
+                            string sender = data?["sender"]?.ToString() ?? string.Empty;
+                            string text = data?["text"]?.ToString() ?? string.Empty;
+                            string whisperType = data?["whisperType"]?.ToString() ?? string.Empty; // New field
 
                             // 1. Check mute status using the raw sender name
                             if (!mutedUsers.Contains(sender))
@@ -154,9 +155,9 @@ namespace RobloxChatLauncher
                             }
                         }
                         // Rejection handling
-                        else if (data.status == "rejected")
+                        else if (data?["status"]?.ToString() == "rejected")
                         {
-                            string reason = data.reason;
+                            string reason = data["reason"]?.ToString() ?? string.Empty;
                             string messageText;
 
                             switch (reason)
@@ -250,7 +251,7 @@ namespace RobloxChatLauncher
                     $"https://{Constants.BASE_URL}/api/v1/mail");
 
                 request.Content = new StringContent(
-                    JsonConvert.SerializeObject(payload),
+                    JsonSerializer.Serialize(payload),
                     Encoding.UTF8,
                     "application/json");
 
@@ -293,8 +294,8 @@ namespace RobloxChatLauncher
                 else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
-                    string reason = data?.reason;
+                    var data = JsonNode.Parse(json);
+                    string reason = data?["reason"]?.ToString() ?? string.Empty;
 
                     string messageText;
                     switch (reason)
@@ -364,7 +365,7 @@ namespace RobloxChatLauncher
                     type = "message",
                     text = text
                 };
-                string json = JsonConvert.SerializeObject(payload);
+                string json = JsonSerializer.Serialize(payload);
                 byte[] bytes = Encoding.UTF8.GetBytes(json);
 
                 await wsClient.SendAsync(new ArraySegment<byte>(bytes),
@@ -392,7 +393,7 @@ namespace RobloxChatLauncher
                 target = target,
                 text = text
             };
-            string json = JsonConvert.SerializeObject(payload);
+            string json = JsonSerializer.Serialize(payload);
             byte[] bytes = Encoding.UTF8.GetBytes(json);
 
             await wsClient.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, wsCts.Token);
