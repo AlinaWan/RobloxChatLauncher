@@ -82,7 +82,8 @@ namespace RobloxChatLauncher.Services
                     Process.Start(new ProcessStartInfo
                     {
                         FileName = tempPath,
-                        Arguments = $"/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOG=\"{logPath}\"",
+                        // Pass the /FORCERUN flag to restart the app after installation and attach to the current Roblox process
+                        Arguments = $"/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOG=\"{logPath}\" /FORCERUN",
                         UseShellExecute = true,
                     });
 

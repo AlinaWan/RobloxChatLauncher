@@ -31,9 +31,30 @@ Name: "{autodesktop}\Roblox Chat Launcher"; Filename: "{app}\RobloxChatLauncher.
 
 [Run]
 ; Silently run the app to register it as the Roblox launcher
-Filename: "{app}\RobloxChatLauncher.exe"; Flags: nowait runhidden
+Filename: "{app}\RobloxChatLauncher.exe"; Flags: nowait runhidden; Check: not IsForceRunFlagPresent
+
+; Runs with --force-run arg if /FORCERUN IS passed to the installer
+Filename: "{app}\RobloxChatLauncher.exe"; Parameters: "--force-run"; Flags: nowait postinstall; Check: IsForceRunFlagPresent
 
 [Code]
+// ---------------------------------------------------------------
+// Helper function to check for the presence of the /FORCERUN flag
+// ----------------------------------------------------------------
+function IsForceRunFlagPresent(): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+  begin
+    if CompareText(ParamStr(I), '/FORCERUN') = 0 then
+    begin
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
 // -----------------------------------------------------
 // .NET Desktop Runtime installation check and installer
 // -----------------------------------------------------

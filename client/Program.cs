@@ -22,69 +22,45 @@ class Program
             return; // Exit immediately
         }
 
-        // Else continue with normal launcher execution
-        // Initial registration is now conditional on bootstrapper detection
-        var robloxClient = RobloxLocator.ResolveRobloxPlayer();
-        string exePath = Process.GetCurrentProcess().MainModule.FileName; // Path to our launcher executable
-        if (robloxClient == null)
-        {
-            MessageBox.Show($"{Strings.CouldNotFindClient}");
-            return;
-        }
+        // Check if the --force-run argument is present to bypass the 3-second rule for attaching to Roblox processes
+        // And this also bypasses the if (args.Length == 0) check as well
+        bool isForceRun = args.Length > 0 && args[0].Equals("--force-run", StringComparison.OrdinalIgnoreCase);
 
-        Console.WriteLine($"{string.Format(Strings.ResolvedClientInfo, robloxClient.Type, robloxClient.ExecutablePath)}");
-
-        // If no URI argument is provided, we assume the launcher is being run directly and just register for the protocol without launching anything
-        // i.e., first run to register, then launching a game from the website will pass the URI argument to us to trigger the chat form
+        // If no arguments are provided, we assume the user is trying to register this launcher as the default Roblox URI handler
         if (args.Length == 0)
         {
             if (RegisterAsRobloxLauncher())
             {
-                // Provide visual feedback
                 using (NotifyIcon trayIcon = new NotifyIcon())
                 {
-                    // Pull the icon from current executable
                     trayIcon.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
                     trayIcon.Visible = true;
-
-                    trayIcon.ShowBalloonTip(
-                        3000,
-                        $"{Strings.LauncherRegisteredBalloonTitle}",
-                        $"{Strings.LauncherRegisteredBalloonText}",
-                        ToolTipIcon.None // Set ToolTipIcon to None to use the app's icon
-                    );
-
+                    trayIcon.ShowBalloonTip(3000, $"{Strings.LauncherRegisteredBalloonTitle}", $"{Strings.LauncherRegisteredBalloonText}", ToolTipIcon.None);
                     Thread.Sleep(1000);
                 }
-
-                Console.WriteLine($"{string.Format(Strings.LauncherRegistered, exePath)}");
             }
             return;
         }
 
-        string uri = args[0];
-
-        // 1. Launch the Roblox Client
-        // If it's a bootstrapper, it will handle launching Roblox itself
-        // Otherwise we just launch Roblox directly here
-        Process.Start(new ProcessStartInfo
+        if (!isForceRun)
         {
-            FileName = robloxClient.ExecutablePath,
-            Arguments = uri,
-            UseShellExecute = true
-        });
+            // The first argument should be the Roblox URI, so we attempt to launch Roblox with it
+            string uri = args[0];
 
-        // 2. Start a background thread to wait for the actual game engine
+            var robloxClient = RobloxLocator.ResolveRobloxPlayer();
+            if (robloxClient != null)
+            {
+                Process.Start(new ProcessStartInfo { FileName = robloxClient.ExecutablePath, Arguments = uri, UseShellExecute = true });
+            }
+        }
+
         Thread chatThread = new Thread(() =>
         {
-            Process robloxGame = WaitForRobloxProcess(60); // Wait up to 60 seconds
+            // Pass isForceRun here to ignore the 3-second start time rule
+            Process robloxGame = WaitForRobloxProcess(60, isForceRun);
 
-            if (robloxGame != null)
+            if (robloxGame != null || isForceRun)
             {
-                // THE TRIGGER: The game started, meaning the bootstrapper or Roblox is done.
-                // Check and fix registry only if it overwrote our registry key
-                RegisterAsRobloxLauncher();
-
                 chatForm = new ChatForm(robloxGame);
                 keyboardHandler = new ChatKeyboardHandler(chatForm);
                 Application.Run(chatForm);
@@ -155,9 +131,9 @@ class Program
         }
     }
 
-    static Process WaitForRobloxProcess(int timeoutSeconds)
+    static Process WaitForRobloxProcess(int timeoutSeconds, bool ignoreStartTime)
     {
-        // Record when we the launcher actually started
+        // Record when the launcher actually started, so we can ignore Roblox processes that started long before
         DateTime launcherStartTime = DateTime.Now;
 
         // Loop every 500ms until the actual game engine process appears
@@ -168,9 +144,8 @@ class Program
             {
                 try
                 {
-                    // Only attach if the Roblox process started AFTER the launcher
-                    // Or at least very recently.
-                    if (proc.StartTime > launcherStartTime.AddSeconds(-3))
+                    // If ignoreStartTime is true, it attaches to any existing Roblox process immediately
+                    if (ignoreStartTime || proc.StartTime > launcherStartTime.AddSeconds(-3))
                     {
                         return proc;
                     }
