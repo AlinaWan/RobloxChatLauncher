@@ -59,7 +59,14 @@ class Program
             // Pass isForceRun here to ignore the 3-second start time rule
             Process robloxGame = WaitForRobloxProcess(60, isForceRun);
 
-            if (robloxGame != null || isForceRun)
+            if (robloxGame == null && isForceRun)
+            {
+                var procs = Process.GetProcessesByName("RobloxPlayerBeta");
+                if (procs.Length > 0)
+                    robloxGame = procs[0];
+            }
+
+            if (robloxGame != null)
             {
                 chatForm = new ChatForm(robloxGame);
                 keyboardHandler = new ChatKeyboardHandler(chatForm);
