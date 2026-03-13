@@ -410,8 +410,10 @@ namespace RobloxChatLauncher
             }
             else
             {
-                mutedUsers.Add(args.Trim());
-                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.MutedSpeaker, args.Trim())}\r\n");
+                string speaker = args.Trim().Trim('"');
+
+                mutedUsers.Add(speaker);
+                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.MutedSpeaker, speaker)}\r\n");
             }
             return true;
         }
@@ -424,7 +426,7 @@ namespace RobloxChatLauncher
                 return true;
             }
 
-            string speaker = args.Trim();
+            string speaker = args.Trim().Trim('"');
 
             if (mutedUsers.Remove(speaker))
                 chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.UnmutedSpeaker, speaker)}\r\n");
