@@ -119,7 +119,7 @@
   </resheader>
   <data name="AboutText" xml:space="preserve">
     <value>关于 Roblox Chat Launcher：
-Riri 倾情打造 ❤︎
+由 Riri 和贡献者用 ❤︎ 制作
 开发环境：VS 2026 🎀 基于 .NET / WinForms 构建
 服务器端：Node.js 🌸 托管于 Render.com
 源码地址：https://github.com/AlinaWan/RobloxChatLauncher
@@ -288,7 +288,7 @@ Riri 倾情打造 ❤︎
     <value>启动扫描失败: {0}</value>
   </data>
   <data name="StartupText" xml:space="preserve">
-    <value>Riri 倾情打造 ❤︎
+    <value>由 Riri 和贡献者用 ❤︎ 制作
 输入 '/update' 以检查更新。
 输入 '/?' 或 '/help' 以查看聊天命令列表。</value>
   </data>

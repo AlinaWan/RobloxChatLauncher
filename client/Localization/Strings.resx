@@ -119,7 +119,7 @@
   </resheader>
   <data name="AboutText" xml:space="preserve">
     <value>About Roblox Chat Launcher:
-Made with ❤︎ by Riri
+Made with ❤︎ by Riri and Contributors
 Developed in VS 2026 🎀 Built with .NET / WinForms
 Server written in Node.js 🌸 Hosted on Render.com
 Source: https://github.com/AlinaWan/RobloxChatLauncher
@@ -288,7 +288,7 @@ And of course, credits to you 💖</value>
     <value>Startup scan failed: {0}</value>
   </data>
   <data name="StartupText" xml:space="preserve">
-    <value>Made with ❤︎ by Riri
+    <value>Made with ❤︎ by Riri and Contributors
 Chat '/update' to check for updates.
 Chat '/?' or '/help' for a list of chat commands.</value>
   </data>
