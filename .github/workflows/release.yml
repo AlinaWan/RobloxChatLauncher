@@ -25,8 +25,22 @@ on:
         type: boolean
 
 jobs:
+  validate-tag:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Validate tag
+        run: |
+          TAG="${{ github.event.inputs.tag_name }}"
+          if ! [[ "$TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$ ]]; then
+            echo "Invalid tag format: $TAG"
+            exit 1
+          fi
+          echo "Tag $TAG is valid"
+          
   build-release:
     runs-on: windows-latest
+    needs: validate-tag
 
     steps:
       - name: Checkout repository
