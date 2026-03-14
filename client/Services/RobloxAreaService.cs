@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using RobloxChatLauncher.Utils;
 using RobloxChatLauncher.Localization;
+using RobloxChatLauncher.Models;
 
 namespace RobloxChatLauncher.Services
 {
@@ -94,6 +95,8 @@ namespace RobloxChatLauncher.Services
 
         public async Task Start(Process robloxProc)
         {
+            _cts = new CancellationTokenSource();
+
             string logIdent = ($"{Strings.Watcher}::Start");
 
             // okay, here's the process:
@@ -111,16 +114,15 @@ namespace RobloxChatLauncher.Services
             _sessionStartTime = robloxProc.StartTime;
 
             FileInfo logFileInfo;
-            string logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Roblox", "logs");
 
-            if (!Directory.Exists(logDirectory))
+            if (!Directory.Exists(_logDirectory))
                 return;
 
             DebugConsole.WriteLine($"{logIdent}: Opening Roblox log file...");
 
             while (true)
             {
-                logFileInfo = new DirectoryInfo(logDirectory)
+                logFileInfo = new DirectoryInfo(_logDirectory)
                     .GetFiles()
                     .Where(x => x.Name.Contains("Player", StringComparison.OrdinalIgnoreCase) && x.CreationTime <= DateTime.Now)
                     .OrderByDescending(x => x.CreationTime)
@@ -159,12 +161,20 @@ namespace RobloxChatLauncher.Services
 
             while (!_disposed)
             {
-                string? log = await streamReader.ReadLineAsync();
+                try
+                {
+                    string? log = await streamReader.ReadLineAsync(_cts.Token);
 
-                if (log is null)
-                    await Task.Delay(1000);
-                else
-                    ReadLogEntry(log);
+                    if (log is null)
+                        await Task.Delay(1000, _cts.Token);
+                    else
+                        ReadLogEntry(log);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected when Dispose() is called, ignore and exit the loop
+                    break;
+                }
             }
         }
         
@@ -373,38 +383,5 @@ namespace RobloxChatLauncher.Services
                 _cts?.Dispose();
             }
         }
-    }
-
-    public class ActivityData
-    {
-        public long PlaceId;
-        public string? JobId;
-        public string? MachineAddress;
-        public long UniverseId;
-        public long UserId;
-        public ServerType ServerType;
-        public bool IsTeleport;
-        public string? RPCLaunchData;
-        public DateTime TimeJoined;
-        public DateTime TimeLeft;
-        public string? AccessCode;
-
-        public override string ToString()
-        {
-            return $"PlaceId={PlaceId}, JobId={JobId}, MachineAddress={MachineAddress}, UniverseId={UniverseId}, UserId={UserId}, ServerType={ServerType}";
-        }
-    }
-
-    public enum ServerType
-    {
-        Public,
-        Private,
-        Reserved
-    }
-
-    public class Message
-    {
-        public string Command { get; set; } = null!;
-        public JsonElement Data { get; set; }
     }
 }
