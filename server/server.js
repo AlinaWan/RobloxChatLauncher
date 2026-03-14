@@ -226,8 +226,9 @@ const validateRegistry = async (req, res, next) => {
         return res.status(403).json({ error: "Invalid credentials." });
     }
 
-    // Attach jobId to request for use in the actual endpoint logic
+    // Attach jobId and universeId to request for use in the actual endpoint logic
     req.jobId = jobId;
+    req.universeId = universeId;
     next();
 };
 
@@ -236,23 +237,68 @@ const validateRegistry = async (req, res, next) => {
 // --------------------------------
 // This endpoint is protected by the registry module
 app.get('/api/v1/commands', validateRegistry, (req, res) => {
-    const { jobId } = req;
+    // Extract universeId and jobId from the request (attached by validateRegistry)
+    const { universeId, jobId } = req;
 
-    // 1. Get current mail
-    const messages = mailboxStore.get(jobId) || [];
+    // Construct the private storage key
+    const storageKey = `${universeId}:${jobId}`;
 
-    // 2. Filter out any that expired exactly now (edge case)
+    // 1. Get mail specifically for THIS universe + jobId combo
+    const messages = mailboxStore.get(storageKey) || [];
+
     const validMessages = messages.filter(msg => msg.expiresAt > Date.now());
 
-    // 3. Clear the mailbox (Destructive Read)
-    mailboxStore.delete(jobId);
+    // 2. Clear ONLY this specific mailbox
+    mailboxStore.delete(storageKey);
 
-    // 4. Return only the raw payloads to Roblox
-    // This allows Roblox to receive [ {type: "Emote"...}, {type: "Emote"...} ]
     const payloads = validMessages.map(m => m.payload);
-
     res.json(payloads);
 });
+
+// ----------------------------------
+// ----- The Mail Push Endpoint -----
+// ----------------------------------
+app.post(
+    '/api/v1/mail',
+    express.json(),
+    validateVerifiedUser,
+    async (req, res) => {
+        // Expecting universeId from the body to verify jobId belongs to the same universe
+        const { jobId, universeId, type, data } = req.body;
+
+        // 1. Validate required fields
+        if (!jobId || !universeId || !type) {
+            return res.status(400).json({ error: "Missing required fields." });
+        }
+
+        // 2. Validate allowed mail type
+        if (!ALLOWED_MAIL_TYPES.has(type)) {
+            return res.status(400).json({ error: "Invalid mail type." });
+        }
+
+        // 3. Construct the payload
+        const payload = {
+            type,
+            targetPlayer: req.robloxId, // The sender
+            data: data || {}
+        };
+
+        try {
+            // Bind the mail to the universeId provided by the sender
+            pushToMailbox(universeId, jobId, payload);
+
+            console.log(`[MAIL] Sent to Universe ${universeId} | Job ${jobId}`);
+            res.json({
+                status: "queued",
+                jobId,
+                universeId
+            });
+        } catch (err) {
+            console.error("Mail push error:", err);
+            res.status(500).json({ error: "Failed to queue mail." });
+        }
+    }
+);
 
 // ----- Verified User Middleware -----
 const validateVerifiedUser = async (req, res, next) => {
@@ -279,49 +325,6 @@ const validateVerifiedUser = async (req, res, next) => {
         res.status(500).json({ error: "Verification failed." });
     }
 };
-
-// ----------------------------------
-// ----- The Mail Push Endpoint -----
-// ----------------------------------
-app.post(
-    '/api/v1/mail',
-    express.json(),
-    validateVerifiedUser,
-    async (req, res) => {
-        const { jobId, type, targetPlayer, data } = req.body;
-
-        // 1. Validate required fields
-        if (!jobId || !type || !targetPlayer) {
-            return res.status(400).json({ error: "Missing required fields." });
-        }
-
-        // 2. Validate allowed type
-        if (!ALLOWED_MAIL_TYPES.has(type)) {
-            return res.status(400).json({ error: "Invalid mail type." });
-        }
-
-        // 3. Build final payload
-        const payload = {
-            type,
-            targetPlayer: req.robloxId,
-            data: data || {}
-        };
-
-        try {
-            pushToMailbox(jobId, payload);
-
-            console.log(`[MAIL] Sent by ${req.robloxId} | type: ${type} | jobId: ${jobId}`);
-            res.json({
-                status: "queued",
-                jobId,
-                expiresInMs: Constants.MAIL_TTL_MS
-            });
-        } catch (err) {
-            console.error("Mail push error:", err);
-            res.status(500).json({ error: "Failed to queue mail." });
-        }
-    }
-);
 
 // --------------------------------------
 // ----- The Verification Endpoints -----

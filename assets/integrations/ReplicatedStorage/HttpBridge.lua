@@ -14,8 +14,17 @@ local HttpBridge = {}
 -- Configuration
 -------------------------------
 local BASE_URL = "https://RobloxChatLauncher.onrender.com"
-local API_KEY = HttpService:GetSecret("RCL_API_KEY") -- Replace with the key given to you by Riri or RCL admin
-local UNIVERSE_ID = tostring(game.GameId) -- game.GameId is the UniverseId. The game must be published or game.GameId will return 0 and requests will fail with 403
+--[=[
+How to set your API key:
+1. Navigate to your [Creator Dashboard](https://create.roblox.com/dashboard/creations).
+2. Select your Experience (Universe).
+3. Go to **Settings** > **Secrets** (or navigate directly to `https://create.roblox.com/dashboard/creations/experiences/<your-universe-id>/secrets`).
+4. Click **Create Secret**.
+5. Set the Name to **`RCL_API_KEY`**.
+6. Paste your provided API key into the Value field and save.
+--]=]
+local API_KEY = HttpService:GetSecret("RCL_API_KEY")
+local UNIVERSE_ID = tostring(game.GameId) -- game.GameId is the UniverseId. The game must be published or game.GameId will return 0 and requests will fail with 403.
 
 -- Helper to format URLs consistently
 local function formatUrl(path: string): string
