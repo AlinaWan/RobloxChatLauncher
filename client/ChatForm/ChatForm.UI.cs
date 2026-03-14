@@ -128,7 +128,7 @@ namespace RobloxChatLauncher
             });
         }
 
-        public ChatForm(Process proc)
+        public ChatForm(Process proc, bool isForceRun)
         {
             robloxProcess = proc;
             robloxProcess.EnableRaisingEvents = true;
@@ -390,7 +390,7 @@ namespace RobloxChatLauncher
             };
 
             // Start watching logs, passing the Roblox process for session tracking
-            _robloxService.Start(robloxProcess);
+            _robloxService.Start(robloxProcess, isForceRun);
 
             // Initial check: If we can't find a JobID yet, wait for the log monitor to catch it
             channelId = "global";

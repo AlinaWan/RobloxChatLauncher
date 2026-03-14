@@ -93,7 +93,7 @@ namespace RobloxChatLauncher.Services
 
         private bool _disposed = false;
 
-        public async Task Start(Process robloxProc)
+        public async Task Start(Process robloxProc, bool isForceRun = false)
         {
             _cts = new CancellationTokenSource();
 
@@ -134,6 +134,10 @@ namespace RobloxChatLauncher.Services
                     continue;
                 }
 
+                // If --force-run, skip the check for recent log files
+                if (isForceRun && logFileInfo != null)
+                    break;
+
                 // ignore logs created before the Roblox process started
                 if (logFileInfo.CreationTime < _sessionStartTime.AddSeconds(-5))
                 {
@@ -153,7 +157,6 @@ namespace RobloxChatLauncher.Services
             OnLogOpen?.Invoke(this, EventArgs.Empty);
 
             var logFileStream = logFileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            logFileStream.Seek(0, SeekOrigin.End); // start at the end of the file
 
             DebugConsole.WriteLine($"{logIdent}: Opened {LogLocation}");
 

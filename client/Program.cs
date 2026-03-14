@@ -68,7 +68,7 @@ class Program
 
             if (robloxGame != null)
             {
-                chatForm = new ChatForm(robloxGame);
+                chatForm = new ChatForm(robloxGame, isForceRun);
                 keyboardHandler = new ChatKeyboardHandler(chatForm);
                 Application.Run(chatForm);
             }
