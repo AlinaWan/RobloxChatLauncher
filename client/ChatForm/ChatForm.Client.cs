@@ -479,6 +479,7 @@ namespace RobloxChatLauncher
                 if (NativeMethods.AllocConsole())
                 {
                     _isDebugConsoleOpen = true;
+                    DebugConsole.Enabled = true;
 
                     // Re-route the standard output streams so Console.WriteLine actually works
                     var writer = new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true };
@@ -512,6 +513,7 @@ namespace RobloxChatLauncher
             else
             {
                 _isDebugConsoleOpen = false;
+                DebugConsole.Enabled = false;
 
                 // Redirect output back to null so the app doesn't crash 
                 // trying to write to a console that no longer exists

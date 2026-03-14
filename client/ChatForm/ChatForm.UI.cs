@@ -383,7 +383,7 @@ namespace RobloxChatLauncher
 
                 this.Invoke((MethodInvoker)delegate
                 {
-                    chatBox.AppendText($"[{Strings.Server}]: {Strings.SwitchingServer}\r\n");
+                    // chatBox.AppendText($"[{Strings.Server}]: {Strings.SwitchingServer}\r\n");
                 });
 
                 await RestartWebSocketAsync(); // make sure chat reconnects to the new server

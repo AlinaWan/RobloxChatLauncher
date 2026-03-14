@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Text.Json;
+
+using RobloxChatLauncher.Utils;
 using RobloxChatLauncher.Localization;
 
 namespace RobloxChatLauncher.Services
@@ -90,9 +92,9 @@ namespace RobloxChatLauncher.Services
 
         private bool _disposed = false;
 
-        public async void Start(Process robloxProc)
+        public async Task Start(Process robloxProc)
         {
-            string logIdent = $"{Strings.Watcher}::Start";
+            string logIdent = ($"{Strings.Watcher}::Start");
 
             // okay, here's the process:
             //
@@ -108,17 +110,13 @@ namespace RobloxChatLauncher.Services
             _robloxProcess = robloxProc;
             _sessionStartTime = robloxProc.StartTime;
 
-            if (!Directory.Exists(_logDirectory))
+            FileInfo logFileInfo;
+            string logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Roblox", "logs");
+
+            if (!Directory.Exists(logDirectory))
                 return;
 
-            FileInfo logFileInfo;
-
-            string logDirectory = _logDirectory;
-
-            // we need to make sure we're fetching the absolute latest log file
-            // if roblox doesn't start quickly enough, we can wind up fetching the previous log file
-            // good rule of thumb is to find a log file that was created in the last 15 seconds or so
-            Console.WriteLine($"{logIdent}: Opening Roblox log file...");
+            DebugConsole.WriteLine($"{logIdent}: Opening Roblox log file...");
 
             while (true)
             {
@@ -126,90 +124,49 @@ namespace RobloxChatLauncher.Services
                     .GetFiles()
                     .Where(x => x.Name.Contains("Player", StringComparison.OrdinalIgnoreCase) && x.CreationTime <= DateTime.Now)
                     .OrderByDescending(x => x.CreationTime)
-                    .First();
+                    .FirstOrDefault();
+
+                if (logFileInfo == null)
+                {
+                    await Task.Delay(1000);
+                    continue;
+                }
+
+                // ignore logs created before the Roblox process started
+                if (logFileInfo.CreationTime < _sessionStartTime.AddSeconds(-5))
+                {
+                    await Task.Delay(1000);
+                    continue;
+                }
 
                 if (logFileInfo.CreationTime.AddSeconds(15) > DateTime.Now)
                     break;
 
-                Console.WriteLine($"{logIdent}: Could not find recent enough log file, waiting... (newest is {logFileInfo.Name})");
+                DebugConsole.WriteLine($"{logIdent}: Could not find recent enough log file, waiting... (newest is {logFileInfo.Name})");
                 await Task.Delay(1000);
             }
 
             LogLocation = logFileInfo.FullName;
+
             OnLogOpen?.Invoke(this, EventArgs.Empty);
 
             var logFileStream = logFileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            Console.WriteLine($"{logIdent}: Opened {LogLocation}");
+            logFileStream.Seek(0, SeekOrigin.End); // start at the end of the file
+
+            DebugConsole.WriteLine($"{logIdent}: Opened {LogLocation}");
 
             using var streamReader = new StreamReader(logFileStream);
 
             while (!_disposed)
             {
                 string? log = await streamReader.ReadLineAsync();
+
                 if (log is null)
                     await Task.Delay(1000);
                 else
                     ReadLogEntry(log);
             }
         }
-
-        private async Task WatchLoop(CancellationToken token)
-        {
-            string? lastTrackedFile = null;
-
-            while (!token.IsCancellationRequested)
-            {
-                // we need to make sure we're fetching the absolute latest log file
-                // if roblox doesn't start quickly enough, we can wind up fetching the previous log file
-                // good rule of thumb is to find a log file that was created in the last 15 seconds or so
-
-                var newestLog = new DirectoryInfo(_logDirectory)
-                    .GetFiles("*.log")
-                    .Where(x => x.Name.Contains("Player", StringComparison.OrdinalIgnoreCase) && x.CreationTime >= _sessionStartTime.AddSeconds(-5))
-                    .OrderByDescending(x => x.CreationTime)
-                    .FirstOrDefault();
-
-                if (newestLog != null && newestLog.FullName != lastTrackedFile)
-                {
-                    if (newestLog.CreationTime.AddSeconds(15) > DateTime.Now)
-                    {
-                        lastTrackedFile = newestLog.FullName;
-                        OnLogOpen?.Invoke(this, EventArgs.Empty);
-                        await TailFile(newestLog.FullName, token);
-                    }
-                }
-
-                await Task.Delay(1000, token);
-            }
-        }
-
-        private async Task TailFile(string filePath, CancellationToken token)
-        {
-            using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var reader = new StreamReader(stream);
-
-            while (!token.IsCancellationRequested)
-            {
-                // Check if a newer log exists to break tailing
-                var newest = new DirectoryInfo(_logDirectory)
-                    .GetFiles("*.log")
-                    .OrderByDescending(x => x.CreationTime)
-                    .FirstOrDefault();
-
-                if (newest != null && newest.FullName != filePath && newest.CreationTime > File.GetCreationTime(filePath))
-                    break;
-
-                string? line = await reader.ReadLineAsync();
-                if (line == null)
-                {
-                    await Task.Delay(1000, token);
-                    continue;
-                }
-
-                ReadLogEntry(line);
-            }
-        }
-
         private void ReadLogEntry(string entry)
         {
             string logIdentity = ($"{Strings.Watcher}::ReadLogEntry");
@@ -224,12 +181,12 @@ namespace RobloxChatLauncher.Services
 
             if (logMessage.StartsWith(GameLeavingEntry))
             {
-                Console.WriteLine($"{logIdentity}: User is back into the desktop app");
+                DebugConsole.WriteLine($"{logIdentity}: User is back into the desktop app");
                 OnAppClose?.Invoke(this, EventArgs.Empty);
 
                 if (Data.PlaceId != 0 && !_inGame)
                 {
-                    Console.WriteLine($"{logIdentity}: User appears to be leaving from a cancelled/errored join");
+                    DebugConsole.WriteLine($"{logIdentity}: User appears to be leaving from a cancelled/errored join");
                     Data = new();
                 }
 
@@ -247,7 +204,7 @@ namespace RobloxChatLauncher.Services
                     var match = Regex.Match(logMessage, GameJoiningPrivateServerPattern);
                     if (match.Groups.Count != 2)
                     {
-                        Console.WriteLine($"{logIdentity}: Failed to assert format for game join private server entry");
+                        DebugConsole.WriteLine($"{logIdentity}: Failed to assert format for game join private server entry");
                         return;
                     }
 
@@ -258,7 +215,7 @@ namespace RobloxChatLauncher.Services
                     var match = Regex.Match(logMessage, GameJoiningEntryPattern);
                     if (match.Groups.Count != 4)
                     {
-                        Console.WriteLine($"{logIdentity}: Failed to assert format for game join entry");
+                        DebugConsole.WriteLine($"{logIdentity}: Failed to assert format for game join entry");
                         return;
                     }
 
@@ -267,7 +224,7 @@ namespace RobloxChatLauncher.Services
                     Data.JobId = match.Groups[1].Value;
                     Data.MachineAddress = match.Groups[3].Value;
 
-                    Console.WriteLine($"{logIdentity}: Joining Game ({Data})");
+                    DebugConsole.WriteLine($"{logIdentity}: Joining Game ({Data})");
                     OnGameJoin?.Invoke(this, EventArgs.Empty);
                 }
             }
@@ -279,7 +236,7 @@ namespace RobloxChatLauncher.Services
                     var match = Regex.Match(logMessage, GameJoiningUniversePattern);
                     if (match.Groups.Count != 3)
                     {
-                        Console.WriteLine($"{logIdentity}: Failed to assert format for game join universe entry");
+                        DebugConsole.WriteLine($"{logIdentity}: Failed to assert format for game join universe entry");
                         return;
                     }
 
@@ -291,25 +248,25 @@ namespace RobloxChatLauncher.Services
                     var match = Regex.Match(logMessage, GameJoiningUDMUXPattern);
                     if (match.Groups.Count != 3 || match.Groups[2].Value != Data.MachineAddress)
                     {
-                        Console.WriteLine($"{logIdentity}: Failed to assert format for game join UDMUX entry");
+                        DebugConsole.WriteLine($"{logIdentity}: Failed to assert format for game join UDMUX entry");
                         return;
                     }
 
                     Data.MachineAddress = match.Groups[1].Value;
-                    Console.WriteLine($"{logIdentity}: Server is UDMUX protected ({Data})");
+                    DebugConsole.WriteLine($"{logIdentity}: Server is UDMUX protected ({Data})");
                 }
                 else if (logMessage.StartsWith(GameJoinedEntry))
                 {
                     var match = Regex.Match(logMessage, GameJoinedEntryPattern);
                     if (match.Groups.Count != 2 || match.Groups[1].Value != Data.MachineAddress)
                     {
-                        Console.WriteLine($"{logIdentity}: Failed to assert format for game joined entry");
+                        DebugConsole.WriteLine($"{logIdentity}: Failed to assert format for game joined entry");
                         return;
                     }
 
                     _inGame = true;
                     Data.TimeJoined = DateTime.Now;
-                    Console.WriteLine($"{logIdentity}: Joined Game ({Data})");
+                    DebugConsole.WriteLine($"{logIdentity}: Joined Game ({Data})");
                     OnGameJoin?.Invoke(this, EventArgs.Empty);
                 }
             }
@@ -318,7 +275,7 @@ namespace RobloxChatLauncher.Services
                 // We are confirmed to be in a game
                 if (logMessage.StartsWith(GameDisconnectedEntry))
                 {
-                    Console.WriteLine($"{logIdentity}: Disconnected from Game ({Data})");
+                    DebugConsole.WriteLine($"{logIdentity}: Disconnected from Game ({Data})");
                     Data.TimeLeft = DateTime.Now;
                     History.Insert(0, Data);
                     _inGame = false;
@@ -327,7 +284,7 @@ namespace RobloxChatLauncher.Services
                 }
                 else if (logMessage.StartsWith(GameTeleportingEntry))
                 {
-                    Console.WriteLine($"{logIdentity}: Initiating teleport to server ({Data})");
+                    DebugConsole.WriteLine($"{logIdentity}: Initiating teleport to server ({Data})");
                     _teleportMarker = true;
                 }
                 else if (logMessage.StartsWith(GameJoiningReservedServerEntry))
@@ -340,18 +297,18 @@ namespace RobloxChatLauncher.Services
                     var match = Regex.Match(logMessage, GameMessageEntryPattern);
                     if (match.Groups.Count != 2)
                     {
-                        Console.WriteLine($"{logIdentity}: Failed to assert format for RPC message entry");
+                        DebugConsole.WriteLine($"{logIdentity}: Failed to assert format for RPC message entry");
                         return;
                     }
 
                     string messagePlain = match.Groups[1].Value;
                     Message? message;
 
-                    Console.WriteLine($"{logIdentity}: Received message: '{messagePlain}'");
+                    DebugConsole.WriteLine($"{logIdentity}: Received message: '{messagePlain}'");
 
                     if ((DateTime.Now - LastRPCRequest).TotalSeconds <= 1)
                     {
-                        Console.WriteLine($"{logIdentity}: Dropping message as ratelimit has been hit");
+                        DebugConsole.WriteLine($"{logIdentity}: Dropping message as ratelimit has been hit");
                         return;
                     }
 
@@ -361,13 +318,13 @@ namespace RobloxChatLauncher.Services
                     }
                     catch (Exception)
                     {
-                        Console.WriteLine($"{logIdentity}: Failed to parse message! (JSON deserialization threw an exception)");
+                        DebugConsole.WriteLine($"{logIdentity}: Failed to parse message! (JSON deserialization threw an exception)");
                         return;
                     }
 
                     if (message is null || string.IsNullOrEmpty(message.Command))
                     {
-                        Console.WriteLine($"{logIdentity}: Failed to parse message! (Command is empty or null)");
+                        DebugConsole.WriteLine($"{logIdentity}: Failed to parse message! (Command is empty or null)");
                         return;
                     }
 
@@ -380,13 +337,13 @@ namespace RobloxChatLauncher.Services
                         }
                         catch (Exception)
                         {
-                            Console.WriteLine($"{logIdentity}: Failed to parse message! (JSON deserialization threw an exception)");
+                            DebugConsole.WriteLine($"{logIdentity}: Failed to parse message! (JSON deserialization threw an exception)");
                             return;
                         }
 
                         if (data is null || data.Length > 200)
                         {
-                            Console.WriteLine($"{logIdentity}: Data cannot be longer than 200 characters");
+                            DebugConsole.WriteLine($"{logIdentity}: Data cannot be longer than 200 characters");
                             return;
                         }
 
