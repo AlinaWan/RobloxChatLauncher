@@ -300,24 +300,6 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Found {0} log files..
-        /// </summary>
-        public static string FoundLogFiles {
-            get {
-                return ResourceManager.GetString("FoundLogFiles", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Found NEW JobId on startup: {0}.
-        /// </summary>
-        public static string FoundNewJobIdOnStartup {
-            get {
-                return ResourceManager.GetString("FoundNewJobIdOnStartup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to ⚠️ Could not read your device ID. Please restart the launcher and try again..
         /// </summary>
         public static string HardwareIdFailed {
@@ -327,29 +309,11 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Initializing {0}.
-        /// </summary>
-        public static string InitializingFilePath {
-            get {
-                return ResourceManager.GetString("InitializingFilePath", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Installing update... The app will close shortly..
         /// </summary>
         public static string InstallingUpdate {
             get {
                 return ResourceManager.GetString("InstallingUpdate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to JobId hasn&apos;t changed, skipping UI update..
-        /// </summary>
-        public static string JobIdHasntChanged {
-            get {
-                return ResourceManager.GetString("JobIdHasntChanged", resourceCulture);
             }
         }
         
@@ -386,15 +350,6 @@ namespace RobloxChatLauncher.Localization {
         public static string LocalDataCleared {
             get {
                 return ResourceManager.GetString("LocalDataCleared", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Log directory does not exist!.
-        /// </summary>
-        public static string LogDirectoryDoesNotExist {
-            get {
-                return ResourceManager.GetString("LogDirectoryDoesNotExist", resourceCulture);
             }
         }
         
@@ -525,15 +480,6 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Searching for logs in: {0}.
-        /// </summary>
-        public static string SearchingForLogs {
-            get {
-                return ResourceManager.GetString("SearchingForLogs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Server.
         /// </summary>
         public static string Server {
@@ -548,15 +494,6 @@ namespace RobloxChatLauncher.Localization {
         public static string SpeakerNotMuted {
             get {
                 return ResourceManager.GetString("SpeakerNotMuted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Startup scan failed: {0}.
-        /// </summary>
-        public static string StartupScanFailed {
-            get {
-                return ResourceManager.GetString("StartupScanFailed", resourceCulture);
             }
         }
         
@@ -577,15 +514,6 @@ namespace RobloxChatLauncher.Localization {
         public static string SwitchingServer {
             get {
                 return ResourceManager.GetString("SwitchingServer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Switching to newer log file..
-        /// </summary>
-        public static string SwitchingToNewerLogFile {
-            get {
-                return ResourceManager.GetString("SwitchingToNewerLogFile", resourceCulture);
             }
         }
         
@@ -706,15 +634,6 @@ namespace RobloxChatLauncher.Localization {
         public static string VerifyStepsText {
             get {
                 return ResourceManager.GetString("VerifyStepsText", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Watcher.
-        /// </summary>
-        public static string Watcher {
-            get {
-                return ResourceManager.GetString("Watcher", resourceCulture);
             }
         }
         
