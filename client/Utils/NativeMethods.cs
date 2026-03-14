@@ -93,8 +93,7 @@ namespace RobloxChatLauncher.Utils
         public static extern bool FreeConsole();
 
         // Methods to hide the console window's close button so that users don't accidentally close it and terminate the entire WinForms app.
-        // Use the /closeconsole command to close the console properly (calls FreeConsole) instead of just closing the window,
-        // otherwise the app will crash when it tries to write to the console after it's been closed.
+        // We call FreeConsole in the app instead.
         [DllImport("kernel32.dll")]
         public static extern IntPtr GetConsoleWindow();
 
