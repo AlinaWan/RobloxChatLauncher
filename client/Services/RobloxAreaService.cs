@@ -167,6 +167,7 @@ namespace RobloxChatLauncher.Services
                     ReadLogEntry(log);
             }
         }
+        
         private void ReadLogEntry(string entry)
         {
             string logIdentity = ($"{Strings.Watcher}::ReadLogEntry");
