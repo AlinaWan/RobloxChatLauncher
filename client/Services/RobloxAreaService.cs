@@ -97,7 +97,7 @@ namespace RobloxChatLauncher.Services
         {
             _cts = new CancellationTokenSource();
 
-            string logIdent = ($"{Strings.Watcher}::Start");
+            string logIdent = ($"RobloxAreaService::Start");
 
             // okay, here's the process:
             //
@@ -183,7 +183,7 @@ namespace RobloxChatLauncher.Services
         
         private void ReadLogEntry(string entry)
         {
-            string logIdentity = ($"{Strings.Watcher}::ReadLogEntry");
+            string logIdentity = ($"RobloxAreaService::ReadLogEntry");
 
             OnLogEntry?.Invoke(this, entry);
 
