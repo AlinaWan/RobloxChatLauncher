@@ -72,7 +72,7 @@ namespace RobloxChatLauncher.Services
         // Activity tracking
         public ActivityData Data { get; set; } = new();
         public List<ActivityData> History { get; private set; } = new();
-        private bool _inGame = false;
+        public bool IsInGame { get; private set; } = false;
         private bool _teleportMarker = false;
         private bool _reservedTeleportMarker = false;
 
@@ -185,7 +185,7 @@ namespace RobloxChatLauncher.Services
                 DebugConsole.WriteLine($"{logIdentity}: User is back into the desktop app");
                 OnAppClose?.Invoke(this, EventArgs.Empty);
 
-                if (Data.PlaceId != 0 && !_inGame)
+                if (Data.PlaceId != 0 && !IsInGame)
                 {
                     DebugConsole.WriteLine($"{logIdentity}: User appears to be leaving from a cancelled/errored join");
                     Data = new();
@@ -195,7 +195,7 @@ namespace RobloxChatLauncher.Services
                 return;
             }
 
-            if (!_inGame && Data.PlaceId == 0)
+            if (!IsInGame && Data.PlaceId == 0)
             {
                 // We are not in a game, nor are in the process of joining one
                 if (logMessage.StartsWith(GameJoiningPrivateServerEntry))
@@ -220,7 +220,7 @@ namespace RobloxChatLauncher.Services
                         return;
                     }
 
-                    _inGame = false;
+                    IsInGame = false;
                     Data.PlaceId = long.Parse(match.Groups[2].Value);
                     Data.JobId = match.Groups[1].Value;
                     Data.MachineAddress = match.Groups[3].Value;
@@ -229,7 +229,7 @@ namespace RobloxChatLauncher.Services
                     OnGameJoin?.Invoke(this, EventArgs.Empty);
                 }
             }
-            else if (!_inGame && Data.PlaceId != 0)
+            else if (!IsInGame && Data.PlaceId != 0)
             {
                 // We are not confirmed to be in a game, but we are in the process of joining one
                 if (logMessage.StartsWith(GameJoiningUniverseEntry))
@@ -265,13 +265,13 @@ namespace RobloxChatLauncher.Services
                         return;
                     }
 
-                    _inGame = true;
+                    IsInGame = true;
                     Data.TimeJoined = DateTime.Now;
                     DebugConsole.WriteLine($"{logIdentity}: Joined Game ({Data})");
                     OnGameJoin?.Invoke(this, EventArgs.Empty);
                 }
             }
-            else if (_inGame && Data.PlaceId != 0)
+            else if (IsInGame && Data.PlaceId != 0)
             {
                 // We are confirmed to be in a game
                 if (logMessage.StartsWith(GameDisconnectedEntry))
@@ -279,7 +279,7 @@ namespace RobloxChatLauncher.Services
                     DebugConsole.WriteLine($"{logIdentity}: Disconnected from Game ({Data})");
                     Data.TimeLeft = DateTime.Now;
                     History.Insert(0, Data);
-                    _inGame = false;
+                    IsInGame = false;
                     Data = new();
                     OnGameLeave?.Invoke(this, EventArgs.Empty);
                 }
