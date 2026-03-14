@@ -1,6 +1,6 @@
 ﻿namespace RobloxChatLauncher.Models
 {
-    public class ActivityData
+    public class AreaData
     {
         public long PlaceId
         {

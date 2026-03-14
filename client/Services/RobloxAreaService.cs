@@ -71,8 +71,8 @@ namespace RobloxChatLauncher.Services
         private CancellationTokenSource? _cts;
 
         // Activity tracking
-        public ActivityData Data { get; set; } = new();
-        public List<ActivityData> History { get; private set; } = new();
+        public AreaData Data { get; set; } = new();
+        public List<AreaData> History { get; private set; } = new();
         public bool IsInGame { get; private set; } = false;
         private bool _teleportMarker = false;
         private bool _reservedTeleportMarker = false;
