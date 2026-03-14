@@ -65,7 +65,6 @@ namespace RobloxChatLauncher
                     {
                         type = "join",
                         channelId = this.channelId,
-                        universeId = _robloxService.Data.UniverseId,
                         // Only send the HWID if the user has successfully verified in the past
                         hwid = Properties.Settings1.Default.IsVerified
                             ? Services.VerificationService.GetMachineId()
@@ -240,6 +239,7 @@ namespace RobloxChatLauncher
                 var payload = new
                 {
                     jobId = channelId,
+                    universeId = _robloxService.Data.UniverseId,
                     targetPlayer = "ignored", // The server will determine the actual target based on the JobId and HWID, so this is just a placeholder to satisfy the expected payload structure
                     type = "Emote",
                     data = new
