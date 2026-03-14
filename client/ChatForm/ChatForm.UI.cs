@@ -366,31 +366,27 @@ namespace RobloxChatLauncher
             NativeMethods.GetWindowRect(robloxProcess.MainWindowHandle, out NativeMethods.RECT initialRect);
             this.Location = new Point(initialRect.Left + currentOffset.X, initialRect.Top + currentOffset.Y);
 
+            // --------------------------------------------
             // --- Roblox Log Monitor for JobID changes ---
+            // --------------------------------------------
             // Initialize the Roblox Log Monitor
-            _robloxService = new RobloxChatLauncher.Services.RobloxAreaService();
+            _robloxService = new Services.RobloxAreaService();
 
-            // Subscribe to ID changes
-            _robloxService.OnJobIdChanged += async (s, newJobId) =>
+            // Subscribe to OnGameJoin event to detect when the player joins a new server
+            _robloxService.OnGameJoin += async (s, e) =>
             {
-                // Safety check: Don't reconnect if we are already in this channel
+                var newJobId = _robloxService.Data.JobId;
                 if (this.channelId == newJobId)
                     return;
 
+                this.channelId = newJobId;
+
                 this.Invoke((MethodInvoker)delegate
                 {
-                    bool wasGlobal = (this.channelId == "global");
-                    this.channelId = newJobId;
-
-                    if (wasGlobal)
-                    {
-                        // chatBox.AppendText($"[Server]: Server instance found!\r\n");
-                    }
-                    else
-                        chatBox.AppendText($"[{Strings.Server}]: {Strings.SwitchingServer}\r\n");
+                    chatBox.AppendText($"[{Strings.Server}]: {Strings.SwitchingServer}\r\n");
                 });
 
-                await RestartWebSocketAsync(); // Reconnect to the WebSocket
+                await RestartWebSocketAsync(); // make sure chat reconnects to the new server
             };
 
             // Start watching logs, passing the Roblox process for session tracking

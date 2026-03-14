@@ -65,6 +65,7 @@ namespace RobloxChatLauncher
                     {
                         type = "join",
                         channelId = this.channelId,
+                        universeId = _robloxService.Data.UniverseId,
                         // Only send the HWID if the user has successfully verified in the past
                         hwid = Properties.Settings1.Default.IsVerified
                             ? Services.VerificationService.GetMachineId()
