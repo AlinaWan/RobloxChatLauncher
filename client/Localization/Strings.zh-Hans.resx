@@ -222,7 +222,7 @@
     <value>启动器已注册。({0})</value>
   </data>
   <data name="LauncherRegisteredBalloonText" xml:space="preserve">
-    <value>注册成功！下次从 Roblox 网站启动游戏时，聊天覆盖将自动启动。</value>
+    <value>注册成功！下次从 Roblox 网站启动游戏时，聊天叠加层将自动启动。</value>
   </data>
   <data name="LauncherRegisteredBalloonTitle" xml:space="preserve">
     <value>Roblox Chat Launcher</value>
