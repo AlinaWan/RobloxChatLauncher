@@ -255,6 +255,32 @@ app.get('/api/v1/commands', validateRegistry, (req, res) => {
     res.json(payloads);
 });
 
+// ----- Verified User Middleware -----
+const validateVerifiedUser = async (req, res, next) => {
+    const hwid = req.headers['x-hwid'];
+
+    if (!hwid) {
+        return res.status(401).json({ error: "Missing HWID header." });
+    }
+
+    try {
+        const robloxId = await getRobloxIdByHwid(hwid);
+
+        if (!robloxId) {
+            return res.status(403).json({ error: "User not verified." });
+        }
+
+        // Attach verified identity to request
+        req.robloxId = robloxId;
+        req.hwid = hwid;
+
+        next();
+    } catch (err) {
+        console.error("Verified middleware error:", err);
+        res.status(500).json({ error: "Verification failed." });
+    }
+};
+
 // ----------------------------------
 // ----- The Mail Push Endpoint -----
 // ----------------------------------
@@ -299,32 +325,6 @@ app.post(
         }
     }
 );
-
-// ----- Verified User Middleware -----
-const validateVerifiedUser = async (req, res, next) => {
-    const hwid = req.headers['x-hwid'];
-
-    if (!hwid) {
-        return res.status(401).json({ error: "Missing HWID header." });
-    }
-
-    try {
-        const robloxId = await getRobloxIdByHwid(hwid);
-
-        if (!robloxId) {
-            return res.status(403).json({ error: "User not verified." });
-        }
-
-        // Attach verified identity to request
-        req.robloxId = robloxId;
-        req.hwid = hwid;
-
-        next();
-    } catch (err) {
-        console.error("Verified middleware error:", err);
-        res.status(500).json({ error: "Verification failed." });
-    }
-};
 
 // --------------------------------------
 // ----- The Verification Endpoints -----
