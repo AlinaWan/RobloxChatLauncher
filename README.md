@@ -52,8 +52,8 @@ A full stack launcher ecosystem designed to restore and modernize the Roblox soc
 
 <!-- Preview images start -->
 <p align="center">
-  <img src="assets/readme/16_window_preview_off.png" width="390" alt="Window Preview Off">
-  <img src="assets/readme/16_window_preview_on.png" width="390" alt="Window Preview On">
+  <img src="assets/readme/window_preview_off.png" width="390" alt="Window Preview Off">
+  <img src="assets/readme/window_preview_on.png" width="390" alt="Window Preview On">
 </p>
 <!-- Preview images end -->
 
@@ -76,6 +76,12 @@ As of January 7, 2026, Roblox has completely removed in-game communication unles
 > </details>
 
 Furthermore, new age-group filtering often fragments the player base and ruins the cooperative experience. The Roblox Chat Launcher restores this lost social layer with a lightweight Windows overlay that mirrors the native chat experience. By using your keyboard's existing muscle memory and synchronizing directly with the Roblox window, it provides a secure, native-feeling alternative that keeps communication open and co-op gameplay intact without the privacy risks.
+
+<p align="center">
+  <img src="assets/readme/perf_spec.png" width="780" alt="Task Manager Performance Comparison">
+  <br>
+  <em>Our application uses over 97% less memory than the Roblox client.</em>
+</p>
 
 <p align="center">
   <img src="assets/readme/chat_disabled_global_rollout.jpg" width="780" alt="Chat Disabled Global Rollout">
