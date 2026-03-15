@@ -23,7 +23,7 @@ jobs:
         run: dotnet run .github/scripts/AuditLoc.cs
 
       - name: Commit and Push
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "docs(readme): Auto-generate localization status [skip ci]"
           file_pattern: 'README.md'

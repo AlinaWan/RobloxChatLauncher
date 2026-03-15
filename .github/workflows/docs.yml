@@ -23,7 +23,7 @@ jobs:
         run: dotnet run .github/scripts/GenerateDocs.cs
 
       - name: Commit and Push
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "docs(client): Auto-generate command list [skip ci]"
           file_pattern: 'assets/docs/COMMANDS.md'
