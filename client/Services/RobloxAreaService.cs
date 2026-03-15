@@ -292,6 +292,11 @@ namespace RobloxChatLauncher.Services
                     DebugConsole.WriteLine($"{logIdentity}: Disconnected from Game ({Data})");
                     Data.TimeLeft = DateTime.Now;
                     History.Insert(0, Data);
+                    // Keep memory low
+                    if (History.Count > 1000)
+                    {
+                        History.RemoveAt(History.Count - 1);
+                    }
                     IsInGame = false;
                     Data = new();
                     OnGameLeave?.Invoke(this, EventArgs.Empty);
