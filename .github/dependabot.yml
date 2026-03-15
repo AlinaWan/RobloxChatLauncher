@@ -1,0 +1,24 @@
+version: 2
+updates:
+  # 1. GitHub Actions (Workflows in .github/workflows)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # 2. Backend Server (Node.js in server/)
+  - package-ecosystem: "npm"
+    directory: "/server"
+    schedule:
+      interval: "weekly"
+    # Grouping noise reduction
+    groups:
+      node-dependencies:
+        patterns:
+          - "*"
+
+  # 3. Client App (C# / NuGet in client/)
+  - package-ecosystem: "nuget"
+    directory: "/client"
+    schedule:
+      interval: "weekly"
