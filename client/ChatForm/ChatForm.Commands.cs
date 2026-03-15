@@ -4,6 +4,7 @@ using System.Windows.Forms;
 
 using RobloxChatLauncher.Localization;
 using RobloxChatLauncher.Services;
+using RobloxChatLauncher.Utils;
 
 namespace RobloxChatLauncher
 {
@@ -28,13 +29,13 @@ namespace RobloxChatLauncher
                 case "/help":
                 case "/?":
                     OpenUrl("https://github.com/AlinaWan/RobloxChatLauncher/tree/main/assets/docs/COMMANDS.md");
-                    chatBox.AppendText($"[{Strings.System}]: {Strings.OpeningWebsite}\r\n");
+                    RichChatBox.AppendSystemMessage(chatBox, Strings.OpeningWebsite);
                     return true;
 
                 /// <summary>Displays application metadata including developer credits, build environment, and source code links.</summary>
                 case "/about":
                 case "/credits":
-                    chatBox.AppendText($"{Strings.AboutText}\r\n");
+                    RichChatBox.AppendText(chatBox, Strings.AboutText);
                     return true;
 
                 /// <summary>Triggers an asynchronous restart of the WebSocket Client to refresh the server connection.</summary>
@@ -59,14 +60,14 @@ namespace RobloxChatLauncher
                 /// <summary>Displays the current channel ID in the chat box.</summary>
                 case "/id":
                 case "/channel":
-                    chatBox.AppendText($"[{Strings.System}]: {Strings.CurrentChannelID}: {channelId}\r\n");
+                    RichChatBox.AppendSystemMessage(chatBox, $"{Strings.CurrentChannelID}: {channelId}");
                     return true;
 
                 /// <summary>Opens the default web browser to the GitHub issues page for reporting bugs or requesting features.</summary>
                 case "/bug":
                 case "/issue":
                     OpenUrl("https://github.com/AlinaWan/RobloxChatLauncher/issues/new");
-                    chatBox.AppendText($"[{Strings.System}]: {Strings.OpeningWebsite}\r\n");
+                    RichChatBox.AppendSystemMessage(chatBox, Strings.OpeningWebsite);
                     return true;
 
                 /// <summary>Handles muting a user by their username, preventing their messages from appearing in the chat box.</summary>
@@ -94,7 +95,7 @@ namespace RobloxChatLauncher
                 /// <summary>Checks for updates on GitHub and, if a new version is available, the application will restart automatically to install the update.</summary>
                 /// <param>args: Optional argument "prerelease" to include prerelease versions in the update check.</param>
                 case "/update":
-                    chatBox.AppendText($"[{Strings.System}]: {Strings.CheckingForUpdates}\r\n");
+                    RichChatBox.AppendSystemMessage(chatBox, Strings.CheckingForUpdates);
                     try
                     {
                         // If the user types "/update prerelease", check for prereleases
@@ -104,13 +105,13 @@ namespace RobloxChatLauncher
                         await Task.Run(async () => {
                             await UpdateService.CheckAndDownloadUpdate(includePrerelease, (status) => {
                                 // This invokes back to the UI thread to update the chatBox safely
-                                this.Invoke(new Action(() => chatBox.AppendText($"[{Strings.System}]: {status}\r\n")));
+                                this.Invoke(new Action(() => RichChatBox.AppendSystemMessage(chatBox, status)));
                             });
                         });
                     }
                     catch (Exception ex)
                     {
-                        chatBox.AppendText($"[{Strings.Error}]: {string.Format(Strings.UpdateCheckFailed, ex.Message)}\r\n");
+                        RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.UpdateCheckFailed, ex.Message));
                     }
                     return true;
 
@@ -120,15 +121,15 @@ namespace RobloxChatLauncher
                 case "/login":
                     if (string.IsNullOrWhiteSpace(args))
                     {
-                        chatBox.AppendText($"[{Strings.System}]: {Strings.UsageVerify}\r\n");
+                        RichChatBox.AppendSystemMessage(chatBox, Strings.UsageVerify);
                     }
                     else
                     {
-                        chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.FetchingCode, args)}\r\n");
+                        RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.FetchingCode, args));
                         var verifyResult = await _verifyService.StartVerification(args);
                         _pendingRobloxId = verifyResult.RobloxId;
 
-                        chatBox.AppendText($"{string.Format(Strings.VerifyStepsText, verifyResult.Code)}\r\n");
+                        RichChatBox.AppendText(chatBox, string.Format(Strings.VerifyStepsText, verifyResult.Code));
                     }
                     return true;
 
@@ -136,7 +137,7 @@ namespace RobloxChatLauncher
                 case "/confirm":
                     if (_pendingRobloxId == 0)
                     {
-                        chatBox.AppendText($"[{Strings.System}]: {Strings.RunVerifyFirst}\r\n");
+                        RichChatBox.AppendSystemMessage(chatBox, Strings.RunVerifyFirst);
                         return true;
                     }
 
@@ -145,21 +146,21 @@ namespace RobloxChatLauncher
                     switch (confirmResult)
                     {
                         case VerificationResult.Success:
-                            chatBox.AppendText($"[{Strings.System}]: {Strings.AccountLinked}\r\n");
+                            RichChatBox.AppendSystemMessage(chatBox, Strings.AccountLinked);
                             // Trigger a reconnection to update their name to their verified username immediately
                             await RestartWebSocketAsync();
                             break;
 
                         case VerificationResult.CodeNotFound:
-                            chatBox.AppendText($"[{Strings.System}]: {Strings.CodeNotFound}\r\n");
+                            RichChatBox.AppendSystemMessage(chatBox, Strings.CodeNotFound);
                             break;
 
                         case VerificationResult.HardwareIdFailed:
-                            chatBox.AppendText($"[{Strings.System}]: {Strings.HardwareIdFailed}\r\n");
+                            RichChatBox.AppendSystemMessage(chatBox, Strings.HardwareIdFailed);
                             break;
 
                         default:
-                            chatBox.AppendText($"[{Strings.System}]: {Strings.VerificationFailed}\r\n");
+                            RichChatBox.AppendSystemMessage(chatBox, Strings.VerificationFailed);
                             break;
                     }
                     return true;
@@ -167,18 +168,18 @@ namespace RobloxChatLauncher
                 /// <summary>Unverifies the user's Roblox account by clearing local verification data and attempting to unlink the account on the server, then refreshes the connection to update the username to "Guest".</summary>
                 case "/unverify":
                 case "/logout":
-                    chatBox.AppendText($"[{Strings.System}]: {Strings.UnlinkingAccount}\r\n");
+                    RichChatBox.AppendSystemMessage(chatBox, Strings.UnlinkingAccount);
                     bool unverified = await _verifyService.Unverify();
 
                     if (unverified)
                     {
-                        chatBox.AppendText($"[{Strings.System}]: {Strings.UnverifiedSuccess}\r\n");
+                        RichChatBox.AppendSystemMessage(chatBox, Strings.UnverifiedSuccess);
                     }
                     else
                     {
                         // Even if the server call fails, we cleared local settings, 
                         // so the user is effectively a guest now anyway.
-                        chatBox.AppendText($"[{Strings.System}]: {Strings.LocalDataCleared}\r\n");
+                        RichChatBox.AppendSystemMessage(chatBox, Strings.LocalDataCleared);
                     }
 
                     // Trigger a reconnection to update their name to "Guest" immediately
@@ -191,7 +192,7 @@ namespace RobloxChatLauncher
                 case "/e":
                     if (string.IsNullOrWhiteSpace(args))
                     {
-                        chatBox.AppendText($"[{Strings.System}]: {Strings.UsageEmote}\r\n");
+                        RichChatBox.AppendSystemMessage(chatBox, Strings.UsageEmote);
                     }
                     else
                     {
@@ -200,7 +201,7 @@ namespace RobloxChatLauncher
                     return true;
 
                 default:
-                    chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.UnknownCommand, command)}\r\n");
+                    RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.UnknownCommand, command));
                     return true; // Return true so it doesn't send the bad command to the server
             }
         }
@@ -216,7 +217,7 @@ namespace RobloxChatLauncher
             }
             catch (Exception ex)
             {
-                chatBox.AppendText($"[{Strings.Error}]: {string.Format(Strings.CouldNotOpenLink, ex.Message)}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.CouldNotOpenLink, ex.Message));
             }
         }
     }

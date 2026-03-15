@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 using RobloxChatLauncher.Localization;
@@ -30,7 +31,7 @@ namespace RobloxChatLauncher
 
         Process robloxProcess;
         Panel mainContainer; // New container for the window
-        TextBox chatBox;
+        RichTextBox chatBox;
         ChatInputBox inputBox;
         RoundButton toggleBtn;
         internal bool isWindowHidden { get; private set; } = false;
@@ -210,19 +211,6 @@ namespace RobloxChatLauncher
 
             this.Controls.Add(toggleBtn);
 
-            // Load these to settings instead of hardcoding them, so we can persist user customizations to the chat container size
-            /*
-            // 1. Update Main Container styling
-            mainContainer = new SmoothPanel // Use SmoothPanel instead of Panel to reduce flicker
-            {
-                Location = new Point(7, 54),
-                Size = new Size(472, 297), 
-                BackColor = Color.FromArgb(35, 45, 55), 
-                
-                Padding = new Padding(10, 10, 30, 10) 
-            };
-            */
-
             // Load persisted values
             currentOffset = Properties.Settings1.Default.WindowOffset;
             this.Size = Properties.Settings1.Default.WindowSize;
@@ -241,17 +229,21 @@ namespace RobloxChatLauncher
             mainContainer.HandleCreated += (s, e) => SetRoundedRegion(mainContainer, 20);
 
             // 2. Update Chat History (The top part)
-            chatBox = new SmoothTextBox // Use SmoothTextBox instead of TextBox to reduce flicker
+            chatBox = new RichTextBox
             {
                 Multiline = true,
                 ReadOnly = true,
                 Dock = DockStyle.Fill,
                 BorderStyle = BorderStyle.None,
-                BackColor = Color.FromArgb(35, 45, 55), // Match container
+                BackColor = Color.FromArgb(35, 45, 55),
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 10, FontStyle.Regular),
                 TabStop = false,
-                Margin = new Padding(0), // Set margin to zero
+                Margin = new Padding(0),
+                HideSelection = false,
+                // Scroll bars are disabled because there is an unremovable white background
+                // behind the scroll bars that Windows stupidly forces us to have.
+                ScrollBars = RichTextBoxScrollBars.None,
             };
 
             // 3. Update Input Bar (The bottom part)
@@ -394,9 +386,8 @@ namespace RobloxChatLauncher
 
             // Initial check: If we can't find a JobID yet, wait for the log monitor to catch it
             channelId = "global";
-            // chatBox.AppendText("[Server]: Searching for Roblox server instance...\r\n");
 
-            chatBox.AppendText($"{Strings.StartupText}\r\n");
+            RichChatBox.AppendText(chatBox, Strings.StartupText);
 
             // --- End Roblox Log Monitor ---
         }

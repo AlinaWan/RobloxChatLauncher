@@ -56,7 +56,7 @@ namespace RobloxChatLauncher
                     wsClient?.Dispose();
                     wsClient = new ClientWebSocket();
 
-                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.ConnectingToServer, channelId)}\r\n")));
+                    this.Invoke((MethodInvoker)(() => RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.ConnectingToServer, channelId))));
 
                     // Use the passed 'ct' token here
                     await wsClient.ConnectAsync(new Uri($"wss://{Constants.BASE_URL}/"), ct);
@@ -75,7 +75,7 @@ namespace RobloxChatLauncher
                     await wsClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(json)),
                         WebSocketMessageType.Text, true, ct);
 
-                    this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[{Strings.System}]: {Strings.ConnectedSuccessfully}\r\n")));
+                    this.Invoke((MethodInvoker)(() => RichChatBox.AppendSystemMessage(chatBox, Strings.ConnectedSuccessfully)));
 
                     _ = Task.Run(() => ReceiveLoop(ct), ct);
                     return;
@@ -87,7 +87,7 @@ namespace RobloxChatLauncher
 
                     if (i == maxRetries)
                     {
-                        this.Invoke((MethodInvoker)(() => chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.ConnectionFailed, ex.Message)}\r\n")));
+                        this.Invoke((MethodInvoker)(() => RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.ConnectionFailed, ex.Message))));
                     }
                     else
                     {
@@ -151,7 +151,7 @@ namespace RobloxChatLauncher
                                 else if (whisperType == "to")
                                     displaySender = $"{string.Format(Strings.WhisperTo, sender)}";
 
-                                chatBox.AppendText($"[{displaySender}]: {text}\r\n");
+                                RichChatBox.AppendChatMessage(chatBox, displaySender, text);
                             }
                         }
                         // Rejection handling
@@ -176,7 +176,7 @@ namespace RobloxChatLauncher
                                     break;
                             }
 
-                            chatBox.AppendText($"[{Strings.System}]: {messageText}\r\n");
+                            RichChatBox.AppendSystemMessage(chatBox, messageText);
                         }
                     });
                 }
@@ -184,7 +184,7 @@ namespace RobloxChatLauncher
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.WSReceiveError, ex.Message)}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.WSReceiveError, ex.Message));
             }
         }
         public async Task Send()
@@ -212,7 +212,7 @@ namespace RobloxChatLauncher
             catch (Exception ex)
             {
                 this.Invoke((MethodInvoker)delegate {
-                    chatBox.AppendText($"[{Strings.Error}]: {string.Format(Strings.FailedToSendMessage, ex.Message)}\r\n");
+                    RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.FailedToSendMessage, ex.Message));
                 });
             }
         }
@@ -230,7 +230,7 @@ namespace RobloxChatLauncher
         {
             if (!Properties.Settings1.Default.IsVerified)
             {
-                chatBox.AppendText($"[{Strings.System}]: {Strings.MustBeVerifiedEmote}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, Strings.MustBeVerifiedEmote);
                 return;
             }
 
@@ -263,19 +263,18 @@ namespace RobloxChatLauncher
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    chatBox.AppendText($"[{Strings.System}]: {Strings.FailedToQueueEmote}\r\n");
+                    RichChatBox.AppendSystemMessage(chatBox, Strings.FailedToQueueEmote);
                 }
             }
             catch (Exception ex)
             {
-                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.EmoteError, ex.Message)}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.EmoteError, ex.Message));
             }
         }
 
         // Echo Logic
         private async Task ExecuteEchoRequest(string userMessage)
         {
-            // chatBox.AppendText($"You: {userMessage}\r\n");
             try
             {
                 // 2. Network Call
@@ -289,7 +288,7 @@ namespace RobloxChatLauncher
 
                     this.Invoke((MethodInvoker)delegate
                     {
-                        chatBox.AppendText($"[{Strings.Server}]: {string.Format(Strings.EchoResponse, echoResponse)}\r\n");
+                        RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.EchoResponse, echoResponse));
                     });
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
@@ -317,7 +316,7 @@ namespace RobloxChatLauncher
 
                     this.Invoke((MethodInvoker)delegate
                     {
-                        chatBox.AppendText(messageText + "\r\n");
+                        RichChatBox.AppendSystemMessage(chatBox, messageText);
                     });
                 }
             }
@@ -326,7 +325,7 @@ namespace RobloxChatLauncher
             {
                 this.Invoke((MethodInvoker)delegate
                 {
-                    chatBox.AppendText($"[{Strings.System}]: {Strings.RequestTimedOut}\r\n");
+                    RichChatBox.AppendSystemMessage(chatBox, Strings.RequestTimedOut);
                 });
             }
             // 4. Catch General Errors (DNS, No Internet, etc.)
@@ -334,7 +333,7 @@ namespace RobloxChatLauncher
             {
                 this.Invoke((MethodInvoker)delegate
                 {
-                    chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.ConnectionError, ex.Message)}\r\n");
+                    RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.ConnectionError, ex.Message));
                 });
             }
             finally
@@ -355,7 +354,7 @@ namespace RobloxChatLauncher
             // Don't append the user's own message here; the server will broadcast it back
             if (wsClient == null || wsClient.State != WebSocketState.Open)
             {
-                chatBox.AppendText($"[{Strings.System}]: {Strings.WSNotConnected}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, Strings.WSNotConnected);
                 return;
             }
 
@@ -375,11 +374,11 @@ namespace RobloxChatLauncher
             }
             catch (TaskCanceledException)
             {
-                chatBox.AppendText($"[{Strings.System}]: {Strings.WSSendTimedOut}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, Strings.WSSendTimedOut);
             }
             catch (Exception ex)
             {
-                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.WSSendError, ex.Message)}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.WSSendError, ex.Message));
             }
         }
 
@@ -399,7 +398,6 @@ namespace RobloxChatLauncher
 
             await wsClient.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, wsCts.Token);
 
-            // DO NOT chatBox.AppendText here anymore. 
             // Wait for the server to send the "To {target}" message back.
         }
 
@@ -407,14 +405,14 @@ namespace RobloxChatLauncher
         {
             if (string.IsNullOrWhiteSpace(args))
             {
-                chatBox.AppendText($"[{Strings.System}]: {Strings.UsageMute}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, Strings.UsageMute);
             }
             else
             {
                 string speaker = args.Trim().Trim('"');
 
                 mutedUsers.Add(speaker);
-                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.MutedSpeaker, speaker)}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.MutedSpeaker, speaker));
             }
             return true;
         }
@@ -423,16 +421,16 @@ namespace RobloxChatLauncher
         {
             if (string.IsNullOrWhiteSpace(args))
             {
-                chatBox.AppendText($"[{Strings.System}]: {Strings.UsageUnmute}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, Strings.UsageUnmute);
                 return true;
             }
 
             string speaker = args.Trim().Trim('"');
 
             if (mutedUsers.Remove(speaker))
-                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.UnmutedSpeaker, speaker)}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.UnmutedSpeaker, speaker));
             else
-                chatBox.AppendText($"[{Strings.System}]: {string.Format(Strings.SpeakerNotMuted, speaker)}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.SpeakerNotMuted, speaker));
 
             return true;
         }
@@ -463,7 +461,7 @@ namespace RobloxChatLauncher
 
             if (string.IsNullOrEmpty(target) || string.IsNullOrEmpty(msg))
             {
-                chatBox.AppendText($"[{Strings.System}]: {Strings.UsageWhisper}\r\n");
+                RichChatBox.AppendSystemMessage(chatBox, Strings.UsageWhisper);
                 return true;
             }
 
