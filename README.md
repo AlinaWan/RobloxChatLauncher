@@ -297,7 +297,7 @@ See the [Privacy Policy](PRIVACY) for more details.
 
 This project is licensed under the [GNU General Public License v3.0](LICENSE).
 
-Integration scripts under [this directory](https://github.com/AlinaWan/RobloxChatLauncher/tree/main/assets/integrations/) are licensed under the [Mozilla Public License 2.0](LICENSE).
+Integration scripts under [this directory](https://github.com/AlinaWan/RobloxChatLauncher/tree/main/assets/integrations/) are licensed under the [Mozilla Public License 2.0](assets/integrations/LICENSE).
 
 ## Acknowledgements
 
