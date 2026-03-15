@@ -145,7 +145,7 @@ jobs:
       # Create GitHub Release
       # ---------------------------
       - name: Create GitHub Release and upload artifacts
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag_name }}
           name: ${{ github.event.inputs.release_name || github.event.inputs.tag_name }}
