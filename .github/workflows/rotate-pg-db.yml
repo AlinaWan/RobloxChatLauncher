@@ -87,10 +87,12 @@ jobs:
             -d "{\"allowedIps\":[\"$RUNNER_IP/32\"]}"
 
       - name: Data Migration
+        shell: bash
+        env:
+          OLD_URL: ${{ steps.find_old.outputs.old_url }}
+          NEW_URL: ${{ steps.create_new.outputs.new_url }}
         run: |
-          set -o errexit
-          pg_dump "${{ steps.find_old.outputs.old_url }}" -F c --no-owner --no-privileges | \
-          pg_restore -d "${{ steps.create_new.outputs.new_url }}" --clean --no-owner
+          pg_dump "$OLD_URL" -F c --no-owner --no-privileges | pg_restore -d "$NEW_URL" --clean --no-owner
 
       - name: Update App Service Env Vars
         env:
@@ -98,15 +100,12 @@ jobs:
           SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
           NEW_URL: ${{ steps.create_new.outputs.new_url }}
         run: |
-          # Update DATABASE_URL
+          PAYLOAD=$(jq -n --arg val "$NEW_URL" '[{"key": "DATABASE_URL", "value": $val}]')
+          
           curl -s -X PUT "https://api.render.com/v1/services/$SERVICE_ID/env-vars" \
             -H "Authorization: Bearer $API_KEY" \
             -H "Content-Type: application/json" \
-            -d "[{\"key\":\"DATABASE_URL\",\"value\":\"$NEW_URL\"}]"
-
-          # Trigger Deploy
-          curl -s -X POST "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
-            -H "Authorization: Bearer $API_KEY"
+            -d "$PAYLOAD"
 
       - name: Remove Runner IP from Render Firewall
         if: success()
