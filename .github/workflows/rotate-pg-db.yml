@@ -1,0 +1,135 @@
+name: "Rotate Render PostgreSQL Database"
+on:
+  schedule:
+    - cron: '0 0 1 * *' # runs monthly on the 1st
+  workflow_dispatch:
+
+jobs:
+  rotate-db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Tools
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client jq curl
+
+      - name: Get Runner Public IP
+        id: runner_ip
+        run: |
+          set -o errexit
+          RUNNER_IP=$(curl -s https://api.ipify.org)
+          echo "::add-mask::$RUNNER_IP"
+          echo "runner_ip=$RUNNER_IP" >> $GITHUB_OUTPUT
+
+      - name: Find Old DB
+        id: find_old
+        env:
+          API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          DB_DATA=$(curl -s "https://api.render.com/v1/postgres" \
+            -H "Authorization: Bearer $API_KEY")
+          OLD_URL=$(echo "$DB_DATA" | jq -r '[.[] | select(.plan=="free")][0].connectionInfo.externalConnectionString')
+          OLD_ID=$(echo "$DB_DATA" | jq -r '[.[] | select(.plan=="free")][0].id')
+
+          if [ -z "$OLD_URL" ] || [ -z "$OLD_ID" ]; then
+            echo "No free database found!"
+            exit 1
+          fi
+
+          echo "::add-mask::$OLD_URL"
+          echo "old_url=$OLD_URL" >> $GITHUB_OUTPUT
+          echo "old_id=$OLD_ID" >> $GITHUB_OUTPUT
+
+      - name: Create New DB
+        id: create_new
+        env:
+          API_KEY: ${{ secrets.RENDER_API_KEY }}
+          OWNER_ID: ${{ secrets.RENDER_OWNER_ID }}
+        run: |
+          RESPONSE=$(curl -s -X POST "https://api.render.com/v1/postgres" \
+            -H "Authorization: Bearer $API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"databaseName\":\"db_$(date +%s)\",\"name\":\"Auto-Rotate-$(date +%F)\",\"ownerId\":\"$OWNER_ID\",\"plan\":\"free\",\"region\":\"oregon\"}")
+
+          NEW_URL=$(echo "$RESPONSE" | jq -r '.connectionInfo.externalConnectionString')
+          NEW_ID=$(echo "$RESPONSE" | jq -r '.id')
+
+          if [ -z "$NEW_URL" ] || [ -z "$NEW_ID" ]; then
+            echo "Failed to create new database!"
+            exit 1
+          fi
+
+          echo "::add-mask::$NEW_URL"
+          echo "new_url=$NEW_URL" >> $GITHUB_OUTPUT
+          echo "new_id=$NEW_ID" >> $GITHUB_OUTPUT
+
+      - name: Wait for New DB Provisioning
+        env:
+          API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          for i in {1..30}; do
+            STATUS=$(curl -s "https://api.render.com/v1/postgres/${{ steps.create_new.outputs.new_id }}" \
+              -H "Authorization: Bearer $API_KEY" | jq -r '.status')
+            echo "Status: $STATUS"
+            if [ "$STATUS" == "available" ]; then exit 0; fi
+            sleep 20
+          done
+          echo "Provisioning timed out."
+          exit 1
+
+      - name: Whitelist Runner IP in Render
+        env:
+          API_KEY: ${{ secrets.RENDER_API_KEY }}
+          NEW_DB_ID: ${{ steps.create_new.outputs.new_id }}
+          RUNNER_IP: ${{ steps.runner_ip.outputs.runner_ip }}
+        run: |
+          curl -s -X POST "https://api.render.com/v1/postgres/$NEW_DB_ID/firewall" \
+            -H "Authorization: Bearer $API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"allowedIps\":[\"$RUNNER_IP/32\"]}"
+
+      - name: Data Migration
+        run: |
+          set -o errexit
+          pg_dump "${{ steps.find_old.outputs.old_url }}" -F c --no-owner --no-privileges | \
+          pg_restore -d "${{ steps.create_new.outputs.new_url }}" --clean --no-owner
+
+      - name: Update App Service Env Vars
+        env:
+          API_KEY: ${{ secrets.RENDER_API_KEY }}
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          NEW_URL: ${{ steps.create_new.outputs.new_url }}
+        run: |
+          # Update DATABASE_URL
+          curl -s -X PUT "https://api.render.com/v1/services/$SERVICE_ID/env-vars" \
+            -H "Authorization: Bearer $API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "[{\"key\":\"DATABASE_URL\",\"value\":\"$NEW_URL\"}]"
+
+          # Trigger Deploy
+          curl -s -X POST "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+            -H "Authorization: Bearer $API_KEY"
+
+      - name: Remove Runner IP from Render Firewall
+        if: success()
+        env:
+          API_KEY: ${{ secrets.RENDER_API_KEY }}
+          NEW_DB_ID: ${{ steps.create_new.outputs.new_id }}
+          RUNNER_IP: ${{ steps.runner_ip.outputs.runner_ip }}
+        run: |
+          curl -s -X DELETE "https://api.render.com/v1/postgres/$NEW_DB_ID/firewall/$RUNNER_IP"
+
+      - name: Suspend Old DB
+        if: success()
+        env:
+          API_KEY: ${{ secrets.RENDER_API_KEY }}
+          OLD_ID: ${{ steps.find_old.outputs.old_id }}
+        run: |
+          curl -s -X POST "https://api.render.com/v1/postgres/$OLD_ID/suspend" \
+            -H "Authorization: Bearer $API_KEY"
+
+      # - name: Delete Old DB
+      #   if: success()
+      #   env:
+      #     API_KEY: ${{ secrets.RENDER_API_KEY }}
+      #   run: |
+      #     curl -s -X DELETE "https://api.render.com/v1/postgres/${{ steps.find_old.outputs.old_id }}" \
+      #       -H "Authorization: Bearer $API_KEY"
