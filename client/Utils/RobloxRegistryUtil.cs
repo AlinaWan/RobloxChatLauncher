@@ -2,13 +2,11 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Win32;
-
 using RobloxChatLauncher.Localization;
-using RobloxChatLauncher.Utils;
 
-namespace RobloxChatLauncher.Services
+namespace RobloxChatLauncher.Utils
 {
-    public static class RobloxRegistryService
+    public static class RobloxRegistryUtil
     {
         static bool RegisterAsRobloxLauncher()
         {

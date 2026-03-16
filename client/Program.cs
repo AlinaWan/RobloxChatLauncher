@@ -19,7 +19,7 @@ class Program
         // Check if we are being called by the Inno Setup Uninstaller
         if (args.Length > 0 && args[0].Equals("--uninstall", StringComparison.OrdinalIgnoreCase))
         {
-            RobloxRegistryService.Restore();
+            RobloxRegistryUtil.Restore();
             return; // Exit immediately
         }
 
@@ -35,7 +35,7 @@ class Program
             registryMonitor.RegistryChanged += () =>
             {
                 Thread.Sleep(200); // Debounce if an aggressive bootstrapper spams the key
-                RobloxRegistryService.Register();
+                RobloxRegistryUtil.Register();
             };
 
             registryMonitor.Start();
@@ -48,7 +48,7 @@ class Program
         // If no arguments are provided, we assume the user is trying to register this launcher as the default Roblox URI handler
         if (args.Length == 0)
         {
-            if (RobloxRegistryService.Register())
+            if (RobloxRegistryUtil.Register())
             {
                 using (NotifyIcon trayIcon = new NotifyIcon())
                 {

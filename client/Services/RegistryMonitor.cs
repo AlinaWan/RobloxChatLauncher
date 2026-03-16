@@ -1,8 +1,9 @@
 ﻿using Microsoft.Win32;
+using RobloxChatLauncher.Utils;
 using System;
 using System.Threading;
 
-namespace RobloxChatLauncher.Utils
+namespace RobloxChatLauncher.Services
 {
     /// <summary>
     ///     Monitors a specified Windows registry key for changes and raises an event when a change is detected.
