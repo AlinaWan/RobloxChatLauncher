@@ -186,9 +186,10 @@ graph TD
         Chat[Public Chat Relay]
         Auth[Command & API Validator]
         Queue[Roblox Command Queue]
-        ModAPI((3rd-Party Mod API))
     end
 
+    %% Moderation API
+    ModAPI((3rd-Party Mod API))
     %% Database
     DB[(PostgreSQL)]
 
