@@ -96,6 +96,7 @@ namespace RobloxChatLauncher.Services
         public async Task Start(Process robloxProc, bool isForceRun = false)
         {
             _cts = new CancellationTokenSource();
+            CancellationToken token = _cts.Token;
 
             string logIdent = ($"RobloxAreaService::Start");
 
@@ -113,14 +114,14 @@ namespace RobloxChatLauncher.Services
             _robloxProcess = robloxProc;
             _sessionStartTime = robloxProc.StartTime;
 
-            FileInfo logFileInfo;
+            FileInfo? logFileInfo = null;
 
             if (!Directory.Exists(_logDirectory))
                 return;
 
             DebugConsole.WriteLine($"{logIdent}: Opening Roblox log file...");
 
-            while (true)
+            while (!token.IsCancellationRequested)
             {
                 logFileInfo = new DirectoryInfo(_logDirectory)
                     .GetFiles()
@@ -130,7 +131,7 @@ namespace RobloxChatLauncher.Services
 
                 if (logFileInfo == null)
                 {
-                    await Task.Delay(1000);
+                    await Task.Delay(1000, token);
                     continue;
                 }
 
@@ -141,7 +142,7 @@ namespace RobloxChatLauncher.Services
                 // ignore logs created before the Roblox process started
                 if (logFileInfo.CreationTime < _sessionStartTime.AddSeconds(-5))
                 {
-                    await Task.Delay(1000);
+                    await Task.Delay(1000, token);
                     continue;
                 }
 
@@ -149,7 +150,7 @@ namespace RobloxChatLauncher.Services
                     break;
 
                 DebugConsole.WriteLine($"{logIdent}: Could not find recent enough log file, waiting... (newest is {logFileInfo.Name})");
-                await Task.Delay(1000);
+                await Task.Delay(1000, token);
             }
 
             LogLocation = logFileInfo.FullName;
@@ -162,14 +163,14 @@ namespace RobloxChatLauncher.Services
 
             using var streamReader = new StreamReader(logFileStream);
 
-            while (!_disposed)
+            while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    string? log = await streamReader.ReadLineAsync(_cts.Token);
+                    string? log = await streamReader.ReadLineAsync(token);
 
                     if (log is null)
-                        await Task.Delay(1000, _cts.Token);
+                        await Task.Delay(1000, token);
                     else
                         ReadLogEntry(log);
                 }

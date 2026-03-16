@@ -1,9 +1,6 @@
 ﻿using Microsoft.Win32;
-using RobloxChatLauncher.Utils;
-using System;
-using System.Threading;
 
-namespace RobloxChatLauncher.Services
+namespace RobloxChatLauncher.Utils
 {
     /// <summary>
     ///     Monitors a specified Windows registry key for changes and raises an event when a change is detected.
@@ -11,38 +8,72 @@ namespace RobloxChatLauncher.Services
     ///     and breaking Roblox Chat Launcher. By monitoring the registry key, we can detect when it has been
     ///     changed and re-register the launcher.
     /// </summary>
-    public class RegistryMonitor
+    public class RegistryMonitor : IDisposable
     {
-        readonly RegistryKey registryKey;
-        readonly bool watchSubtree;
+        private readonly RegistryKey _key;
+        private readonly bool _watchSubtree;
+        private readonly int _debounceMilliseconds;
+        private bool _disposed;
+        private CancellationTokenSource? _cts;
 
-        public event Action RegistryChanged;
+        public event Action? RegistryChanged;
 
-        public RegistryMonitor(RegistryKey key, bool watchSubtree = false)
+        public RegistryMonitor(RegistryKey key, bool watchSubtree = false, int debounceMilliseconds = 0)
         {
-            registryKey = key;
-            this.watchSubtree = watchSubtree;
+            _key = key ?? throw new ArgumentNullException(nameof(key));
+            _watchSubtree = watchSubtree;
+            _debounceMilliseconds = debounceMilliseconds;
         }
 
         public void Start()
         {
-            Thread thread = new Thread(MonitorThread);
-            thread.IsBackground = true;
-            thread.Start();
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(RegistryMonitor));
+            if (_cts != null)
+                return; // Already started
+
+            _cts = new CancellationTokenSource();
+            CancellationToken token = _cts.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    while (!token.IsCancellationRequested)
+                    {
+                        NativeMethods.RegNotifyChangeKeyValue(
+                            _key.Handle,
+                            _watchSubtree,
+                            NativeMethods.RegChangeNotifyFilter.Value,
+                            IntPtr.Zero,
+                            false);
+
+                        RegistryChanged?.Invoke();
+
+                        await Task.Delay(_debounceMilliseconds, token);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected when cancellation is requested, ignore
+                }
+            }, token);
         }
 
-        void MonitorThread()
+        public void Dispose()
         {
-            while (true)
-            {
-                NativeMethods.RegNotifyChangeKeyValue(
-                    registryKey.Handle,
-                    watchSubtree,
-                    NativeMethods.RegChangeNotifyFilter.Value,
-                    IntPtr.Zero,
-                    false);
+            if (_disposed)
+                return;
+            _disposed = true;
 
-                RegistryChanged?.Invoke();
+            try
+            {
+                _cts?.Cancel();
+            }
+            catch (ObjectDisposedException) { /* Already gone, ignore */ }
+            finally
+            {
+                _cts?.Dispose();
             }
         }
     }

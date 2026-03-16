@@ -30,14 +30,14 @@ class Program
 
         if (key != null)
         {
-            registryMonitor = new RegistryMonitor(key);
-
+            registryMonitor = new RegistryMonitor(key, watchSubtree: false, debounceMilliseconds: 200); // Debounce if an aggressive bootstrapper spams the key
+            
             registryMonitor.RegistryChanged += () =>
             {
-                Thread.Sleep(200); // Debounce if an aggressive bootstrapper spams the key
                 RobloxRegistryUtil.Register();
             };
 
+            // Start monitoring
             registryMonitor.Start();
         }
 
