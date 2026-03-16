@@ -1,9 +1,9 @@
 > [!IMPORTANT]  
 > You'll need an API key from the maintainers to send and receive data from the Roblox Chat Launcher API.
 
-# Roblox Game Integrations
+# Roblox Chat Launcher Integrations
 
-Set up these scripts in your Roblox Game to allow Roblox Chat Launcher users access to commands like `/emote` and team chat within your game.
+Set up these scripts in your Roblox Experience to allow Roblox Chat Launcher users access to commands like `/emote` and team chat within your game.
 
 ---
 

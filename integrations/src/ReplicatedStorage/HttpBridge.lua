@@ -1,8 +1,8 @@
 --!language luau
 --[=[
-    Copyright (c) 2026 Riri a.k.a. Alina Wan <https://github.com/AlinaWan>
+    Copyright (c) 2026 Riri <https://github.com/AlinaWan>
 
-    Source: https://github.com/AlinaWan/RobloxChatLauncher/blob/main/assets/integrations/
+    Source: https://github.com/AlinaWan/RobloxChatLauncher/blob/main/integrations/
     
     Licensed under the MPL 2.0 license.
     See https://www.mozilla.org/en-US/MPL/2.0/ for full text.
@@ -15,13 +15,13 @@ local HttpBridge = {}
 -------------------------------
 local BASE_URL = "https://RobloxChatLauncher.onrender.com"
 --[=[
-How to set your API key:
-1. Navigate to your [Creator Dashboard](https://create.roblox.com/dashboard/creations).
-2. Select your Experience (Universe).
-3. Go to **Settings** > **Secrets** (or navigate directly to `https://create.roblox.com/dashboard/creations/experiences/<your-universe-id>/secrets`).
-4. Click **Create Secret**.
-5. Set the Name to **`RCL_API_KEY`**.
-6. Paste your provided API key into the Value field and save.
+    How to set your API key:
+    1. Navigate to your [Creator Dashboard](https://create.roblox.com/dashboard/creations).
+    2. Select your Experience (Universe).
+    3. Go to **Settings** > **Secrets** (or navigate directly to `https://create.roblox.com/dashboard/creations/experiences/<your-universe-id>/secrets`).
+    4. Click **Create Secret**.
+    5. Set the Name to **`RCL_API_KEY`**.
+    6. Paste your provided API key into the Value field and save.
 --]=]
 local API_KEY = HttpService:GetSecret("RCL_API_KEY")
 local UNIVERSE_ID = tostring(game.GameId) -- game.GameId is the UniverseId. The game must be published or game.GameId will return 0 and requests will fail with 403.
