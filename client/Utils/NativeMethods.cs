@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.Win32.SafeHandles;
 
 namespace RobloxChatLauncher.Utils
 {
@@ -8,6 +9,19 @@ namespace RobloxChatLauncher.Utils
     // --------------------------------------------------
     static class NativeMethods
     {
+        [DllImport("advapi32.dll", SetLastError = true)]
+        internal static extern int RegNotifyChangeKeyValue(
+            SafeRegistryHandle hKey,
+            bool watchSubtree,
+            RegChangeNotifyFilter notifyFilter,
+            IntPtr hEvent,
+            bool asynchronous);
+
+        internal enum RegChangeNotifyFilter
+        {
+            Value = 4
+        }
+
         [DllImport("user32.dll")]
         public static extern bool IsIconic(IntPtr hWnd);
 

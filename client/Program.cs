@@ -12,14 +12,33 @@ class Program
 {
     static ChatForm chatForm;
     static ChatKeyboardHandler keyboardHandler;
+    static RegistryMonitor registryMonitor;
 
     static void Main(string[] args)
     {
         // Check if we are being called by the Inno Setup Uninstaller
         if (args.Length > 0 && args[0].Equals("--uninstall", StringComparison.OrdinalIgnoreCase))
         {
-            RestoreRobloxRegistry();
+            RobloxRegistryService.Restore();
             return; // Exit immediately
+        }
+
+        // Start watching the Roblox protocol registry key in case aggressive bootstrappers such as Fishstrap
+        // hijack it from us. This is a simple low overhead way to ensure we can re-register ourselves if needed
+        // without relying on the user to run the launcher shortcut again
+        var key = Registry.ClassesRoot.OpenSubKey(@"roblox-player\shell\open\command");
+
+        if (key != null)
+        {
+            registryMonitor = new RegistryMonitor(key);
+
+            registryMonitor.RegistryChanged += () =>
+            {
+                Thread.Sleep(200); // Debounce if an aggressive bootstrapper spams the key
+                RobloxRegistryService.Register();
+            };
+
+            registryMonitor.Start();
         }
 
         // Check if the --force-run argument is present to bypass the 3-second rule for attaching to Roblox processes
@@ -29,7 +48,7 @@ class Program
         // If no arguments are provided, we assume the user is trying to register this launcher as the default Roblox URI handler
         if (args.Length == 0)
         {
-            if (RegisterAsRobloxLauncher())
+            if (RobloxRegistryService.Register())
             {
                 using (NotifyIcon trayIcon = new NotifyIcon())
                 {
@@ -77,67 +96,6 @@ class Program
         chatThread.SetApartmentState(ApartmentState.STA);
         chatThread.Start();
     }
-
-    static bool RegisterAsRobloxLauncher()
-    {
-        try
-        {
-            const string keyPath = @"roblox-player\shell\open\command";
-
-            using (var key = Registry.ClassesRoot.OpenSubKey(keyPath))
-            {
-                string exePath = Process.GetCurrentProcess().MainModule.FileName; // Path to our launcher executable
-                string current = key?.GetValue("") as string;
-
-                // Only write if the registry is missing or doesn't point to us
-                if (current == null || !current.Contains(exePath))
-                {
-                    using (var writeKey = Registry.ClassesRoot.CreateSubKey(keyPath))
-                    {
-                        // Change the RobloxPlayerBeta.exe path to point to our
-                        // launcher's path with the "%1" argument to pass the URI through
-                        writeKey.SetValue("", $"\"{exePath}\" \"%1\"");
-                    }
-                }
-            }
-            return true;
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"{string.Format(Strings.RegistryWriteFailed, ex.Message)}", $"{Strings.Error}", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return false;
-        }
-    }
-
-    // This method attempts to restore the original Roblox registry key during uninstallation
-    static void RestoreRobloxRegistry()
-    {
-        try
-        {
-            var originalClient = RobloxLocator.ResolveRobloxPlayer();
-            if (originalClient == null)
-                return;
-
-            const string keyPath = @"roblox-player\shell\open\command";
-
-            // Construct the original command string
-            // Bootstrappers and Vanilla usually expect the URI as the first argument
-            string originalCommand = $"\"{originalClient.ExecutablePath}\" \"%1\"";
-
-            using (var key = Registry.ClassesRoot.CreateSubKey(keyPath))
-            {
-                key.SetValue("", originalCommand);
-            }
-
-            Console.WriteLine($"{string.Format(Strings.RestoredRegistry, originalCommand)}");
-        }
-        catch (Exception ex)
-        {
-            // Since this runs hidden during uninstall, we log to a file or ignore
-            File.WriteAllText("uninstall_log.txt", ex.ToString());
-        }
-    }
-
     static Process WaitForRobloxProcess(int timeoutSeconds, bool ignoreStartTime)
     {
         // Record when the launcher actually started, so we can ignore Roblox processes that started long before
