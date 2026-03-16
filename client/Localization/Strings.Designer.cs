@@ -64,7 +64,7 @@ namespace RobloxChatLauncher.Localization {
         ///   Looks up a localized string similar to About Roblox Chat Launcher:
         ///Made with ❤︎ by Riri and Contributors
         ///Developed in VS 2026 🎀 Built with .NET / WinForms
-        ///Server written in Node.js 🌸 Hosted on Render.com
+        ///Server written in Node.js 🌸 Hosted on Render.com and Neon.com
         ///Source: https://github.com/AlinaWan/RobloxChatLauncher
         ///And of course, credits to you 💖.
         /// </summary>

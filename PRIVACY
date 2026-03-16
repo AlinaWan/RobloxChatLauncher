@@ -1,7 +1,7 @@
 Privacy Policy
 --------------
 
-Last Updated: February 27, 2026
+Last Updated: March 15, 2026
 
 This Privacy Policy explains how this service processes information when users send messages through the application.
 The service is designed with privacy-by-design principles and minimizes the collection and retention of personal data.
@@ -22,8 +22,8 @@ The service is designed with privacy-by-design principles and minimizes the coll
         Hardware Identifiers: If you choose to verify your Roblox account via the profile blurb method, the application generates a Machine 
                               GUID (Hardware ID) on your local device. This ID is used to link your local installation to your Roblox 
                               User ID in our database.
-        Storage & Persistence: If verified, your Hardware ID and associated Roblox User ID are stored in a persistent PostgreSQL database to 
-                               recognize your account across sessions.
+        Storage & Persistence: If verified, your Hardware ID and associated Roblox User ID are stored in a persistent PostgreSQL database
+                               (hosted on Neon) to recognize your account across sessions.
         No IP Logging: Even during verification, we do not log or store your IP address. The system relies solely on the Hardware ID provided 
                        by your device and the public data provided by the Roblox API.
         Right to Erasure: You may invoke your "Right to be Forgotten" at any time by running the '/unverify' command within the client. Executing
@@ -37,15 +37,15 @@ The service is designed with privacy-by-design principles and minimizes the coll
     Users are encouraged to review Google's Privacy Policy at https://policies.google.com/privacy.
 
 4. Hosting & Infrastructure
-    This service is hosted on Render. As a hosting provider, Render may automatically collect and retain access logs (such as IP addresses and
-    timestamps) for security and operational monitoring. In addition, the application may temporarily log messages and technical metadata for
-    debugging and moderation purposes. Message content may appear transiently within the application logs as part of normal request handling.
+    This service is hosted on Render, and persistent data is stored on Neon. As hosting providers, Render and Neon may automatically collect
+    technical metadata and retain access logs (such as IP addresses, timestamps, and database tables) for security and operational monitoring.
+    In addition, message content may appear transiently within the application logs as part of normal request handling.
         Retention: Render automatically deletes the application logs after approximately 7 days. The application itself does not persist or store
                    message content, chat history, or user-submitted messages outside of Render’s standard logging systems. The service does not have the
                    ability to access, retrieve, or restore message content once Render’s logs are deleted.
     Users should avoid including personally identifiable or sensitive information in messages, as message content is user-submitted
     and cannot be guaranteed to remain private once transmitted.
-    Users are encouraged to review Render's Privacy Policy at https://render.com/privacy.
+    Users are encouraged to review Render's Privacy Policy at https://render.com/privacy and Neon's Privacy Policy at https://neon.com/privacy-policy.
 
 5. Limited Personal Data Processing
     The service is built on a "zero-account" model. We do not collect names, emails, or credentials.
@@ -79,8 +79,8 @@ The service is designed with privacy-by-design principles and minimizes the coll
                                  As we do not maintain traditional accounts, we may not be able to verify requests from unverified users. 
 
 7. International Data Transfers
-    This service is hosted on servers located in the United States (via Render). When you use the service, your data is transferred to and processed in the
-    U.S. We ensure a similar degree of protection is afforded to it by ensuring that our sub-processors (Render and Google) utilize standard contractual
+    This service is hosted on servers located in the United States (via Render and Neon). When you use the service, your data is transferred to and processed in the
+    U.S. We ensure a similar degree of protection is afforded to it by ensuring that our sub-processors (Render, Neon, and Google) utilize standard contractual
     clauses (SCCs) or other legally recognized transfer mechanisms approved by the European Commission.
 
 8. California Privacy Rights
