@@ -1,11 +1,28 @@
 > [!IMPORTANT]  
 > You'll need an API key from the maintainers to send and receive data from the Roblox Chat Launcher API.
 
-# Roblox Chat Launcher Integrations
+<p align="center">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_integrations_logo_dark.png#gh-dark-mode-only" width="580">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_integrations_logo_light.png#gh-light-mode-only" width="580">
+</p>
+
+<!--
+<div align="center">
+  <h1>Roblox Chat Launcher Integrations</h1>
+</div>
+-->
+
+<div align="center">
+  
+[![License](https://img.shields.io/badge/license-MPL%202.0-brightgreen)](LICENSE)
+[![Lua](https://img.shields.io/badge/Lua-%232C2D72.svg?logo=lua&logoColor=white)](#)
+[![e dance](https://img.shields.io/badge//e-dance-blue)](#)
+
+</div>
+
+----
 
 Set up these scripts in your Roblox Experience to allow Roblox Chat Launcher users access to commands like `/emote` and team chat within your game.
-
----
 
 ## 🛠 Installation
 
