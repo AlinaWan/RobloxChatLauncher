@@ -43,10 +43,16 @@ class Program
                     {
                         try
                         {
-                            process.Kill();
-                            process.WaitForExit(1000);
+                            if (!process.HasExited)
+                            {
+                                process.CloseMainWindow(); // With the utmost respect, might we perhaps request that our
+                                                           // esteemed sister instances consider gracefully concluding their
+                                                           // current operations at their earliest convenience?
+                                if (!process.WaitForExit(1000))
+                                    process.Kill();
+                            }
                         }
-                        catch { }
+                        catch { /* Process might not have a main window */ }
                     }
                 }
 
