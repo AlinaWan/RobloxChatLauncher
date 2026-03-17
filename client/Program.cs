@@ -25,42 +25,6 @@ class Program
         // Attach to any existing Roblox process immediately without waiting, useful for attaching to already running games
         bool isForceRun = args.Contains("--force-run", StringComparer.OrdinalIgnoreCase);
 
-        // Mutex (newer replaces older)
-        bool createdNew;
-        if (!isAllowMultiple)
-        {
-            programMutex = new Mutex(true, $"Local\\{Constants.APP_GUID}", out createdNew);
-
-            if (!createdNew)
-            {
-                // Terminate existing instances
-                Process current = Process.GetCurrentProcess();
-                Process[] runningProcesses = Process.GetProcessesByName(current.ProcessName);
-
-                foreach (Process process in runningProcesses)
-                {
-                    if (process.Id != current.Id)
-                    {
-                        try
-                        {
-                            if (!process.HasExited)
-                            {
-                                process.CloseMainWindow(); // With the utmost respect, might we perhaps request that our
-                                                           // esteemed sister instances consider gracefully concluding their
-                                                           // current operations at their earliest convenience?
-                                if (!process.WaitForExit(1000))
-                                    process.Kill();
-                            }
-                        }
-                        catch { /* Process might not have a main window */ }
-                    }
-                }
-
-                // Grab the mutex
-                programMutex = new Mutex(true, $"Local\\{Constants.APP_GUID}", out createdNew);
-            }
-        }
-
         // Check if we are being called by the Inno Setup Uninstaller
         if (isUninstall)
         {
@@ -68,22 +32,44 @@ class Program
             return; // Exit immediately
         }
 
-        // Start watching the Roblox protocol registry key in case aggressive bootstrappers such as Fishstrap
-        // hijack it from us. This is a simple low overhead way to ensure we can re-register ourselves if needed
-        // without relying on the user to run the launcher shortcut again
-        var key = Registry.ClassesRoot.OpenSubKey(@"roblox-player\shell\open\command");
-
-        if (key != null)
+        // Mutex (newer replaces older)
+        if (!isAllowMultiple)
         {
-            registryMonitor = new RegistryMonitor(key, watchSubtree: false, debounceMilliseconds: 200); // Debounce if an aggressive bootstrapper spams the key
-            
-            registryMonitor.RegistryChanged += () =>
-            {
-                RobloxRegistryUtil.Register();
-            };
+            bool createdNew;
+            programMutex = new Mutex(true, $"Local\\{Constants.APP_GUID}", out createdNew);
 
-            // Start monitoring
-            registryMonitor.Start();
+            if (!createdNew)
+            {
+                // Terminate existing instances
+                Process current = Process.GetCurrentProcess();
+                Process[] processes = Process.GetProcessesByName(current.ProcessName);
+
+                foreach (Process process in processes)
+                {
+                    if (process.Id != current.Id &&
+                        process.MainModule?.FileName == current.MainModule?.FileName)
+                    {
+                        try
+                        {
+                            if (!process.HasExited)
+                            {
+                                process.CloseMainWindow(); // Politely ask the other instance to exit
+
+                                if (!process.WaitForExit(1000))
+                                    process.Kill();
+                            }
+                        }
+                        catch { }
+                    }
+                }
+
+                // Wait until mutex becomes available
+                try
+                {
+                    programMutex.WaitOne();
+                }
+                catch (AbandonedMutexException) { }
+            }
         }
 
         // If no arguments are provided, we assume the user is trying to register this launcher as the default Roblox URI handler
@@ -99,7 +85,30 @@ class Program
                     Thread.Sleep(1000);
                 }
             }
-            return;
+            return; // Exit immediately as there's no game to launch or attach to
+        }
+
+        // Resolve the Roblox client location
+        // This will resolve either a bootstrapper or the vanilla client
+        var robloxClient = RobloxLocator.ResolveRobloxPlayer();
+
+        // If the resolved client is an aggressive bootstrapper, start watching the Roblox protocol registry key in case
+        // they try to hijack it from us. This is a simple low overhead way to ensure we can re-register ourselves if needed
+        // without relying on the user to run the launcher shortcut again
+        if (robloxClient != null && robloxClient.Name == "Fishstrap") // Be nice to our other users who don't use an aggressive
+                                                                      // bootstrapper where a monitor isn't strictly necessary
+        {
+            var key = Registry.ClassesRoot.OpenSubKey(@"roblox-player\shell\open\command");
+            if (key != null)
+            {
+                registryMonitor = new RegistryMonitor(key, watchSubtree: false, debounceMilliseconds: 200); // Debounce if an aggressive bootstrapper spams the key
+                registryMonitor.RegistryChanged += () =>
+                {
+                    RobloxRegistryUtil.Register();
+                };
+                // Start monitoring
+                registryMonitor.Start();
+            }
         }
 
         if (!isForceRun)
@@ -107,7 +116,6 @@ class Program
             // The first argument should be the Roblox URI, so we attempt to launch Roblox with it
             string uri = args[0];
 
-            var robloxClient = RobloxLocator.ResolveRobloxPlayer();
             if (robloxClient != null)
             {
                 Process.Start(new ProcessStartInfo { FileName = robloxClient.ExecutablePath, Arguments = uri, UseShellExecute = true });
@@ -136,12 +144,6 @@ class Program
 
         chatThread.SetApartmentState(ApartmentState.STA);
         chatThread.Start();
-
-        // Keep mutex alive for the duration of the program
-        if (programMutex != null)
-        {
-            GC.KeepAlive(programMutex);
-        }
     }
     static Process WaitForRobloxProcess(int timeoutSeconds, bool ignoreStartTime)
     {

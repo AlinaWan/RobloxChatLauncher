@@ -10,7 +10,7 @@ namespace RobloxChatLauncher.Utils
         Bootstrapper
     }
 
-    public record RobloxClientInfo(string ExecutablePath, RobloxClientType Type);
+    public record RobloxClientInfo(string ExecutablePath, RobloxClientType Type, string Name);
 
     public static class RobloxLocator
     {
@@ -31,14 +31,14 @@ namespace RobloxChatLauncher.Utils
                     // Split the comma to remove the icon index and trim quotes if they exist
                     string exePath = rawPath.Split(',')[0].Trim('\"');
                     if (File.Exists(exePath))
-                        return new RobloxClientInfo(exePath, RobloxClientType.Bootstrapper);
+                        return new RobloxClientInfo(exePath, RobloxClientType.Bootstrapper, bootstrapper);
                 }
             }
 
             // Else return the vanilla RobloxPlayerBeta.exe
             string vanillaPath = ResolveVanillaRobloxPlayerPath();
             if (vanillaPath != null)
-                return new RobloxClientInfo(vanillaPath, RobloxClientType.Vanilla);
+                return new RobloxClientInfo(vanillaPath, RobloxClientType.Vanilla, "Vanilla");
 
             return null;
         }
