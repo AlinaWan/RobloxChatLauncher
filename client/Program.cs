@@ -4,20 +4,59 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 
 using RobloxChatLauncher;
+using RobloxChatLauncher.Core;
 using RobloxChatLauncher.Localization;
 using RobloxChatLauncher.Services;
 using RobloxChatLauncher.Utils;
 
 class Program
 {
-    static ChatForm chatForm;
-    static ChatKeyboardHandler keyboardHandler;
-    static RegistryMonitor registryMonitor;
+    static Mutex? programMutex;
+    static ChatForm? chatForm;
+    static ChatKeyboardHandler? keyboardHandler;
+    static RegistryMonitor? registryMonitor;
 
     static void Main(string[] args)
     {
         // Check if we are being called by the Inno Setup Uninstaller
-        if (args.Length > 0 && args[0].Equals("--uninstall", StringComparison.OrdinalIgnoreCase))
+        bool isUninstall = args.Contains("--uninstall", StringComparer.OrdinalIgnoreCase);
+        // Bypass the mutex check
+        bool isAllowMultiple = args.Contains("--allow-multiple", StringComparer.OrdinalIgnoreCase);
+        // Attach to any existing Roblox process immediately without waiting, useful for attaching to already running games
+        bool isForceRun = args.Contains("--force-run", StringComparer.OrdinalIgnoreCase);
+
+        // Mutex (newer replaces older)
+        bool createdNew;
+        if (!isAllowMultiple)
+        {
+            programMutex = new Mutex(true, $"Local\\{Constants.APP_GUID}", out createdNew);
+
+            if (!createdNew)
+            {
+                // Terminate existing instances
+                Process current = Process.GetCurrentProcess();
+                Process[] runningProcesses = Process.GetProcessesByName(current.ProcessName);
+
+                foreach (Process process in runningProcesses)
+                {
+                    if (process.Id != current.Id)
+                    {
+                        try
+                        {
+                            process.Kill();
+                            process.WaitForExit(1000);
+                        }
+                        catch { }
+                    }
+                }
+
+                // Grab the mutex
+                programMutex = new Mutex(true, $"Local\\{Constants.APP_GUID}", out createdNew);
+            }
+        }
+
+        // Check if we are being called by the Inno Setup Uninstaller
+        if (isUninstall)
         {
             RobloxRegistryUtil.Restore();
             return; // Exit immediately
@@ -40,10 +79,6 @@ class Program
             // Start monitoring
             registryMonitor.Start();
         }
-
-        // Check if the --force-run argument is present to bypass the 3-second rule for attaching to Roblox processes
-        // And this also bypasses the if (args.Length == 0) check as well
-        bool isForceRun = args.Length > 0 && args[0].Equals("--force-run", StringComparison.OrdinalIgnoreCase);
 
         // If no arguments are provided, we assume the user is trying to register this launcher as the default Roblox URI handler
         if (args.Length == 0)
@@ -95,6 +130,12 @@ class Program
 
         chatThread.SetApartmentState(ApartmentState.STA);
         chatThread.Start();
+
+        // Keep mutex alive for the duration of the program
+        if (programMutex != null)
+        {
+            GC.KeepAlive(programMutex);
+        }
     }
     static Process WaitForRobloxProcess(int timeoutSeconds, bool ignoreStartTime)
     {
