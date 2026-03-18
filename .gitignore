@@ -84,3 +84,6 @@ node_modules/
 # These files are not needed in source control as only the neutral culture's .Designer.cs file is used and synced with the keys.
 # This will match files like `Strings.ru.Designer.cs` but not `Strings.Designer.cs`.
 Strings.*.Designer.cs
+
+# Generated changelog from the conventional-changelog package
+/CHANGELOG.md

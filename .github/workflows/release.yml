@@ -142,6 +142,31 @@ jobs:
           subject-path: 'installer/RobloxChatLauncherInstaller.exe'
 
       # ---------------------------
+      # Generate Conventional Commit Notes
+      # ---------------------------
+      - name: Generate Conventional Commit Notes
+        shell: bash
+        run: |
+         # conventional-changelog writes to CHANGELOG.md by default
+         npx --yes -p conventional-changelog@7.2.0 -p conventional-changelog-conventionalcommits conventional-changelog -p conventionalcommits -r 1
+
+      # ---------------------------
+      # Compose final release notes
+      # ---------------------------
+      - name: Compose final release notes
+        shell: bash
+        run: |
+          # If there's no custom message, don't put a horizontal rule above the changelog
+          if [ -n "${{ github.event.inputs.custom_notes }}" ]; then
+            echo "${{ github.event.inputs.custom_notes }}" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+            echo "---" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+          fi
+
+          cat CHANGELOG.md >> RELEASE_BODY.md
+
+      # ---------------------------
       # Create GitHub Release
       # ---------------------------
       - name: Create GitHub Release and upload artifacts
@@ -151,10 +176,7 @@ jobs:
           name: ${{ github.event.inputs.release_name || github.event.inputs.tag_name }}
           prerelease: ${{ github.event.inputs.prerelease }}
           # Add the custom message at the top
-          body: |
-            ${{ github.event.inputs.custom_notes }}
-            
-            ---
+          body_path: RELEASE_BODY.md
           generate_release_notes: true # This appends the "What's Changed" section below the body
           files: |
             installer/RobloxChatLauncherInstaller*.exe
