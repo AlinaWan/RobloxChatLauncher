@@ -27,8 +27,7 @@ const ATTRIBUTES = {
     SEVERE_TOXICITY: {},
     IDENTITY_ATTACK: {},
     THREAT: {},
-    SEXUALLY_EXPLICIT: {}, // Experimental attribute
-    FLIRTATION: {} // Experimental attribute 
+    SEXUALLY_EXPLICIT: {} // Experimental attribute
 };
 
 // See: https://developers.perspectiveapi.com/s/about-the-api-methods?language=en_US
@@ -59,7 +58,6 @@ async function isMessageAllowed(text) {
             (scores.THREAT?.summaryScore?.value || 0) > 0.80 ||
             (scores.TOXICITY?.summaryScore?.value || 0) > 0.90 ||
             (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.70 ||
-            (scores.FLIRTATION?.summaryScore?.value || 0) > 0.95 ||
 
              // More lenient on insults, profanity, etc., but still block extreme cases
              // Again, users will be able to set their own preferences in the future
