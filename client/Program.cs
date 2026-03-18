@@ -20,6 +20,8 @@ class Program
     {
         // Check if we are being called by the Inno Setup Uninstaller
         bool isUninstall = args.Contains("--uninstall", StringComparer.OrdinalIgnoreCase);
+        // Launch the Roblox client without a URI to launch to Roblox's homepage instead of a game
+        bool isLaunchHomepage = args.Contains("--launch-homepage", StringComparer.OrdinalIgnoreCase);
         // Bypass the mutex check
         bool isAllowMultiple = args.Contains("--allow-multiple", StringComparer.OrdinalIgnoreCase);
         // Attach to any existing Roblox process immediately without waiting, useful for attaching to already running games
@@ -111,14 +113,19 @@ class Program
             }
         }
 
-        if (!isForceRun)
+        if (robloxClient != null && !isForceRun)
         {
-            // The first argument should be the Roblox URI, so we attempt to launch Roblox with it
-            string uri = args[0];
+            // If it's the homepage, we send no args. Otherwise, we send the URI from args[0].
+            string arguments = isLaunchHomepage ? "" : args[0];
 
-            if (robloxClient != null)
+            if (Process.Start(new ProcessStartInfo
+                {
+                    FileName = robloxClient.ExecutablePath,
+                    Arguments = arguments, // Either launches the homepage or the specific game passed in by the URI
+                    UseShellExecute = true
+                }) is Process p)
             {
-                Process.Start(new ProcessStartInfo { FileName = robloxClient.ExecutablePath, Arguments = uri, UseShellExecute = true });
+                RobloxRegistryUtil.Register(); // Re-register immediately
             }
         }
 
