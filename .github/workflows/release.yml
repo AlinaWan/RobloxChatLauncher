@@ -76,10 +76,10 @@ jobs:
       # ---------------------------
       # Setup .NET SDK 10.0
       # ---------------------------
-      - name: Setup .NET SDK 10.0.101 # SDK uses a different patch version than runtimes
+      - name: Setup .NET SDK 10.0.x
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: "10.0.101"
+          dotnet-version: "10.0.x"
 
       # ---------------------------
       # Build & validate app
