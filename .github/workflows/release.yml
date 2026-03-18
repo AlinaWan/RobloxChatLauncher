@@ -145,26 +145,35 @@ jobs:
       # Generate Conventional Commit Notes
       # ---------------------------
       - name: Generate Conventional Commit Notes
-        shell: bash
+        shell: pwsh
         run: |
          # conventional-changelog writes to CHANGELOG.md by default
          npx --yes -p conventional-changelog@7.2.0 -p conventional-changelog-conventionalcommits conventional-changelog -p conventionalcommits -r 1
 
       # ---------------------------
-      # Compose final release notes
+      # Compose final release notes (PowerShell)
       # ---------------------------
       - name: Compose final release notes
-        shell: bash
+        shell: pwsh
         run: |
-          # If there's no custom message, don't put a horizontal rule above the changelog
-          if [ -n "${{ github.event.inputs.custom_notes }}" ]; then
-            echo "${{ github.event.inputs.custom_notes }}" >> RELEASE_BODY.md
-            echo "" >> RELEASE_BODY.md
-            echo "---" >> RELEASE_BODY.md
-            echo "" >> RELEASE_BODY.md
-          fi
+          $tagName = "${{ github.event.inputs.tag_name }}"
+          $customNotes = "${{ github.event.inputs.custom_notes }}"
+          $releaseFile = "RELEASE_BODY.md"
 
-          cat CHANGELOG.md >> RELEASE_BODY.md
+          # If there's no custom message, don't put a horizontal rule above the changelog
+          if (-not [string]::IsNullOrWhiteSpace($customNotes)) {
+              $customNotes | Out-File -FilePath $releaseFile -Encoding utf8
+              "`n---`n" | Out-File -FilePath $releaseFile -Append -Encoding utf8
+          }
+
+          # conventional-changelog will write a header like:
+          # ## [](https://github.com/AlinaWan/RobloxChatLauncher/compare/v1.0.0...v) (YYYY-MM-DD)
+          # Read Changelog, Replace the '...v)' with the actual tag
+          $changelog = Get-Content -Path "CHANGELOG.md" -Raw
+          $updatedChangelog = $changelog -replace '\.\.\.v\)', "...$($tagName))"
+          
+          # Finally compose final release notes
+          $updatedChangelog | Out-File -FilePath $releaseFile -Append -Encoding utf8
 
       # ---------------------------
       # Create GitHub Release
@@ -178,6 +187,12 @@ jobs:
           # Add the custom message at the top
           body_path: RELEASE_BODY.md
           generate_release_notes: true # This appends the "What's Changed" section below the body
+          # Now the release notes will look like this:
+          # <Custom Release Notes>
+          # ---
+          # <Conventional Changelog>
+          # ---
+          # <GitHub's auto-generated release notes>
           files: |
             installer/RobloxChatLauncherInstaller*.exe
             installer/RobloxChatLauncherInstaller.exe.sha256
