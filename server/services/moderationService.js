@@ -57,9 +57,9 @@ async function isMessageAllowed(text) {
             (scores.IDENTITY_ATTACK?.summaryScore?.value || 0) > 0.50 ||
             (scores.SEVERE_TOXICITY?.summaryScore?.value || 0) > 0.60 ||
             (scores.THREAT?.summaryScore?.value || 0) > 0.80 ||
-            (scores.TOXICITY?.summaryScore?.value || 0) > 0.80 ||
-            (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.80 ||
-            (scores.FLIRTATION?.summaryScore?.value || 0) > 0.85 ||
+            (scores.TOXICITY?.summaryScore?.value || 0) > 0.90 ||
+            (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.70 ||
+            (scores.FLIRTATION?.summaryScore?.value || 0) > 0.95 ||
 
              // More lenient on insults, profanity, etc., but still block extreme cases
              // Again, users will be able to set their own preferences in the future
