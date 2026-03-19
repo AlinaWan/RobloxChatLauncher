@@ -2,8 +2,8 @@
 > Privacy is the cornerstone of this project. Every contribution must prioritize user anonymity and data minimization. We do not accept features that require telemetry, invasive tracking, or the collection of personally identifiable information (PII).
 
 <p align="center">
-    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_dark.png#gh-dark-mode-only" width="580">
-    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_light.png#gh-light-mode-only" width="580">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_dark.webp#gh-dark-mode-only" width="580">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_light.webp#gh-light-mode-only" width="580">
 </p>
 
 <div align="center">
