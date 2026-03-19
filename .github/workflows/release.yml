@@ -175,6 +175,9 @@ jobs:
           # Finally compose final release notes
           $updatedChangelog | Out-File -FilePath $releaseFile -Append -Encoding utf8
 
+          # Add a horizontal rule at the very end so GitHub's section is separated
+          "`n---`n" | Out-File -FilePath $releaseFile -Append -Encoding utf8
+
       # ---------------------------
       # Create GitHub Release
       # ---------------------------
