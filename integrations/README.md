@@ -2,8 +2,8 @@
 > You'll need an API key from the maintainers to send and receive data from the Roblox Chat Launcher API.
 
 <p align="center">
-    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_integrations_logo_dark.png#gh-dark-mode-only" width="700">
-    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_integrations_logo_light.png#gh-light-mode-only" width="700">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_integrations_logo_dark.webp#gh-dark-mode-only" width="700">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_integrations_logo_light.webp#gh-light-mode-only" width="700">
 </p>
 
 <!--
