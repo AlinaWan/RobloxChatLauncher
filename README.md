@@ -80,7 +80,7 @@ Furthermore, new age-group filtering often fragments the player base and ruins t
 <p align="center">
   <img src="assets/readme/perf_spec.png" width="780" alt="Task Manager Performance Comparison">
   <br>
-  <em>Our application uses over 97% less memory than the Roblox client.</em>
+  <em>Our application is lightweight and performance-oriented.</em>
 </p>
 
 <p align="center">
