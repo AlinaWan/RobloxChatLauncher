@@ -22,8 +22,8 @@ CloseApplications=yes
 Source: "{#Root}\LICENSE"; DestDir: "{app}"
 Source: "{#Root}\PRIVACY"; DestDir: "{app}"
 Source: "{#Root}\TERMS"; DestDir: "{app}"
-; Copy everything from the publish folder
-Source: "{#Root}\client\bin\Release\net10.0-windows\publish\*"; DestDir: "{app}"
+; Copy everything from the publish folder including resource folders
+Source: "{#Root}\client\bin\Release\net10.0-windows\publish\*"; DestDir: "{app}"; Flags: recursesubdirs
 
 [Icons]
 Name: "{autoprograms}\Roblox Chat Launcher"; Filename: "{app}\RobloxChatLauncher.exe"; IconFileName: "{app}\RobloxChatLauncher.exe"; Parameters: "--launch-homepage"
