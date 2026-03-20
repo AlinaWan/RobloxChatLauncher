@@ -1,0 +1,33 @@
+# Exported from Render on 2026-03-20T07:00:00Z
+# This file is NOT automatically synced and should
+# be exported after any changes to the environment
+version: "1"
+projects:
+- name: Roblox Chat Launcher
+  environments:
+  - name: Production
+    services:
+    - type: web
+      name: RobloxChatLauncher
+      runtime: docker
+      repo: https://github.com/AlinaWan/RobloxChatLauncher
+      plan: free
+      envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: RCL_READ_KEY
+        sync: false
+      - key: RCL_WRITE_KEY
+        sync: false
+      - key: PERSPECTIVE_API_KEY
+        sync: false
+      - key: USER_SALT
+        sync: false
+      - key: RCL_ADMIN_KEY
+        sync: false
+      region: oregon
+      healthCheckPath: /health
+      dockerContext: .
+      dockerfilePath: ./Dockerfile
+      autoDeployTrigger: "off"
+      rootDir: server/
