@@ -18,7 +18,7 @@ namespace RobloxChatLauncher.Utils
         public static RobloxClientInfo ResolveRobloxPlayer()
         {
             // List of known bootstrappers to check for in the registry. The first one found will be used.
-            string[] bootstrappers = { "Bloxstrap", "Voidstrap", "Fishstrap" };
+            string[] bootstrappers = { "Bloxstrap", "Voidstrap", "Fishstrap", "Froststrap", "Funkstrap" };
 
             foreach (string bootstrapper in bootstrappers)
             {
