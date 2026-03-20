@@ -84,11 +84,6 @@ jobs:
       # ---------------------------
       # Build & validate app
       # ---------------------------
-      - name: Clean build artifacts
-        working-directory: ./client
-        run: |
-          rm -Recurse -Force bin,obj
-
       - name: Restore dependencies
         working-directory: ./client
         run: dotnet restore
