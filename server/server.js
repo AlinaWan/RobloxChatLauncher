@@ -422,6 +422,15 @@ wss.on('connection', (ws, req) => {
     ws.isAlive = true;
     ws.on('pong', () => { ws.isAlive = true; });
 
+    // Handle oversized messages so the server doesn't crash
+    ws.on('error', (err) => {
+        if (err.code === 'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH') {
+            console.warn('Oversized message dropped');
+        } else {
+            console.error('WS error:', err);
+        }
+    });
+
     // --- Begin WS message handling ---
     ws.on('message', async (data) => {
         try {
