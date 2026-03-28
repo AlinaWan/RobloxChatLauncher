@@ -475,7 +475,7 @@ namespace RobloxChatLauncher
                     Profanity = 0.70,
                     SevereToxicity = 0.50,
                     IdentityAttack = 0.40,
-                    Threat = 0.75,
+                    Threat = 0.80,
                     SexuallyExplicit = 0.50,
                 },
             };

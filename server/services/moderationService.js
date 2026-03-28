@@ -46,11 +46,11 @@ async function isMessageAllowed(text) {
         // The client will locally filter more strictly based on user preferences
         if (
             (scores.IDENTITY_ATTACK?.summaryScore?.value || 0) > 0.50 ||
-            (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.50 ||
+            (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.60 ||
             (scores.SEVERE_TOXICITY?.summaryScore?.value || 0) > 0.60 ||
-            (scores.THREAT?.summaryScore?.value || 0) > 0.80 ||
-            (scores.TOXICITY?.summaryScore?.value || 0) > 0.90 ||
-            (scores.INSULT?.summaryScore?.value || 0) > 0.90 ||
+            (scores.THREAT?.summaryScore?.value || 0) > 0.70 ||
+            (scores.TOXICITY?.summaryScore?.value || 0) > 0.80 ||
+            (scores.INSULT?.summaryScore?.value || 0) > 0.80 ||
             (scores.PROFANITY?.summaryScore?.value || 0) > 0.95
         ) {
             return {
