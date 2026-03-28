@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -6,6 +5,7 @@ using System.Text.Json.Nodes;
 using System.Windows.Forms;
 using RobloxChatLauncher.Core;
 using RobloxChatLauncher.Localization;
+using RobloxChatLauncher.Models;
 using RobloxChatLauncher.Services;
 using RobloxChatLauncher.Utils;
 
@@ -33,6 +33,17 @@ namespace RobloxChatLauncher
             "default",
             "relaxed"
         };
+
+        private sealed class FilterPresetThresholds
+        {
+            public double Toxicity { get; init; }
+            public double Insult { get; init; }
+            public double Profanity { get; init; }
+            public double SevereToxicity { get; init; }
+            public double IdentityAttack { get; init; }
+            public double Threat { get; init; }
+            public double SexuallyExplicit { get; init; }
+        }
 
         // Verification state tracking
         private VerificationService _verifyService = new VerificationService();
@@ -148,15 +159,8 @@ namespace RobloxChatLauncher
                             string text = data?["text"]?.ToString() ?? string.Empty;
                             string whisperType = data?["whisperType"]?.ToString() ?? string.Empty; // New field
 
-                            double policyScore;
-                            bool hasPolicyScore = double.TryParse(
-                                data?["policyScore"]?.ToString(),
-                                NumberStyles.Float,
-                                CultureInfo.InvariantCulture,
-                                out policyScore
-                            );
-
-                            if (hasPolicyScore && ShouldHideMessageByFilter(policyScore))
+                            PolicyScoresDto? scores = ParsePolicyScores(data?["attributeScores"]);
+                            if (scores != null && ShouldHideMessageByFilter(scores))
                             {
                                 text = Strings.MessageHiddenDueToFilterSettings;
                             }
@@ -422,17 +426,73 @@ namespace RobloxChatLauncher
             // Wait for the server to send the "To {target}" message back.
         }
 
-        private bool ShouldHideMessageByFilter(double policyScore)
+        private static PolicyScoresDto? ParsePolicyScores(JsonNode? node)
+        {
+            if (node == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<PolicyScoresDto>(node.ToJsonString());
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private bool ShouldHideMessageByFilter(PolicyScoresDto scores)
         {
             string preference = GetCurrentFilterPreference();
-            double threshold = preference switch
+            FilterPresetThresholds thresholds = preference switch
             {
-                "strict" => 0.35,
-                "relaxed" => 0.80,
-                _ => 0.60,
+                "strict" => new FilterPresetThresholds
+                {
+                    Toxicity = 0.35,
+                    Insult = 0.30,
+                    Profanity = 0.55,
+                    SevereToxicity = 0.25,
+                    IdentityAttack = 0.20,
+                    Threat = 0.15,
+                    SexuallyExplicit = 0.25,
+                },
+                "relaxed" => new FilterPresetThresholds
+                {
+                    Toxicity = 0.80,
+                    Insult = 0.80,
+                    Profanity = 0.90,
+                    SevereToxicity = 0.70,
+                    IdentityAttack = 0.70,
+                    Threat = 0.60,
+                    SexuallyExplicit = 0.70,
+                },
+                _ => new FilterPresetThresholds
+                {
+                    Toxicity = 0.60,
+                    Insult = 0.60,
+                    Profanity = 0.75,
+                    SevereToxicity = 0.50,
+                    IdentityAttack = 0.45,
+                    Threat = 0.40,
+                    SexuallyExplicit = 0.50,
+                },
             };
 
-            return policyScore >= threshold;
+            return
+                GetScoreValue(scores.Toxicity) >= thresholds.Toxicity ||
+                GetScoreValue(scores.Insult) >= thresholds.Insult ||
+                GetScoreValue(scores.Profanity) >= thresholds.Profanity ||
+                GetScoreValue(scores.SevereToxicity) >= thresholds.SevereToxicity ||
+                GetScoreValue(scores.IdentityAttack) >= thresholds.IdentityAttack ||
+                GetScoreValue(scores.Threat) >= thresholds.Threat ||
+                GetScoreValue(scores.SexuallyExplicit) >= thresholds.SexuallyExplicit;
+        }
+
+        private static double GetScoreValue(PerspectiveAttributeScore? score)
+        {
+            return score?.SummaryScore?.Value ?? 0;
         }
 
         private string GetCurrentFilterPreference()
