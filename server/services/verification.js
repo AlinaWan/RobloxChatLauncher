@@ -76,13 +76,13 @@ async function verifyProfile(req, res) {
 }
 
 async function unverifyUser(req, res) {
-    const { hwid, robloxId } = req.body;
-    if (!hwid || !robloxId) return res.status(400).send("HWID and Roblox ID required");
+    const { hwid } = req.body;
+    if (!hwid) return res.status(400).send("HWID required");
 
     try {
         const result = await pool.query(
-            'DELETE FROM verified_users WHERE hwid = $1 AND roblox_id = $2',
-            [hwid, robloxId]
+            'DELETE FROM verified_users WHERE hwid = $1',
+            [hwid]
         );
 
         if (result.rowCount === 0) {
@@ -92,6 +92,29 @@ async function unverifyUser(req, res) {
         res.json({ success: true, message: "Account unlinked successfully" });
     } catch (err) {
         console.error("Unverify Error:", err);
+        res.status(500).send("Server Error");
+    }
+}
+
+async function checkLogin(req, res) {
+    const { hwid } = req.body;
+
+    try {
+        const result = await pool.query(
+            'SELECT 1 FROM verified_users WHERE hwid = $1',
+            [hwid]
+        );
+
+        if (result.rowCount > 0) {
+            return res.json({
+                success: true,
+                robloxId: result.rows[0].roblox_id
+            });
+        } else {
+            return res.status(401).json({ success: false });
+        }
+    } catch (err) {
+        console.error("Login Check Error:", err);
         res.status(500).send("Server Error");
     }
 }
@@ -143,6 +166,7 @@ module.exports = {
     getRobloxIdByHwid,
     getRobloxUsername,
     unverifyUser,
+    checkLogin,
     upsertUser,
     removeUser
 };

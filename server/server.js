@@ -338,6 +338,7 @@ app.post(
 app.post('/api/v1/verify/generate', express.json(), generateCode);
 app.post('/api/v1/verify/confirm', express.json(), verifyProfile);
 app.post('/api/v1/verify/unverify', express.json(), unverifyUser);
+app.post('/api/v1/verify/login', express.json(), checkLogin);
 
 // -----------------------------
 // ----- The Echo Endpoint -----
