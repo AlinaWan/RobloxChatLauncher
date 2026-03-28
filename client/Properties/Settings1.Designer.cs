@@ -82,5 +82,17 @@ namespace RobloxChatLauncher.Properties {
                 this["RobloxUserId"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("default")]
+        public string MessageFilterPreference {
+            get {
+                return ((string)(this["MessageFilterPreference"]));
+            }
+            set {
+                this["MessageFilterPreference"] = value;
+            }
+        }
     }
 }

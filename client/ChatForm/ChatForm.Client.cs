@@ -26,6 +26,14 @@ namespace RobloxChatLauncher
         // Collection of muted users (case-insensitive)
         private System.Collections.Generic.HashSet<string> mutedUsers = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        private const string DefaultFilterPreference = "default";
+        private readonly System.Collections.Generic.HashSet<string> validFilterPreferences = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "strict",
+            "default",
+            "relaxed"
+        };
+
         // Verification state tracking
         private VerificationService _verifyService = new VerificationService();
         private long _pendingRobloxId = 0;
@@ -139,6 +147,19 @@ namespace RobloxChatLauncher
                             string sender = data?["sender"]?.ToString() ?? string.Empty;
                             string text = data?["text"]?.ToString() ?? string.Empty;
                             string whisperType = data?["whisperType"]?.ToString() ?? string.Empty; // New field
+
+                            double policyScore;
+                            bool hasPolicyScore = double.TryParse(
+                                data?["policyScore"]?.ToString(),
+                                NumberStyles.Float,
+                                CultureInfo.InvariantCulture,
+                                out policyScore
+                            );
+
+                            if (hasPolicyScore && ShouldHideMessageByFilter(policyScore))
+                            {
+                                text = Strings.MessageHiddenDueToFilterSettings;
+                            }
 
                             // 1. Check mute status using the raw sender name
                             if (!mutedUsers.Contains(sender))
@@ -399,6 +420,63 @@ namespace RobloxChatLauncher
             await wsClient.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, wsCts.Token);
 
             // Wait for the server to send the "To {target}" message back.
+        }
+
+        private bool ShouldHideMessageByFilter(double policyScore)
+        {
+            string preference = GetCurrentFilterPreference();
+            double threshold = preference switch
+            {
+                "strict" => 0.35,
+                "relaxed" => 0.80,
+                _ => 0.60,
+            };
+
+            return policyScore >= threshold;
+        }
+
+        private string GetCurrentFilterPreference()
+        {
+            string current = Properties.Settings1.Default.MessageFilterPreference;
+            if (string.IsNullOrWhiteSpace(current))
+            {
+                current = DefaultFilterPreference;
+                Properties.Settings1.Default.MessageFilterPreference = current;
+                Properties.Settings1.Default.Save();
+            }
+
+            string normalized = current.Trim().ToLowerInvariant();
+            if (!validFilterPreferences.Contains(normalized))
+            {
+                normalized = DefaultFilterPreference;
+                Properties.Settings1.Default.MessageFilterPreference = normalized;
+                Properties.Settings1.Default.Save();
+            }
+
+            return normalized;
+        }
+
+        private bool HandleFilterPreferenceCommand(string args)
+        {
+            string raw = args?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.FilterPreferenceCurrent, GetCurrentFilterPreference()));
+                return true;
+            }
+
+            string next = raw.ToLowerInvariant();
+            if (!validFilterPreferences.Contains(next))
+            {
+                RichChatBox.AppendSystemMessage(chatBox, Strings.UsageFilter);
+                return true;
+            }
+
+            Properties.Settings1.Default.MessageFilterPreference = next;
+            Properties.Settings1.Default.Save();
+            RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.FilterPreferenceSet, next));
+            return true;
         }
 
         private bool HandleMute(string args)

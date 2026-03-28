@@ -289,6 +289,24 @@ namespace RobloxChatLauncher.Localization {
                 return ResourceManager.GetString("FailedToSendMessage", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Current message filter: {0}.
+        /// </summary>
+        public static string FilterPreferenceCurrent {
+            get {
+                return ResourceManager.GetString("FilterPreferenceCurrent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Message filter set to: {0}.
+        /// </summary>
+        public static string FilterPreferenceSet {
+            get {
+                return ResourceManager.GetString("FilterPreferenceSet", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Fetching code for {0}....
@@ -386,6 +404,15 @@ namespace RobloxChatLauncher.Localization {
         public static string MessageRejectedUnknown {
             get {
                 return ResourceManager.GetString("MessageRejectedUnknown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to [Message hidden due to your filter settings.].
+        /// </summary>
+        public static string MessageHiddenDueToFilterSettings {
+            get {
+                return ResourceManager.GetString("MessageHiddenDueToFilterSettings", resourceCulture);
             }
         }
         
@@ -577,6 +604,15 @@ namespace RobloxChatLauncher.Localization {
         public static string UsageEmote {
             get {
                 return ResourceManager.GetString("UsageEmote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: /filter &lt;strict|default|relaxed&gt;.
+        /// </summary>
+        public static string UsageFilter {
+            get {
+                return ResourceManager.GetString("UsageFilter", resourceCulture);
             }
         }
         
