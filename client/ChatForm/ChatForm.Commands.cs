@@ -75,6 +75,11 @@ namespace RobloxChatLauncher
                 case "/mute":
                     return HandleMute(args);
 
+                /// <summary>Sets or displays the local message filter preference.</summary>
+                /// <param>args: One of strict, default, or relaxed. Empty args displays current setting.</param>
+                case "/filter":
+                    return HandleFilterPreferenceCommand(args);
+
                 /// <summary>Handles unmuting a user by their username, allowing their messages to appear in the chat box again.</summary>
                 /// <param>args: The username of the user to unmute.</param>
                 case "/unmute":

@@ -104,9 +104,15 @@ async function processQueue() {
     try {
         const result = await isMessageAllowed(text);
         if (!result.allowed) {
-            resolve({ allowed: false, reason: "moderation" });
+            resolve({
+                allowed: false,
+                reason: result.reason || "moderation"
+            });
         } else {
-            resolve({ allowed: true });
+            resolve({
+                allowed: true,
+                attributeScores: result.attributeScores || null
+            });
         }
     } catch (err) {
         resolve({ allowed: false, reason: "api_error" });
@@ -490,7 +496,8 @@ wss.on('connection', (ws, req) => {
                         sender: ws.senderName, // This will now be "RobloxUser:123" or "Guest 456"
                                                // Note that guest numbers are temporary and change on every reconnect, so they cannot be used to track users across sessions.
                                                //They are only for display purposes within a single session.
-                        verified: ws.isVerified
+                        verified: ws.isVerified,
+                        attributeScores: moderation.attributeScores
                     });
                 } else {
                     // IMPORTANT: do NOT log message contents if rejected
@@ -519,7 +526,8 @@ wss.on('connection', (ws, req) => {
                                 type: 'message',
                                 text: payload.text,
                                 sender: ws.senderName, // Raw name for client-side mute check
-                                whisperType: 'from'    // Client will prepend "From "
+                                whisperType: 'from',   // Client will prepend "From "
+                                attributeScores: moderation.attributeScores
                             }));
                             found = true;
                         }
@@ -531,7 +539,8 @@ wss.on('connection', (ws, req) => {
                         type: 'message',
                         text: payload.text,
                         sender: targetName,   // Raw name for client-side mute check
-                        whisperType: 'to'     // Client will prepend "To "
+                        whisperType: 'to',    // Client will prepend "To "
+                        attributeScores: moderation.attributeScores
                     }));
 
                     if (!found) {

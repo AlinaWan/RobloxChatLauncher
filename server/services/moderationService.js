@@ -65,14 +65,23 @@ async function isMessageAllowed(text) {
              (scores.INSULT?.summaryScore?.value || 0) > 0.90 ||
              (scores.PROFANITY?.summaryScore?.value || 0) > 0.95
         ) {
-            return { allowed: false };
+            return {
+                allowed: false,
+                reason: 'moderation'
+            };
         }
 
         // Everything else is allowed
-        return { allowed: true };
+        return {
+            allowed: true,
+            attributeScores: scores
+        };
     } catch (err) {
         console.error("Perspective API error:", err.message);
-        return { allowed: false }; // Fail closed
+        return {
+            allowed: false,
+            reason: 'api_error'
+        }; // Fail closed
     }
 }
 

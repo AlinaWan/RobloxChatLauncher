@@ -197,6 +197,12 @@
   <data name="FailedToSendMessage" xml:space="preserve">
     <value>发送消息失败: {0}</value>
   </data>
+  <data name="FilterPreferenceCurrent" xml:space="preserve">
+    <value>当前消息过滤级别: {0}</value>
+  </data>
+  <data name="FilterPreferenceSet" xml:space="preserve">
+    <value>消息过滤级别已设置为: {0}</value>
+  </data>
   <data name="FetchingCode" xml:space="preserve">
     <value>正在获取 {0} 的验证码...</value>
   </data>
@@ -229,6 +235,9 @@
   </data>
   <data name="MessageRejectedUnknown" xml:space="preserve">
     <value>您的消息未发送，原因未知。</value>
+  </data>
+  <data name="MessageHiddenDueToFilterSettings" xml:space="preserve">
+    <value>[消息已根据你的过滤设置隐藏。]</value>
   </data>
   <data name="MustBeVerifiedEmote" xml:space="preserve">
     <value>必须完成验证方可使用 /emote。</value>
@@ -294,6 +303,9 @@
   </data>
   <data name="UsageEmote" xml:space="preserve">
     <value>用法: /emote &lt;名称&gt;</value>
+  </data>
+  <data name="UsageFilter" xml:space="preserve">
+    <value>用法: /filter &lt;strict|default|relaxed&gt;</value>
   </data>
   <data name="UsageMute" xml:space="preserve">
     <value>用法: /mute &lt;发言者&gt;</value>

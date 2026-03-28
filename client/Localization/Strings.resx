@@ -197,6 +197,12 @@ And of course, credits to you 💖</value>
   <data name="FailedToSendMessage" xml:space="preserve">
     <value>Failed to send message: {0}</value>
   </data>
+  <data name="FilterPreferenceCurrent" xml:space="preserve">
+    <value>Current message filter: {0}</value>
+  </data>
+  <data name="FilterPreferenceSet" xml:space="preserve">
+    <value>Message filter set to: {0}</value>
+  </data>
   <data name="FetchingCode" xml:space="preserve">
     <value>Fetching code for {0}...</value>
   </data>
@@ -229,6 +235,9 @@ And of course, credits to you 💖</value>
   </data>
   <data name="MessageRejectedUnknown" xml:space="preserve">
     <value>Your message was not sent due to unknown reasons.</value>
+  </data>
+  <data name="MessageHiddenDueToFilterSettings" xml:space="preserve">
+    <value>[Message hidden due to your filter settings.]</value>
   </data>
   <data name="MustBeVerifiedEmote" xml:space="preserve">
     <value>You must be verified to use /emote.</value>
@@ -294,6 +303,9 @@ Chat '/?' or '/help' for a list of chat commands.</value>
   </data>
   <data name="UsageEmote" xml:space="preserve">
     <value>Usage: /emote &lt;name&gt;</value>
+  </data>
+  <data name="UsageFilter" xml:space="preserve">
+    <value>Usage: /filter &lt;strict|default|relaxed&gt;</value>
   </data>
   <data name="UsageMute" xml:space="preserve">
     <value>Usage: /mute &lt;speaker&gt;</value>

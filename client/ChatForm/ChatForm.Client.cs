@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -6,6 +5,7 @@ using System.Text.Json.Nodes;
 using System.Windows.Forms;
 using RobloxChatLauncher.Core;
 using RobloxChatLauncher.Localization;
+using RobloxChatLauncher.Models;
 using RobloxChatLauncher.Services;
 using RobloxChatLauncher.Utils;
 
@@ -25,6 +25,25 @@ namespace RobloxChatLauncher
 
         // Collection of muted users (case-insensitive)
         private System.Collections.Generic.HashSet<string> mutedUsers = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        private const string DefaultFilterPreference = "default";
+        private readonly System.Collections.Generic.HashSet<string> validFilterPreferences = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "strict",
+            "default",
+            "relaxed"
+        };
+
+        private sealed class FilterPresetThresholds
+        {
+            public double Toxicity { get; init; }
+            public double Insult { get; init; }
+            public double Profanity { get; init; }
+            public double SevereToxicity { get; init; }
+            public double IdentityAttack { get; init; }
+            public double Threat { get; init; }
+            public double SexuallyExplicit { get; init; }
+        }
 
         // Verification state tracking
         private VerificationService _verifyService = new VerificationService();
@@ -139,6 +158,12 @@ namespace RobloxChatLauncher
                             string sender = data?["sender"]?.ToString() ?? string.Empty;
                             string text = data?["text"]?.ToString() ?? string.Empty;
                             string whisperType = data?["whisperType"]?.ToString() ?? string.Empty; // New field
+
+                            PolicyScoresDto? scores = ParsePolicyScores(data?["attributeScores"]);
+                            if (scores != null && ShouldHideMessageByFilter(scores))
+                            {
+                                text = Strings.MessageHiddenDueToFilterSettings;
+                            }
 
                             // 1. Check mute status using the raw sender name
                             if (!mutedUsers.Contains(sender))
@@ -399,6 +424,119 @@ namespace RobloxChatLauncher
             await wsClient.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, wsCts.Token);
 
             // Wait for the server to send the "To {target}" message back.
+        }
+
+        private static PolicyScoresDto? ParsePolicyScores(JsonNode? node)
+        {
+            if (node == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<PolicyScoresDto>(node.ToJsonString());
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private bool ShouldHideMessageByFilter(PolicyScoresDto scores)
+        {
+            string preference = GetCurrentFilterPreference();
+            FilterPresetThresholds thresholds = preference switch
+            {
+                "strict" => new FilterPresetThresholds
+                {
+                    Toxicity = 0.35,
+                    Insult = 0.30,
+                    Profanity = 0.55,
+                    SevereToxicity = 0.25,
+                    IdentityAttack = 0.20,
+                    Threat = 0.15,
+                    SexuallyExplicit = 0.25,
+                },
+                "relaxed" => new FilterPresetThresholds
+                {
+                    Toxicity = 0.80,
+                    Insult = 0.80,
+                    Profanity = 0.90,
+                    SevereToxicity = 0.70,
+                    IdentityAttack = 0.70,
+                    Threat = 0.60,
+                    SexuallyExplicit = 0.70,
+                },
+                _ => new FilterPresetThresholds
+                {
+                    Toxicity = 0.60,
+                    Insult = 0.60,
+                    Profanity = 0.75,
+                    SevereToxicity = 0.50,
+                    IdentityAttack = 0.45,
+                    Threat = 0.40,
+                    SexuallyExplicit = 0.50,
+                },
+            };
+
+            return
+                GetScoreValue(scores.Toxicity) >= thresholds.Toxicity ||
+                GetScoreValue(scores.Insult) >= thresholds.Insult ||
+                GetScoreValue(scores.Profanity) >= thresholds.Profanity ||
+                GetScoreValue(scores.SevereToxicity) >= thresholds.SevereToxicity ||
+                GetScoreValue(scores.IdentityAttack) >= thresholds.IdentityAttack ||
+                GetScoreValue(scores.Threat) >= thresholds.Threat ||
+                GetScoreValue(scores.SexuallyExplicit) >= thresholds.SexuallyExplicit;
+        }
+
+        private static double GetScoreValue(PerspectiveAttributeScore? score)
+        {
+            return score?.SummaryScore?.Value ?? 0;
+        }
+
+        private string GetCurrentFilterPreference()
+        {
+            string current = Properties.Settings1.Default.MessageFilterPreference;
+            if (string.IsNullOrWhiteSpace(current))
+            {
+                current = DefaultFilterPreference;
+                Properties.Settings1.Default.MessageFilterPreference = current;
+                Properties.Settings1.Default.Save();
+            }
+
+            string normalized = current.Trim().ToLowerInvariant();
+            if (!validFilterPreferences.Contains(normalized))
+            {
+                normalized = DefaultFilterPreference;
+                Properties.Settings1.Default.MessageFilterPreference = normalized;
+                Properties.Settings1.Default.Save();
+            }
+
+            return normalized;
+        }
+
+        private bool HandleFilterPreferenceCommand(string args)
+        {
+            string raw = args?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.FilterPreferenceCurrent, GetCurrentFilterPreference()));
+                return true;
+            }
+
+            string next = raw.ToLowerInvariant();
+            if (!validFilterPreferences.Contains(next))
+            {
+                RichChatBox.AppendSystemMessage(chatBox, Strings.UsageFilter);
+                return true;
+            }
+
+            Properties.Settings1.Default.MessageFilterPreference = next;
+            Properties.Settings1.Default.Save();
+            RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.FilterPreferenceSet, next));
+            return true;
         }
 
         private bool HandleMute(string args)
