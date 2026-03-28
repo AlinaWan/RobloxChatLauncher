@@ -11,7 +11,7 @@ const Env = require('./config/env');
 const { createApiKeyMiddleware } = require('./middleware/apiKeyAuth');
 const { pool, initDatabase } = require('./db/postgresPool');
 const { isMessageAllowed } = require('./services/moderationService');
-const { getRobloxIdByHwid, getRobloxUsername, generateCode, verifyProfile, unverifyUser, upsertUser, removeUser } = require('./services/verification');
+const { getRobloxIdByHwid, getRobloxUsername, generateCode, verifyProfile, unverifyUser, checkLogin, upsertUser, removeUser } = require('./services/verification');
 const { mailboxStore, pushToMailbox } = require('./services/mailboxService');
 const { authenticateGameServer, getAllGames, upsertGame, removeGame } = require('./services/registry');
 
