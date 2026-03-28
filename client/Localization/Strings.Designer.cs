@@ -93,6 +93,15 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Attempting to log in....
+        /// </summary>
+        public static string AttemptingLogin {
+            get {
+                return ResourceManager.GetString("AttemptingLogin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Press / key | Ctrl+Shift+C to hide.
         /// </summary>
         public static string ChatInputBoxText {
@@ -289,7 +298,16 @@ namespace RobloxChatLauncher.Localization {
                 return ResourceManager.GetString("FailedToSendMessage", resourceCulture);
             }
         }
-
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fetching code for {0}....
+        /// </summary>
+        public static string FetchingCode {
+            get {
+                return ResourceManager.GetString("FetchingCode", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to Current message filter: {0}.
         /// </summary>
@@ -298,22 +316,13 @@ namespace RobloxChatLauncher.Localization {
                 return ResourceManager.GetString("FilterPreferenceCurrent", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Message filter set to: {0}.
         /// </summary>
         public static string FilterPreferenceSet {
             get {
                 return ResourceManager.GetString("FilterPreferenceSet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Fetching code for {0}....
-        /// </summary>
-        public static string FetchingCode {
-            get {
-                return ResourceManager.GetString("FetchingCode", resourceCulture);
             }
         }
         
@@ -372,6 +381,33 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You have been logged out..
+        /// </summary>
+        public static string LoggedOut {
+            get {
+                return ResourceManager.GetString("LoggedOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome back! Login successful..
+        /// </summary>
+        public static string LoginSuccess {
+            get {
+                return ResourceManager.GetString("LoginSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Message hidden due to your filter settings.].
+        /// </summary>
+        public static string MessageHiddenDueToFilterSettings {
+            get {
+                return ResourceManager.GetString("MessageHiddenDueToFilterSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your message could not be processed due to a server error. Please try again..
         /// </summary>
         public static string MessageRejectedApiError {
@@ -406,15 +442,6 @@ namespace RobloxChatLauncher.Localization {
                 return ResourceManager.GetString("MessageRejectedUnknown", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to [Message hidden due to your filter settings.].
-        /// </summary>
-        public static string MessageHiddenDueToFilterSettings {
-            get {
-                return ResourceManager.GetString("MessageHiddenDueToFilterSettings", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to You must be verified to use /emote..
@@ -431,6 +458,15 @@ namespace RobloxChatLauncher.Localization {
         public static string MutedSpeaker {
             get {
                 return ResourceManager.GetString("MutedSpeaker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No account linked to this machine. Use /verify &lt;username&gt; to start..
+        /// </summary>
+        public static string NoAccountLinked {
+            get {
+                return ResourceManager.GetString("NoAccountLinked", resourceCulture);
             }
         }
         
@@ -606,7 +642,7 @@ namespace RobloxChatLauncher.Localization {
                 return ResourceManager.GetString("UsageEmote", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Usage: /filter &lt;strict|default|relaxed&gt;.
         /// </summary>

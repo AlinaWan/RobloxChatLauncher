@@ -120,10 +120,31 @@ namespace RobloxChatLauncher
                     }
                     return true;
 
+                /// <summary>Checks the server for an existing link based on this Machine ID and logs in if found.</summary>
+                case "/login":
+                    RichChatBox.AppendSystemMessage(chatBox, Strings.AttemptingLogin);
+                    bool loginSuccess = await _verifyService.Login();
+                    if (loginSuccess)
+                    {
+                        RichChatBox.AppendSystemMessage(chatBox, Strings.LoginSuccess);
+                        await RestartWebSocketAsync();
+                    }
+                    else
+                    {
+                        RichChatBox.AppendSystemMessage(chatBox, Strings.NoAccountLinked);
+                    }
+                    return true;
+
+                /// <summary>Clears local verification status only. Does not delete server data.</summary>
+                case "/logout":
+                    _verifyService.Logout(); // Calls the local-only logout
+                    RichChatBox.AppendSystemMessage(chatBox, Strings.LoggedOut);
+                    await RestartWebSocketAsync();
+                    return true;
+
                 /// <summary>Initiates the Roblox account verification process by fetching a unique code for the given Roblox username.</summary>
                 /// <param>args: The Roblox username to verify.</param>
                 case "/verify":
-                case "/login":
                     if (string.IsNullOrWhiteSpace(args))
                     {
                         RichChatBox.AppendSystemMessage(chatBox, Strings.UsageVerify);
@@ -172,7 +193,6 @@ namespace RobloxChatLauncher
 
                 /// <summary>Unverifies the user's Roblox account by clearing local verification data and attempting to unlink the account on the server, then refreshes the connection to update the username to "Guest".</summary>
                 case "/unverify":
-                case "/logout":
                     RichChatBox.AppendSystemMessage(chatBox, Strings.UnlinkingAccount);
                     bool unverified = await _verifyService.Unverify();
 
@@ -182,8 +202,6 @@ namespace RobloxChatLauncher
                     }
                     else
                     {
-                        // Even if the server call fails, we cleared local settings, 
-                        // so the user is effectively a guest now anyway.
                         RichChatBox.AppendSystemMessage(chatBox, Strings.LocalDataCleared);
                     }
 

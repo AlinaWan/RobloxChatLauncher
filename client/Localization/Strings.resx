@@ -346,4 +346,16 @@ Your code will expire in 10 minutes.</value>
   <data name="WSSendTimedOut" xml:space="preserve">
     <value>WS send timed out. (Render server may be waking up)</value>
   </data>
+  <data name="AttemptingLogin" xml:space="preserve">
+    <value>Attempting to log in...</value>
+  </data>
+  <data name="LoginSuccess" xml:space="preserve">
+    <value>Welcome back! Login successful.</value>
+  </data>
+  <data name="NoAccountLinked" xml:space="preserve">
+    <value>No account linked to this machine. Use /verify &lt;username&gt; to start.</value>
+  </data>
+  <data name="LoggedOut" xml:space="preserve">
+    <value>You have been logged out.</value>
+  </data>
 </root>

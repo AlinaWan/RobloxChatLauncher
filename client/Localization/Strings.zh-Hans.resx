@@ -346,4 +346,16 @@
   <data name="WSSendTimedOut" xml:space="preserve">
     <value>WebSocket 发送超时。（Render 服务器可能正在启动）</value>
   </data>
+  <data name="AttemptingLogin" xml:space="preserve">
+    <value>正在尝试登录...</value>
+  </data>
+  <data name="LoginSuccess" xml:space="preserve">
+    <value>欢迎回来！登录成功。</value>
+  </data>
+  <data name="NoAccountLinked" xml:space="preserve">
+    <value>此设备未绑定账号。请使用 /verify &lt;用户名&gt; 开始验证。</value>
+  </data>
+  <data name="LoggedOut" xml:space="preserve">
+    <value>您已退出登录。</value>
+  </data>
 </root>

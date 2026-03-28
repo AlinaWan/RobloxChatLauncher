@@ -32,6 +32,15 @@ namespace RobloxChatLauncher.Services
             }
         }
 
+        private class LoginResponse
+        {
+            [JsonPropertyName("robloxId")]
+            public long RobloxId
+            {
+                get; set;
+            }
+        }
+
         public static string GetMachineId()
         {
             using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography"))
@@ -118,11 +127,9 @@ namespace RobloxChatLauncher.Services
             try
             {
                 string hwid = GetMachineId();
-                long robloxId = Properties.Settings1.Default.RobloxUserId;
                 var payload = new
                 {
-                    hwid,
-                    robloxId
+                    hwid
                 };
                 var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
@@ -140,6 +147,43 @@ namespace RobloxChatLauncher.Services
             {
                 return false;
             }
+        }
+
+        public async Task<bool> Login()
+        {
+            try
+            {
+                string hwid = GetMachineId();
+                var payload = new
+                {
+                    hwid
+                };
+                var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+                var response = await ChatForm.Client.PostAsync($"https://{Constants.BASE_URL}/api/v1/verify/login", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<LoginResponse>(json);
+
+                    Properties.Settings1.Default.RobloxUserId = result?.RobloxId ?? 0;
+                    Properties.Settings1.Default.IsVerified = true;
+                    Properties.Settings1.Default.Save();
+                    return true;
+                }
+                return false;
+            }
+            catch { return false; }
+        }
+
+        /// <summary>
+        /// Simply wipes local verification status without telling the server to delete the database entry.
+        /// </summary>
+        public void Logout()
+        {
+            Properties.Settings1.Default.IsVerified = false;
+            Properties.Settings1.Default.Save();
         }
     }
 }
