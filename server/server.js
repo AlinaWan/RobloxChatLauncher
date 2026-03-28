@@ -85,7 +85,7 @@ function enqueueMessage(text) {
     return new Promise((resolve) => {
         // Reject immediately if the queue is too long
         if (messageQueue.length >= Constants.MAX_QUEUE_SIZE) {
-            resolve({ allowed: false, reason: "queue_full", attributeScores: null });
+            resolve({ allowed: false, reason: "queue_full" });
             return;
         }
         
@@ -106,8 +106,7 @@ async function processQueue() {
         if (!result.allowed) {
             resolve({
                 allowed: false,
-                reason: result.reason || "moderation",
-                attributeScores: result.attributeScores || null
+                reason: result.reason || "moderation"
             });
         } else {
             resolve({
@@ -116,7 +115,7 @@ async function processQueue() {
             });
         }
     } catch (err) {
-        resolve({ allowed: false, reason: "api_error", attributeScores: null });
+        resolve({ allowed: false, reason: "api_error" });
     }
 
     // Delay to respect Perspective API limits (1 request per second)

@@ -67,8 +67,7 @@ async function isMessageAllowed(text) {
         ) {
             return {
                 allowed: false,
-                reason: 'moderation',
-                attributeScores: scores
+                reason: 'moderation'
             };
         }
 
@@ -81,8 +80,7 @@ async function isMessageAllowed(text) {
         console.error("Perspective API error:", err.message);
         return {
             allowed: false,
-            reason: 'api_error',
-            attributeScores: null
+            reason: 'api_error'
         }; // Fail closed
     }
 }
