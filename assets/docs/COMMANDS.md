@@ -12,6 +12,7 @@
 | /id | `/channel` | Displays the current channel ID in the chat box. | - |
 | /bug | `/issue` | Opens the default web browser to the GitHub issues page for reporting bugs or requesting features. | - |
 | /mute | - | Handles muting a user by their username, preventing their messages from appearing in the chat box. | args: The username of the user to mute. |
+| /filter | - | Sets or displays the local message filter preference. | args: One of strict, default, or relaxed. Empty args displays current setting. |
 | /unmute | - | Handles unmuting a user by their username, allowing their messages to appear in the chat box again. | args: The username of the user to unmute. |
 | /whisper | `/w` | Handles sending a private whisper message to another user. | args: The username and message in the format "username message". |
 | /console | `/debug` | Opens or closes the debug console window. | - |
