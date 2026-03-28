@@ -8,7 +8,7 @@
 | --allow-multiple  | `switch` | Bypasses the single instance check and does not assign a mutex to the process.                                                                                                                                                                        | -     |
 | --uninstall       | `switch` | Silently restores the URI protocol handler registry key to point to a resolved Roblox client and immediately exits the program. The client is automatically run with this option when uninstalling the program via the "Add or remove programs" menu. | -     |
 
-## Inno Setup Options
+## Installer Options
 | Option        | Type     | Summary                                                                                                                                    | Param |
 | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
 | /CLEANINSTALL | `switch` | Uninstalls the previously installed version of Roblox Chat Launcher by silently running the uninstaller before installing the new version. | -     |
