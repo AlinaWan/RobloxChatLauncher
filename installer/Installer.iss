@@ -55,6 +55,98 @@ begin
   end;
 end;
 
+// -------------------------------------------------------------------
+// Helper function to check for the presence of the /CLEANINSTALL flag
+// -------------------------------------------------------------------
+function IsCleanInstallFlagPresent(): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+  begin
+    if CompareText(ParamStr(I), '/CLEANINSTALL') = 0 then
+    begin
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
+// --------------------------------------------------------------------
+// Helper function to check for the presence of the /CLEARAPPDATA flag
+// --------------------------------------------------------------------
+function IsClearAppDataFlagPresent(): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+  begin
+    if CompareText(ParamStr(I), '/CLEARAPPDATA') = 0 then
+    begin
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
+// --------------------------------------------------------------------
+// Helper function to check for the presence of the /FORCEPURGE flag
+// --------------------------------------------------------------------
+function IsForcePurgeFlagPresent(): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+  begin
+    if CompareText(ParamStr(I), '/FORCEPURGE') = 0 then
+    begin
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
+// ---------------------------------------------------------------
+// Helper to remove existing installation
+// ---------------------------------------------------------------
+procedure RemoveExistingInstallation();
+var
+  UninstallExe: string;
+  UninstallKey: string;
+  ResultCode: Integer;
+begin
+  UninstallKey := 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{B0BACAFE-D326-4A7B-B6BA-1437C0DEBABE}_is1';
+
+  // Uninstall the existing application if it exists by running the uninstaller silently
+  if RegQueryStringValue(HKLM, UninstallKey, 'UninstallString', UninstallExe) then
+  begin
+    UninstallExe := RemoveQuotes(UninstallExe);
+    
+    if FileExists(UninstallExe) then
+    begin
+      Exec(UninstallExe, '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    end;
+  end;
+end;
+
+// ---------------------------------------------------------------
+// Helper to remove existing local app data
+// ---------------------------------------------------------------
+procedure RemoveExistingAppData();
+var
+  AppDataPath: string;
+begin
+  // Forcefully remove local app data folder
+  AppDataPath := ExpandConstant('{localappdata}\RobloxChatLauncher');
+  if (Length(AppDataPath) > 3) and DirExists(AppDataPath) then
+  begin
+    DelTree(AppDataPath, True, True, True);   
+  end;
+end;
+
 // -----------------------------------------------------
 // .NET Desktop Runtime installation check and installer
 // -----------------------------------------------------
@@ -95,11 +187,26 @@ begin
   DeleteFile(TmpFileName);
 end;
 
+// ---------------------------------------------------------------
+// InitializeSetup override
+// ---------------------------------------------------------------
 function InitializeSetup(): Boolean;
 var
   ErrorCode: Integer;
 begin
   Result := True;
+
+  // If /CLEANINSTALL is passed, forcefully remove old installation before installing new version
+  if IsCleanInstallFlagPresent() then
+  begin
+    RemoveExistingInstallation();
+  end;
+
+  // If /CLEARAPPDATA is passed, forcefully remove local app data before installation
+  if IsClearAppDataFlagPresent() then
+  begin
+    RemoveExistingAppData();
+  end;
 
   if not IsDotNet10Installed() then
   begin
@@ -127,6 +234,36 @@ begin
     begin
       MsgBox('Installation cannot proceed without .NET Desktop Runtime 10.0.', mbError, MB_OK);
       Result := False;
+    end;
+  end;
+end;
+
+// ---------------------------------------------------------------
+// CurStepChanged override
+// ---------------------------------------------------------------
+// Inno Setup already warns users if the chosen installation directory already exists, but it does
+// not remove its contents if the user proceeds anyways. If the /FORCEPURGE flag is passed, we will
+// forcefully remove all contents after the user proceeds.
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  TargetDir: string;
+begin
+  if CurStep = ssInstall then
+  begin
+    if IsForcePurgeFlagPresent() then
+    begin
+      // The target installation directory chosen by the user exists by now
+      TargetDir := ExpandConstant('{app}');
+      
+      if (Length(TargetDir) > 3) and DirExists(TargetDir) then
+      begin
+        Log('Purging directory: ' + TargetDir);
+        // DelTree(Path, IsDir, DeleteFiles, DeleteSubdirs)
+        if not DelTree(TargetDir, True, True, True) then
+        begin
+           Log('Could not purge directory: ' + TargetDir);
+        end;
+      end;
     end;
   end;
 end;
