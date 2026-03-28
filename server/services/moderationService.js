@@ -50,16 +50,6 @@ async function isMessageAllowed(text) {
 
         const scores = response.data.attributeScores;
 
-        const policyScore = Math.max(
-            scores.TOXICITY?.summaryScore?.value || 0,
-            scores.INSULT?.summaryScore?.value || 0,
-            scores.PROFANITY?.summaryScore?.value || 0,
-            scores.SEVERE_TOXICITY?.summaryScore?.value || 0,
-            scores.IDENTITY_ATTACK?.summaryScore?.value || 0,
-            scores.THREAT?.summaryScore?.value || 0,
-            scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0
-        );
-
         // === Custom policy logic ===
         // Block severe toxicity, threats, sexual explicit, etc.
         if (
@@ -78,21 +68,21 @@ async function isMessageAllowed(text) {
             return {
                 allowed: false,
                 reason: 'moderation',
-                policyScore
+                attributeScores: scores
             };
         }
 
         // Everything else is allowed
         return {
             allowed: true,
-            policyScore
+            attributeScores: scores
         };
     } catch (err) {
         console.error("Perspective API error:", err.message);
         return {
             allowed: false,
             reason: 'api_error',
-            policyScore: 1
+            attributeScores: null
         }; // Fail closed
     }
 }

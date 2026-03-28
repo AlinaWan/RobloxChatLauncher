@@ -85,7 +85,7 @@ function enqueueMessage(text) {
     return new Promise((resolve) => {
         // Reject immediately if the queue is too long
         if (messageQueue.length >= Constants.MAX_QUEUE_SIZE) {
-            resolve({ allowed: false, reason: "queue_full", policyScore: 1 });
+            resolve({ allowed: false, reason: "queue_full", attributeScores: null });
             return;
         }
         
@@ -107,16 +107,16 @@ async function processQueue() {
             resolve({
                 allowed: false,
                 reason: result.reason || "moderation",
-                policyScore: typeof result.policyScore === 'number' ? result.policyScore : 1
+                attributeScores: result.attributeScores || null
             });
         } else {
             resolve({
                 allowed: true,
-                policyScore: typeof result.policyScore === 'number' ? result.policyScore : 0
+                attributeScores: result.attributeScores || null
             });
         }
     } catch (err) {
-        resolve({ allowed: false, reason: "api_error", policyScore: 1 });
+        resolve({ allowed: false, reason: "api_error", attributeScores: null });
     }
 
     // Delay to respect Perspective API limits (1 request per second)
@@ -498,7 +498,7 @@ wss.on('connection', (ws, req) => {
                                                // Note that guest numbers are temporary and change on every reconnect, so they cannot be used to track users across sessions.
                                                //They are only for display purposes within a single session.
                         verified: ws.isVerified,
-                        policyScore: moderation.policyScore
+                        attributeScores: moderation.attributeScores
                     });
                 } else {
                     // IMPORTANT: do NOT log message contents if rejected
@@ -528,7 +528,7 @@ wss.on('connection', (ws, req) => {
                                 text: payload.text,
                                 sender: ws.senderName, // Raw name for client-side mute check
                                 whisperType: 'from',   // Client will prepend "From "
-                                policyScore: moderation.policyScore
+                                attributeScores: moderation.attributeScores
                             }));
                             found = true;
                         }
@@ -541,7 +541,7 @@ wss.on('connection', (ws, req) => {
                         text: payload.text,
                         sender: targetName,   // Raw name for client-side mute check
                         whisperType: 'to',    // Client will prepend "To "
-                        policyScore: moderation.policyScore
+                        attributeScores: moderation.attributeScores
                     }));
 
                     if (!found) {
