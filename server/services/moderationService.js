@@ -9,15 +9,6 @@ const Env = require('../config/env');
 // Perspective users must register for access
 // See: https://developers.perspectiveapi.com/s/docs-get-started?language=en_US
 
-/*
-Future architecture:
-    Depending on user preference, the following may be allowed or filtered:
-        - Mild, non-toxic use of swearing/profanity (e.g., "damn", "hell", "holy shit this sucks", "what the fuck?")
-        - Mild, non-prejudiced insults (e.g., "you're stupid", "I hate you", "you're annoying")
-        - Mild, non-graphic sexual content (e.g., "that's hot", "I'm into you")
-*/
-
-// In the future, the user will be able to set preferences to block or see the content described above
 // Map attributes
 // See: https://developers.perspectiveapi.com/s/about-the-api-attributes-and-languages?language=en_US
 const ATTRIBUTES = {
@@ -52,18 +43,15 @@ async function isMessageAllowed(text) {
 
         // === Custom policy logic ===
         // Block severe toxicity, threats, sexual explicit, etc.
+        // The client will locally filter more strictly based on user preferences
         if (
             (scores.IDENTITY_ATTACK?.summaryScore?.value || 0) > 0.50 ||
             (scores.SEXUALLY_EXPLICIT?.summaryScore?.value || 0) > 0.50 ||
             (scores.SEVERE_TOXICITY?.summaryScore?.value || 0) > 0.60 ||
             (scores.THREAT?.summaryScore?.value || 0) > 0.80 ||
             (scores.TOXICITY?.summaryScore?.value || 0) > 0.90 ||
-
-             // More lenient on insults, profanity, etc., but still block extreme cases
-             // Again, users will be able to set their own preferences in the future
-             // And block these categories wholly if they want
-             (scores.INSULT?.summaryScore?.value || 0) > 0.90 ||
-             (scores.PROFANITY?.summaryScore?.value || 0) > 0.95
+            (scores.INSULT?.summaryScore?.value || 0) > 0.90 ||
+            (scores.PROFANITY?.summaryScore?.value || 0) > 0.95
         ) {
             return {
                 allowed: false,

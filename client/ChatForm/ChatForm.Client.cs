@@ -450,32 +450,32 @@ namespace RobloxChatLauncher
             {
                 "strict" => new FilterPresetThresholds
                 {
-                    Toxicity = 0.35,
-                    Insult = 0.30,
+                    Toxicity = 0.60,
+                    Insult = 0.65,
                     Profanity = 0.55,
-                    SevereToxicity = 0.25,
-                    IdentityAttack = 0.20,
-                    Threat = 0.15,
-                    SexuallyExplicit = 0.25,
+                    SevereToxicity = 0.30,
+                    IdentityAttack = 0.30,
+                    Threat = 0.65,
+                    SexuallyExplicit = 0.30,
                 },
                 "relaxed" => new FilterPresetThresholds
                 {
-                    Toxicity = 0.80,
-                    Insult = 0.80,
-                    Profanity = 0.90,
+                    Toxicity = 0.95,
+                    Insult = 0.95,
+                    Profanity = 0.95,
                     SevereToxicity = 0.70,
-                    IdentityAttack = 0.70,
-                    Threat = 0.60,
+                    IdentityAttack = 0.60,
+                    Threat = 0.80,
                     SexuallyExplicit = 0.70,
                 },
                 _ => new FilterPresetThresholds
                 {
-                    Toxicity = 0.60,
-                    Insult = 0.60,
-                    Profanity = 0.75,
+                    Toxicity = 0.85,
+                    Insult = 0.85,
+                    Profanity = 0.70,
                     SevereToxicity = 0.50,
-                    IdentityAttack = 0.45,
-                    Threat = 0.40,
+                    IdentityAttack = 0.40,
+                    Threat = 0.75,
                     SexuallyExplicit = 0.50,
                 },
             };
