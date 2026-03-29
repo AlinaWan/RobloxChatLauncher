@@ -108,7 +108,7 @@ async function checkLogin(req, res) {
         if (result.rowCount > 0) {
             return res.json({
                 success: true,
-                robloxId: result.rows[0].roblox_id
+                robloxId: Number(result.rows[0].roblox_id)
             });
         } else {
             return res.status(401).json({ success: false });
