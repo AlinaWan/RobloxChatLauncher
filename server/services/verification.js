@@ -101,7 +101,7 @@ async function checkLogin(req, res) {
 
     try {
         const result = await pool.query(
-            'SELECT 1 FROM verified_users WHERE hwid = $1',
+            'SELECT roblox_id FROM verified_users WHERE hwid = $1',
             [hwid]
         );
 
