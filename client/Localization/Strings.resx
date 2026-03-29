@@ -358,4 +358,7 @@ Your code will expire in 10 minutes.</value>
   <data name="LoggedOut" xml:space="preserve">
     <value>You have been logged out.</value>
   </data>
+  <data name="LoginFailed" xml:space="preserve">
+    <value>❌ Verification failed due to a server error.</value>
+  </data>
 </root>

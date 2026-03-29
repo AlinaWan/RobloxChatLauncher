@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Win32;
 using RobloxChatLauncher.Core;
+using static RobloxChatLauncher.ChatForm;
 
 namespace RobloxChatLauncher.Services
 {
@@ -11,6 +12,13 @@ namespace RobloxChatLauncher.Services
         Success,
         CodeNotFound,
         HardwareIdFailed,
+        ServerError
+    }
+
+    public enum LoginResult
+    {
+        Success,
+        NotLinked,
         ServerError
     }
 
@@ -149,32 +157,56 @@ namespace RobloxChatLauncher.Services
             }
         }
 
-        public async Task<bool> Login()
+        public async Task<LoginResult> Login()
         {
             try
             {
                 string hwid = GetMachineId();
+
                 var payload = new
                 {
                     hwid
                 };
-                var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
-                var response = await ChatForm.Client.PostAsync($"https://{Constants.BASE_URL}/api/v1/verify/login", content);
+                var content = new StringContent(
+                    JsonSerializer.Serialize(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
 
-                if (response.IsSuccessStatusCode)
+                var response = await ChatForm.Client.PostAsync(
+                    $"https://{Constants.BASE_URL}/api/v1/verify/login",
+                    content
+                );
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var result = JsonSerializer.Deserialize<LoginResponse>(json);
-
-                    Properties.Settings1.Default.RobloxUserId = result?.RobloxId ?? 0;
-                    Properties.Settings1.Default.IsVerified = true;
-                    Properties.Settings1.Default.Save();
-                    return true;
+                    return LoginResult.NotLinked;
                 }
-                return false;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return LoginResult.ServerError;
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<LoginResponse>(json);
+
+                if (result == null || result.RobloxId == 0)
+                {
+                    return LoginResult.ServerError;
+                }
+
+                Properties.Settings1.Default.RobloxUserId = result.RobloxId;
+                Properties.Settings1.Default.IsVerified = true;
+                Properties.Settings1.Default.Save();
+
+                return LoginResult.Success;
             }
-            catch { return false; }
+            catch
+            {
+                return LoginResult.ServerError;
+            }
         }
 
         /// <summary>

@@ -390,6 +390,15 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ❌ Verification failed due to a server error..
+        /// </summary>
+        public static string LoginFailed {
+            get {
+                return ResourceManager.GetString("LoginFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Welcome back! Login successful..
         /// </summary>
         public static string LoginSuccess {

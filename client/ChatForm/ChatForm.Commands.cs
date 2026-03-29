@@ -123,15 +123,23 @@ namespace RobloxChatLauncher
                 /// <summary>Checks the server for an existing link based on this device and logs in if found.</summary>
                 case "/login":
                     RichChatBox.AppendSystemMessage(chatBox, Strings.AttemptingLogin);
-                    bool loginSuccess = await _verifyService.Login();
-                    if (loginSuccess)
+
+                    var result = await _verifyService.Login();
+
+                    switch (result)
                     {
-                        RichChatBox.AppendSystemMessage(chatBox, Strings.LoginSuccess);
-                        await RestartWebSocketAsync();
-                    }
-                    else
-                    {
-                        RichChatBox.AppendSystemMessage(chatBox, Strings.NoAccountLinked);
+                        case LoginResult.Success:
+                            RichChatBox.AppendSystemMessage(chatBox, Strings.LoginSuccess);
+                            await RestartWebSocketAsync();
+                            break;
+
+                        case LoginResult.NotLinked:
+                            RichChatBox.AppendSystemMessage(chatBox, Strings.NoAccountLinked);
+                            break;
+
+                        case LoginResult.ServerError:
+                            RichChatBox.AppendSystemMessage(chatBox, Strings.LoginFailed);
+                            break;
                     }
                     return true;
 

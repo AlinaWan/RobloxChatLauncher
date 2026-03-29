@@ -358,4 +358,7 @@
   <data name="LoggedOut" xml:space="preserve">
     <value>您已退出登录。</value>
   </data>
+  <data name="LoginFailed" xml:space="preserve">
+    <value>❌ 由于服务器错误，登录失败。</value>
+  </data>
 </root>
