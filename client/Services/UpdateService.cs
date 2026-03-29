@@ -83,7 +83,7 @@ namespace RobloxChatLauncher.Services
                     {
                         FileName = tempPath,
                         // Pass the /FORCERUN flag to restart the app after installation and attach to the current Roblox process
-                        Arguments = $"/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOG=\"{logPath}\" /FORCERUN",
+                        Arguments = $"/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOG=\"{logPath}\" /FORCERUN /CLEANINSTALL",
                         UseShellExecute = true,
                     });
 
