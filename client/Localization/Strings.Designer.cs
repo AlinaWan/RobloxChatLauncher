@@ -462,7 +462,7 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No account linked to this machine. Use /verify &lt;username&gt; to start..
+        ///   Looks up a localized string similar to No account linked to this device. Use /verify &lt;username&gt; to start..
         /// </summary>
         public static string NoAccountLinked {
             get {

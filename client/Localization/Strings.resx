@@ -353,7 +353,7 @@ Your code will expire in 10 minutes.</value>
     <value>Welcome back! Login successful.</value>
   </data>
   <data name="NoAccountLinked" xml:space="preserve">
-    <value>No account linked to this machine. Use /verify &lt;username&gt; to start.</value>
+    <value>No account linked to this device. Use /verify &lt;username&gt; to start.</value>
   </data>
   <data name="LoggedOut" xml:space="preserve">
     <value>You have been logged out.</value>
