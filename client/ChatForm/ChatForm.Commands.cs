@@ -120,7 +120,7 @@ namespace RobloxChatLauncher
                     }
                     return true;
 
-                /// <summary>Checks the server for an existing link based on this Machine ID and logs in if found.</summary>
+                /// <summary>Checks the server for an existing link based on this device and logs in if found.</summary>
                 case "/login":
                     RichChatBox.AppendSystemMessage(chatBox, Strings.AttemptingLogin);
                     bool loginSuccess = await _verifyService.Login();
