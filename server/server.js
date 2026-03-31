@@ -217,7 +217,7 @@ app.delete('/api/v1/admin/verified/:hwid', validateAdmin, async (req, res) => {
 
 // ------ Global Broadcast ------
 app.post('/api/v1/admin/broadcast', express.json(), validateWrite, async (req, res) => {
-    const { text, sender } = req.body;
+    const { text, sender, color } = req.body;
 
     if (!text) {
         return res.status(400).json({ error: "Missing 'text' field in JSON body" });
@@ -227,6 +227,7 @@ app.post('/api/v1/admin/broadcast', express.json(), validateWrite, async (req, r
         type: 'message',
         text: text,
         sender: sender || "Broadcast",
+        color: color || null, // Can be a hex code, System.Drawing.Color name, or null for Roblox default
         verified: true,
         isBroadcast: true
     });

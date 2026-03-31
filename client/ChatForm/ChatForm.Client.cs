@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -138,7 +139,8 @@ namespace RobloxChatLauncher
                         {
                             string sender = data?["sender"]?.ToString() ?? string.Empty;
                             string text = data?["text"]?.ToString() ?? string.Empty;
-                            string whisperType = data?["whisperType"]?.ToString() ?? string.Empty; // New field
+                            string whisperType = data?["whisperType"]?.ToString() ?? string.Empty; // Check for whisper
+                            bool isBroadcast = data?["isBroadcast"]?.GetValue<bool>() ?? false; // Check for global broadcast
 
                             PolicyScoresDto? scores = MessageFilterService.ParsePolicyScores(data?["attributeScores"]);
                             if (scores != null && MessageFilterService.ShouldHideMessageByFilter(scores))
@@ -157,7 +159,15 @@ namespace RobloxChatLauncher
                                 else if (whisperType == "to")
                                     displaySender = $"{string.Format(Strings.WhisperTo, sender)}";
 
-                                RichChatBox.AppendChatMessage(chatBox, displaySender, text);
+                                if (isBroadcast)
+                                {
+                                    string? colorHex = data?["color"]?.ToString();
+                                    RichChatBox.AppendBroadcastMessage(chatBox, displaySender, text, colorHex);
+                                }
+                                else
+                                {
+                                    RichChatBox.AppendChatMessage(chatBox, displaySender, text);
+                                }
                             }
                         }
                         // Rejection handling

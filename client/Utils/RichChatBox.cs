@@ -65,6 +65,48 @@ namespace RobloxChatLauncher.Utils
             box.ScrollToCaret();
             NativeMethods.HideCaret(box.Handle);
         }
-    }
 
+        // Main overload for broadcast messages
+        public static void AppendBroadcastMessage(RichTextBox box, string sender, string message, Color? overrideColor)
+        {
+            // Use overrideColor if provided, otherwise use NameColorUtil
+            Color nameColor = overrideColor ?? NameColorUtil.GetNameColor(sender);
+
+            box.SelectionStart = box.TextLength;
+            box.SelectionLength = 0;
+
+            box.SelectionFont = new Font(box.Font, FontStyle.Bold);
+            box.SelectionColor = nameColor;
+            box.AppendText($"[{sender}]: ");
+
+            box.SelectionFont = new Font(box.Font, FontStyle.Regular);
+            box.SelectionColor = box.ForeColor;
+            box.AppendText($"{message}\r\n");
+
+            box.SelectionStart = box.TextLength;
+            box.ScrollToCaret();
+            NativeMethods.HideCaret(box.Handle);
+        }
+
+        // Hex String Overload
+        public static void AppendBroadcastMessage(RichTextBox box, string sender, string message, string? hexColor)
+        {
+            Color? parsedColor = null;
+            if (!string.IsNullOrEmpty(hexColor))
+            {
+                try
+                {
+                    parsedColor = ColorTranslator.FromHtml(hexColor);
+                }
+                catch { /* Invalid hex */ }
+            }
+            AppendBroadcastMessage(box, sender, message, parsedColor);
+        }
+
+        // Default Overload
+        public static void AppendBroadcastMessage(RichTextBox box, string sender, string message)
+        {
+            AppendBroadcastMessage(box, sender, message, (Color?)null);
+        }
+    }
 }
