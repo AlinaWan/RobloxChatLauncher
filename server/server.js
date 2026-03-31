@@ -215,6 +215,48 @@ app.delete('/api/v1/admin/verified/:hwid', validateAdmin, async (req, res) => {
     }
 });
 
+// ------ Global Broadcast ------
+app.post('/api/v1/admin/broadcast', express.json(), validateWrite, async (req, res) => {
+    const { text, sender } = req.body;
+
+    if (!text) {
+        return res.status(400).json({ error: "Missing 'text' field in JSON body" });
+    }
+
+    const payload = JSON.stringify({
+        type: 'message',
+        text: text,
+        sender: sender || "Broadcast",
+        verified: true,
+        isBroadcast: true
+    });
+
+    let recipientCount = 0;
+    const channelCount = channels.size;
+
+    // Send to every client in every channel
+    channels.forEach((clients) => {
+        clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                try {
+                    client.send(payload);
+                    recipientCount++;
+                } catch (err) {
+                    console.error("Broadcast send failed:", err);
+                }
+            }
+        });
+    });
+
+    res.json({
+        status: "success",
+        stats: {
+            totalRecipients: recipientCount,
+            totalChannels: channelCount
+        }
+    });
+});
+
 // ----- Command Mailbox Middleware -----
 const validateRegistry = async (req, res, next) => {
     const universeId = req.headers['x-universe-id'];
