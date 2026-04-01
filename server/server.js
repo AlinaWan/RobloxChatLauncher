@@ -226,7 +226,7 @@ app.post('/api/v1/admin/broadcast', express.json(), validateWrite, async (req, r
     const payload = JSON.stringify({
         type: 'message',
         text: text,
-        sender: sender || "Broadcast",
+        sender: sender || "Global Broadcast",
         color: color || null, // Can be a hex code, System.Drawing.Color name, or null for Roblox default
         verified: true,
         isBroadcast: true
