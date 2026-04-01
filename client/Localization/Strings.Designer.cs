@@ -698,6 +698,15 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to User {0} not found in this channel..
+        /// </summary>
+        public static string UserNotFoundInChannel {
+            get {
+                return ResourceManager.GetString("UserNotFoundInChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ❌ Verification failed due to a server error..
         /// </summary>
         public static string VerificationFailed {

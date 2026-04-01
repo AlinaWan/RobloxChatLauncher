@@ -562,36 +562,30 @@ wss.on('connection', (ws, req) => {
                     const clients = channels.get(currentChannel);
                     let found = false;
 
-                    // 1. Send to the Recipient
+                    const whisperPayload = {
+                        type: 'whisper',
+                        text: payload.text,
+                        sender: ws.senderName,
+                        target: targetName,
+                        attributeScores: moderation.attributeScores
+                    };
+
+                    // 1. Send to the Recipient (isTo = false)
                     clients.forEach(client => {
-                        // 1. Send to the Recipient
                         if (client.senderName === targetName) {
-                            client.send(JSON.stringify({
-                                type: 'message',
-                                text: payload.text,
-                                sender: ws.senderName, // Raw name for client-side mute check
-                                whisperType: 'from',   // Client will prepend "From "
-                                attributeScores: moderation.attributeScores
-                            }));
+                            client.send(JSON.stringify({ ...whisperPayload, isTo: false }));
                             found = true;
                         }
                     });
 
-                    // 2. Send back to the Sender (You)
-                    // This confirms the server processed it.
-                    ws.send(JSON.stringify({
-                        type: 'message',
-                        text: payload.text,
-                        sender: targetName,   // Raw name for client-side mute check
-                        whisperType: 'to',    // Client will prepend "To "
-                        attributeScores: moderation.attributeScores
-                    }));
+                    // 2. Send back to the Sender (isTo = true)
+                    ws.send(JSON.stringify({ ...whisperPayload, isTo: true }));
 
                     if (!found) {
                         ws.send(JSON.stringify({
-                            type: 'message',
-                            sender: 'System',
-                            text: `User ${targetName} not found in this channel.`
+                            status: 'rejected',
+                            reason: 'not_found',
+                            target: targetName
                         }));
                     }
                 }

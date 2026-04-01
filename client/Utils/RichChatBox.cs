@@ -25,24 +25,32 @@ namespace RobloxChatLauncher.Utils
             LoadAllFonts();
         }
 
+        /// <remarks>
+        /// This method uses some stupid ugly hacks because GDI+ is a nightmare to work with and usually maps the wrong fonts and WinForms is stupid.
+        /// Don't try to fix or simplify this unless you ensure the random chance to map the wrong font issue is actually resolved.
+        /// You may think that loading all fonts into a single PrivateFontCollection and then creating Font objects with specific styles (Regular, Bold, Italic) would work, but it doesn't.
+        /// You may find that a fix will cause it to be random if Medium or Black actually gets mapped to the correct weight, and sometimes Regular will map to Light because GDI+ is a joke.
+        /// </remarks>
         private static void LoadAllFonts()
         {
             string[] fontFiles = {
-                "Montserrat-Black.ttf", "Montserrat-BlackItalic.ttf",
+                "Montserrat-Thin.ttf", "Montserrat-ThinItalic.ttf",
+                "Montserrat-ExtraLight.ttf", "Montserrat-ExtraLightItalic.ttf",
+                "Montserrat-Light.ttf", "Montserrat-LightItalic.ttf",
+                "Montserrat-Regular.ttf", "Montserrat-Italic.ttf",
+                "Montserrat-Medium.ttf", "Montserrat-MediumItalic.ttf",
+                "Montserrat-SemiBold.ttf", "Montserrat-SemiBoldItalic.ttf",
                 "Montserrat-Bold.ttf", "Montserrat-BoldItalic.ttf",
                 "Montserrat-ExtraBold.ttf", "Montserrat-ExtraBoldItalic.ttf",
-                "Montserrat-ExtraLight.ttf", "Montserrat-ExtraLightItalic.ttf",
-                "Montserrat-Italic.ttf", "Montserrat-Light.ttf",
-                "Montserrat-LightItalic.ttf", "Montserrat-Medium.ttf",
-                "Montserrat-MediumItalic.ttf", "Montserrat-Regular.ttf",
-                "Montserrat-SemiBold.ttf", "Montserrat-SemiBoldItalic.ttf",
-                "Montserrat-Thin.ttf", "Montserrat-ThinItalic.ttf"
+                "Montserrat-Black.ttf", "Montserrat-BlackItalic.ttf"
             };
 
             var assembly = Assembly.GetExecutingAssembly();
 
             foreach (var fileName in fontFiles)
             {
+                string weight = Path.GetFileNameWithoutExtension(fileName).Replace("Montserrat-", "");
+
                 using Stream? stream = assembly.GetManifestResourceStream(fileName);
                 if (stream == null)
                     continue;
@@ -50,18 +58,60 @@ namespace RobloxChatLauncher.Utils
                 byte[] fontData = new byte[stream.Length];
                 stream.Read(fontData, 0, fontData.Length);
 
-                IntPtr data = Marshal.AllocCoTaskMem(fontData.Length);
-                Marshal.Copy(fontData, 0, data, fontData.Length);
+                // Define what this SPECIFIC file MUST be named by GDI+ to be considered "correct"
+                // Most Montserrat weights include the weight in the family name (e.g. "Montserrat Medium")
+                // except for Regular, Bold, Italic, and BoldItalic which GDI+ usually just calls "Montserrat"
+                string expectedBase = weight.Replace("Italic", "").Trim();
+                string expectedName = (expectedBase == "Regular" || expectedBase == "Bold" || expectedBase == "")
+                    ? "Montserrat"
+                    : $"Montserrat {expectedBase}";
 
-                _fontCollection.AddMemoryFont(data, fontData.Length);
-                uint cFonts = 0;
-                NativeMethods.AddFontMemResourceEx(data, (uint)fontData.Length, IntPtr.Zero, ref cFonts);
+                bool success = false;
+                for (int attempt = 0; attempt < 20 && !success; attempt++)
+                {
+                    // Allocate fresh memory for every single attempt to defeat GDI+ caching
+                    IntPtr data = Marshal.AllocCoTaskMem(fontData.Length);
+                    Marshal.Copy(fontData, 0, data, fontData.Length);
 
-                Marshal.FreeCoTaskMem(data);
+                    var solo = new PrivateFontCollection();
+                    solo.AddMemoryFont(data, fontData.Length);
 
-                // Map weight name
-                string weight = Path.GetFileNameWithoutExtension(fileName).Replace("Montserrat-", "");
-                _montserratWeights[weight] = _fontCollection.Families.Last();
+                    if (solo.Families.Length > 0)
+                    {
+                        var family = solo.Families[0];
+
+                        // If it's a specific weight (like Medium) but GDI+ named it generic "Montserrat", 
+                        // it means it merged. This is a FAILURE. We loop again.
+                        if (family.Name.Equals(expectedName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            _montserratWeights[weight] = family;
+
+                            // Now that we have our isolated pointer, register it for the RichTextBox
+                            _fontCollection.AddMemoryFont(data, fontData.Length);
+                            uint cFonts = 0;
+                            NativeMethods.AddFontMemResourceEx(data, (uint)fontData.Length, IntPtr.Zero, ref cFonts);
+
+                            Console.WriteLine($"[FontLoad] Key: {weight,-15} | Mapped To: {family.Name,-20} | Status: CORRECT");
+                            success = true;
+                            // Note: We do NOT free 'data' because the FontFamily and GDI+ need it alive.
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[FontLoad] !! INCORRECT !! Key: {weight} expected '{expectedName}' but GDI+ merged it into '{family.Name}'. Retrying...");
+
+                            // Clean up this failed attempt's memory and try again
+                            Marshal.FreeCoTaskMem(data);
+                            solo.Dispose();
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[FontLoad] !! FAILURE !! GDI+ failed to load {weight} into memory. Retrying...");
+
+                        Marshal.FreeCoTaskMem(data);
+                        solo.Dispose();
+                    }
+                }
             }
         }
 
@@ -69,10 +119,18 @@ namespace RobloxChatLauncher.Utils
         {
             if (_montserratWeights.TryGetValue(weight, out FontFamily? family))
             {
-                return new Font(family, size);
+                // Check if this specific family object supports the Bold style.
+                // If we loaded "Montserrat-Bold.ttf", IsStyleAvailable(Bold) will be true.
+                if (weight.Contains("Bold") && family.IsStyleAvailable(FontStyle.Bold))
+                    return new Font(family, size, FontStyle.Bold);
+
+                if (weight.Contains("Italic") && family.IsStyleAvailable(FontStyle.Italic))
+                    return new Font(family, size, FontStyle.Italic);
+
+                return new Font(family, size, FontStyle.Regular);
             }
 
-            return new Font(_montserratWeights["Regular"], size);
+            return new Font(SystemFonts.DefaultFont.FontFamily, size);
         }
 
         // Plain text
@@ -108,6 +166,33 @@ namespace RobloxChatLauncher.Utils
             box.AppendText($"{message}\r\n");
 
             box.SelectionColor = box.ForeColor;
+
+            box.SelectionStart = box.TextLength;
+            box.ScrollToCaret();
+            NativeMethods.HideCaret(box.Handle);
+        }
+
+        // Whisper message with [To/From] prefix and colored sender name
+        public static void AppendWhisperMessage(RichTextBox box, string sender, string target, string text, bool isTo)
+        {
+            Color nameColor = NameColorUtil.GetNameColor(sender);
+
+            string prefix = isTo
+                ? string.Format(Strings.WhisperTo, target)
+                : string.Format(Strings.WhisperFrom, sender);
+
+            box.SelectionStart = box.TextLength;
+            box.SelectionLength = 0;
+
+            box.SelectionFont = GetMontserrat("Medium", DefaultSize);
+            box.SelectionColor = box.ForeColor;
+            box.AppendText($"[{prefix}] ");
+
+            box.SelectionColor = nameColor;
+            box.AppendText(sender);
+
+            box.SelectionColor = box.ForeColor;
+            box.AppendText($": {text}\r\n");
 
             box.SelectionStart = box.TextLength;
             box.ScrollToCaret();
@@ -185,9 +270,8 @@ namespace RobloxChatLauncher.Utils
             AppendChatMessage(box, "Guest 39360", "What's up?");
             AppendSystemMessage(box, "Hello over HTTP! (Only you can see this message.)");
             AppendSystemMessage(box, Strings.MessageRejectedModeration);
-            AppendChatMessage(box, "im_riri", "Are we ready to launch?");
-            AppendChatMessage(box, "Guest 39360", "Send it!");
-            AppendText(box, "");
+            AppendWhisperMessage(box, "im_riri", "Guest 39360", "Are we ready to launch?", true);
+            AppendWhisperMessage(box, "Guest 39360", "im_riri", "Send it!", false);
             AppendText(box, "");
             AppendText(box, "");
             AppendText(box, "");

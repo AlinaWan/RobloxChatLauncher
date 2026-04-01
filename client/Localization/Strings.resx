@@ -361,4 +361,7 @@ Your code will expire in 10 minutes.</value>
   <data name="LoginFailed" xml:space="preserve">
     <value>❌ Verification failed due to a server error.</value>
   </data>
+  <data name="UserNotFoundInChannel" xml:space="preserve">
+    <value>User {0} not found in this channel.</value>
+  </data>
 </root>
