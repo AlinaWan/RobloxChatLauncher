@@ -46,7 +46,7 @@
 | Language | Status |
 | :--- | :---: |
 | **en** | ![100.0%](https://geps.dev/progress/100) |
-| **zh-Hans** | ![98.7%](https://geps.dev/progress/99) |
+| **zh-Hans** | ![100.0%](https://geps.dev/progress/100) |
 
 </div>
 
