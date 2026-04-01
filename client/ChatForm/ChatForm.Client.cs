@@ -134,63 +134,54 @@ namespace RobloxChatLauncher
                     var dataType = data?["type"]?.ToString();
                     this.Invoke((MethodInvoker)delegate
                     {
-                        // Normal chat message
+                        string sender = data?["sender"]?.ToString() ?? string.Empty;
+                        string text = data?["text"]?.ToString() ?? string.Empty;
+
+                        // Parse Moderation Scores (Used by both Chat and Whisper)
+                        PolicyScoresDto? scores = MessageFilterService.ParsePolicyScores(data?["attributeScores"]);
+                        if (scores != null && MessageFilterService.ShouldHideMessageByFilter(scores))
+                        {
+                            text = Strings.MessageHiddenDueToFilterSettings;
+                        }
+
+                        // --- NORMAL CHAT & BROADCAST ---
                         if (dataType == "message")
                         {
-                            string sender = data?["sender"]?.ToString() ?? string.Empty;
-                            string text = data?["text"]?.ToString() ?? string.Empty;
-                            string whisperType = data?["whisperType"]?.ToString() ?? string.Empty; // Check for whisper
-                            bool isBroadcast = data?["isBroadcast"]?.GetValue<bool>() ?? false; // Check for global broadcast
+                            bool isBroadcast = data?["isBroadcast"]?.GetValue<bool>() ?? false;
 
-                            PolicyScoresDto? scores = MessageFilterService.ParsePolicyScores(data?["attributeScores"]);
-                            if (scores != null && MessageFilterService.ShouldHideMessageByFilter(scores))
+                            if (isBroadcast)
                             {
-                                text = Strings.MessageHiddenDueToFilterSettings;
+                                string? colorHex = data?["color"]?.ToString();
+                                RichChatBox.AppendBroadcastMessage(chatBox, sender, text, colorHex);
                             }
-
-                            // 1. Check mute status using the raw sender name
-                            if (!mutedUsers.Contains(sender))
+                            else if (!mutedUsers.Contains(sender))
                             {
-                                string displaySender = sender;
-
-                                // 2. Handle display formatting client-side
-                                if (whisperType == "from")
-                                    displaySender = $"{string.Format(Strings.WhisperFrom, sender)}";
-                                else if (whisperType == "to")
-                                    displaySender = $"{string.Format(Strings.WhisperTo, sender)}";
-
-                                if (isBroadcast)
-                                {
-                                    string? colorHex = data?["color"]?.ToString();
-                                    RichChatBox.AppendBroadcastMessage(chatBox, displaySender, text, colorHex);
-                                }
-                                else
-                                {
-                                    RichChatBox.AppendChatMessage(chatBox, displaySender, text);
-                                }
+                                RichChatBox.AppendChatMessage(chatBox, sender, text);
                             }
                         }
-                        // Rejection handling
+                        // --- WHISPER LOGIC ---
+                        else if (dataType == "whisper")
+                        {
+                            string target = data?["target"]?.ToString() ?? string.Empty;
+                            bool isTo = data?["isTo"]?.GetValue<bool>() ?? false;
+
+                            if (!mutedUsers.Contains(sender))
+                            {
+                                RichChatBox.AppendWhisperMessage(chatBox, sender, target, text, isTo);
+                            }
+                        }
+                        // --- REJECTION ---
                         else if (data?["status"]?.ToString() == "rejected")
                         {
                             string reason = data["reason"]?.ToString() ?? string.Empty;
-                            string messageText;
-
-                            switch (reason)
+                            string messageText = reason switch
                             {
-                                case "moderation":
-                                    messageText = $"{Strings.MessageRejectedModeration}";
-                                    break;
-                                case "queue_full":
-                                    messageText = $"{Strings.MessageRejectedQueueFull}";
-                                    break;
-                                case "api_error":
-                                    messageText = $"{Strings.MessageRejectedApiError}";
-                                    break;
-                                default:
-                                    messageText = $"{Strings.MessageRejectedUnknown}";
-                                    break;
-                            }
+                                "moderation" => Strings.MessageRejectedModeration,
+                                "queue_full" => Strings.MessageRejectedQueueFull,
+                                "api_error" => Strings.MessageRejectedApiError,
+                                "not_found" => string.Format(Strings.UserNotFoundInChannel, data["target"]?.ToString() ?? "Unknown"),
+                                _ => Strings.MessageRejectedUnknown
+                            };
 
                             RichChatBox.AppendSystemMessage(chatBox, messageText);
                         }
