@@ -361,4 +361,7 @@
   <data name="LoginFailed" xml:space="preserve">
     <value>❌ 由于服务器错误，登录失败。</value>
   </data>
+  <data name="UserNotFoundInChannel" xml:space="preserve">
+    <value>在此频道中未找到用户 {0}。</value>
+  </data>
 </root>
