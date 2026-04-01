@@ -8,8 +8,8 @@
 > Roblox Chat Launcher is seeking a long-term billing partner to cover hosting costs and API costs.
 
 <p align="center">
-    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_tdov_dark.webp#gh-dark-mode-only" width="580">
-    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_tdov_light.webp#gh-light-mode-only" width="580">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_dark.webp#gh-dark-mode-only" width="580">
+    <img src="https://github.com/AlinaWan/RobloxChatLauncher/raw/main/assets/brand/rcl_logo_light.webp#gh-light-mode-only" width="580">
 </p>
 
 <!--
