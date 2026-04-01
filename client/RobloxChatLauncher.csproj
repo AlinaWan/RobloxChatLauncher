@@ -52,4 +52,10 @@
     </None>
   </ItemGroup>
 
+	<ItemGroup>
+		<EmbeddedResource Include="Fonts\static\*.ttf">
+			<LogicalName>%(Filename)%(Extension)</LogicalName>
+		</EmbeddedResource>
+	</ItemGroup>
+
 </Project>

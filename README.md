@@ -58,8 +58,8 @@ A full stack launcher ecosystem designed to restore and modernize the Roblox soc
 
 <!-- Preview images start -->
 <p align="center">
-  <img src="assets/readme/window_preview_off.png" width="390" alt="Window Preview Off">
-  <img src="assets/readme/window_preview_on.png" width="390" alt="Window Preview On">
+  <img src="assets/readme/window_preview_off.webp" width="390" alt="Window Preview Off">
+  <img src="assets/readme/window_preview_on.webp" width="390" alt="Window Preview On">
 </p>
 <!-- Preview images end -->
 
