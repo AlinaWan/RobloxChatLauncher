@@ -3,7 +3,7 @@
   <PropertyGroup>
     <!-- Use `<OutputType>Exe</OutputType>` to show console -->
 	<!-- Use `<OutputType>WinExe</OutputType>` to hide console -->
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
 	<AssemblyTitle>Roblox Chat Launcher</AssemblyTitle>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -51,5 +51,11 @@
       <LastGenOutput>Settings1.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Fonts\static\*.ttf">
+			<LogicalName>%(Filename)%(Extension)</LogicalName>
+		</EmbeddedResource>
+	</ItemGroup>
 
 </Project>

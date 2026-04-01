@@ -119,5 +119,17 @@ namespace RobloxChatLauncher.Utils
 
         public const uint SC_CLOSE = 0xF060;
         public const uint MF_BYCOMMAND = 0x00000000;
+
+        // Methods to load fonts from memory since WinForms is stupid
+        [DllImport("gdi32.dll", SetLastError = true)]
+        internal static extern IntPtr AddFontMemResourceEx(
+            IntPtr pbFont,
+            uint cbFont,
+            IntPtr pdv,
+            [In] ref uint pcFonts
+        );
+
+        [DllImport("gdi32.dll", SetLastError = true)]
+        internal static extern bool RemoveFontMemResourceEx(IntPtr h);
     }
 }

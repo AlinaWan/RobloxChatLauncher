@@ -389,6 +389,10 @@ namespace RobloxChatLauncher
 
             RichChatBox.AppendText(chatBox, Strings.StartupText);
 
+#if DEBUG
+            RichChatBox.ShowcasePreview(chatBox);
+#endif
+
             // --- End Roblox Log Monitor ---
         }
 
