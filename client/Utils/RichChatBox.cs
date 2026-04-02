@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Text;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -26,10 +27,11 @@ namespace RobloxChatLauncher.Utils
         }
 
         /// <remarks>
-        /// This method uses some stupid ugly hacks because GDI+ is a nightmare to work with and usually maps the wrong fonts and WinForms is stupid.
+        /// This method uses some ugly hacks because GDI+ is a nightmare to work with and usually maps the wrong fonts.
+        /// It's completely random whether it will map the correct font or merge it into a generic "Montserrat" family, and this will change every time you run the app.
         /// Don't try to fix or simplify this unless you ensure the random chance to map the wrong font issue is actually resolved.
-        /// You may think that loading all fonts into a single PrivateFontCollection and then creating Font objects with specific styles (Regular, Bold, Italic) would work, but it doesn't.
-        /// You may find that a fix will cause it to be random if Medium or Black actually gets mapped to the correct weight, and sometimes Regular will map to Light because GDI+ is a joke.
+        /// Manually allocating memory blocks with VirtualAlloc and padding doesn't resolve the issue, and you may find that a fix will still cause it
+        /// to be random if Medium or Black actually gets mapped to the correct weight, and sometimes Regular will map to Light because GDI+ is a joke.
         /// </remarks>
         private static void LoadAllFonts()
         {
@@ -67,7 +69,7 @@ namespace RobloxChatLauncher.Utils
                     : $"Montserrat {expectedBase}";
 
                 bool success = false;
-                for (int attempt = 0; attempt < 20 && !success; attempt++)
+                for (int attempt = 0; attempt < 20 && !success; attempt++) // Usually succeeds within 1-2 attempts for any given font, but we loop up to 20 times just in case of extreme bad luck
                 {
                     // Allocate fresh memory for every single attempt to defeat GDI+ caching
                     IntPtr data = Marshal.AllocCoTaskMem(fontData.Length);
@@ -91,13 +93,13 @@ namespace RobloxChatLauncher.Utils
                             uint cFonts = 0;
                             NativeMethods.AddFontMemResourceEx(data, (uint)fontData.Length, IntPtr.Zero, ref cFonts);
 
-                            Console.WriteLine($"[FontLoad] Key: {weight,-15} | Mapped To: {family.Name,-20} | Status: CORRECT");
+                            Debug.WriteLine($"[FontLoad] Key: {weight,-15} | Mapped To: {family.Name,-20} | Status: CORRECT");
                             success = true;
                             // Note: We do NOT free 'data' because the FontFamily and GDI+ need it alive.
                         }
                         else
                         {
-                            Console.WriteLine($"[FontLoad] !! INCORRECT !! Key: {weight} expected '{expectedName}' but GDI+ merged it into '{family.Name}'. Retrying...");
+                            Debug.WriteLine($"[FontLoad] !! INCORRECT !! Key: {weight} expected '{expectedName}' but GDI+ merged it into '{family.Name}'. Retrying...");
 
                             // Clean up this failed attempt's memory and try again
                             Marshal.FreeCoTaskMem(data);
@@ -106,7 +108,7 @@ namespace RobloxChatLauncher.Utils
                     }
                     else
                     {
-                        Console.WriteLine($"[FontLoad] !! FAILURE !! GDI+ failed to load {weight} into memory. Retrying...");
+                        Debug.WriteLine($"[FontLoad] !! FAILURE !! GDI+ failed to load {weight} into memory. Retrying...");
 
                         Marshal.FreeCoTaskMem(data);
                         solo.Dispose();
