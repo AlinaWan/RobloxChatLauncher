@@ -58,7 +58,7 @@ namespace RobloxChatLauncher.Utils
                     continue;
 
                 byte[] fontData = new byte[stream.Length];
-                stream.Read(fontData, 0, fontData.Length);
+                stream.ReadExactly(fontData);
 
                 // Define what this SPECIFIC file MUST be named by GDI+ to be considered "correct"
                 // Most Montserrat weights include the weight in the family name (e.g. "Montserrat Medium")

@@ -48,12 +48,15 @@ namespace RobloxChatLauncher.Utils
                             IntPtr.Zero,
                             false);
 
+                        if (token.IsCancellationRequested)
+                            break;
+
                         RegistryChanged?.Invoke();
 
                         await Task.Delay(_debounceMilliseconds, token);
                     }
                 }
-                catch (OperationCanceledException)
+                catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException)
                 {
                     // Expected when cancellation is requested, ignore
                 }
@@ -69,6 +72,7 @@ namespace RobloxChatLauncher.Utils
             try
             {
                 _cts?.Cancel();
+                _key?.Close();
             }
             catch (ObjectDisposedException) { /* Already gone, ignore */ }
             finally

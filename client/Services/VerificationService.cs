@@ -28,7 +28,7 @@ namespace RobloxChatLauncher.Services
         private class VerificationResponse
         {
             [JsonPropertyName("code")]
-            public string Code
+            public required string Code
             {
                 get; set;
             }

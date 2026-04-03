@@ -94,21 +94,16 @@ class Program
         // This will resolve either a bootstrapper or the vanilla client
         var robloxClient = RobloxLocator.ResolveRobloxPlayer();
 
-        // If the resolved client is an aggressive bootstrapper, start watching the Roblox protocol registry key in case
-        // they try to hijack it from us. This is a simple low overhead way to ensure we can re-register ourselves if needed
-        // without relying on the user to run the launcher shortcut again
-        if (robloxClient != null && robloxClient.Name == "Fishstrap") // Be nice to our other users who don't use an aggressive
-                                                                      // bootstrapper where a monitor isn't strictly necessary
+        if (robloxClient != null)
         {
             var key = Registry.ClassesRoot.OpenSubKey(@"roblox-player\shell\open\command");
             if (key != null)
             {
-                registryMonitor = new RegistryMonitor(key, watchSubtree: false, debounceMilliseconds: 200); // Debounce if an aggressive bootstrapper spams the key
+                registryMonitor = new RegistryMonitor(key, watchSubtree: false, debounceMilliseconds: 200);
                 registryMonitor.RegistryChanged += () =>
                 {
                     RobloxRegistryUtil.Register();
                 };
-                // Start monitoring
                 registryMonitor.Start();
             }
         }
@@ -125,14 +120,14 @@ class Program
                     UseShellExecute = true
                 }) is Process p)
             {
-                RobloxRegistryUtil.Register(); // Re-register immediately
+                RobloxRegistryUtil.Register(); // Register immediately
             }
         }
 
         Thread chatThread = new Thread(() =>
         {
             // Pass isForceRun here to ignore the 3-second start time rule
-            Process robloxGame = WaitForRobloxProcess(60, isForceRun);
+            Process? robloxGame = WaitForRobloxProcess(60, isForceRun);
 
             if (robloxGame == null && isForceRun)
             {
@@ -143,6 +138,14 @@ class Program
 
             if (robloxGame != null)
             {
+                // Start a background timer to dispose the monitor a few seconds after finding the process
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(10000);
+                    registryMonitor?.Dispose();
+                    registryMonitor = null;
+                });
+
                 chatForm = new ChatForm(robloxGame, isForceRun);
                 keyboardHandler = new ChatKeyboardHandler(chatForm);
                 Application.Run(chatForm);
@@ -152,7 +155,7 @@ class Program
         chatThread.SetApartmentState(ApartmentState.STA);
         chatThread.Start();
     }
-    static Process WaitForRobloxProcess(int timeoutSeconds, bool ignoreStartTime)
+    static Process? WaitForRobloxProcess(int timeoutSeconds, bool ignoreStartTime)
     {
         // Record when the launcher actually started, so we can ignore Roblox processes that started long before
         DateTime launcherStartTime = DateTime.Now;
