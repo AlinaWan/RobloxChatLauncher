@@ -54,7 +54,7 @@
 
 ----
 
-A full stack launcher ecosystem designed to restore and modernize the Roblox social experience because Roblox is removing in-game communication unless users provide pictures of their face or government IDs.
+A secure, lightweight launcher designed to restore in-game communication and bring back the co-op gameplay Roblox removed behind facial and ID verification.
 
 <!-- Preview images start -->
 <p align="center">
