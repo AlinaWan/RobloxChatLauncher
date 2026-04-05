@@ -217,43 +217,67 @@ app.delete('/api/v1/admin/verified/:hwid', validateAdmin, async (req, res) => {
 
 // ------ Global Broadcast ------
 app.post('/api/v1/admin/broadcast', express.json(), validateWrite, async (req, res) => {
-    const { text, sender, color } = req.body;
+    const { text, sender, color, verified, isBroadcast, target } = req.body;
 
     if (!text) {
         return res.status(400).json({ error: "Missing 'text' field in JSON body" });
     }
 
+    const targetType = target?.channelId
+        ? `to channel ${target.channelId}`
+        : "globally";
+
+    console.log(`[Admin::Broadcast] Broadcast sent ${targetType}: "${text}"`);
+
     const payload = JSON.stringify({
         type: 'message',
         text: text,
         sender: sender || "Global Broadcast",
-        color: color || null, // Can be a hex code, System.Drawing.Color name, or null for Roblox default
-        verified: true,
-        isBroadcast: true
+        color: color || null, // Can be a hex code, System.Drawing.Color name, or null for Roblox default (client side will handle this)
+        verified: verified ?? true,
+        isBroadcast: isBroadcast ?? true // If false, the formatting will be the same as a normal message and color override will be ignored
     });
 
     let recipientCount = 0;
     const channelCount = channels.size;
 
-    // Send to every client in every channel
-    channels.forEach((clients) => {
-        clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-                try {
-                    client.send(payload);
-                    recipientCount++;
-                } catch (err) {
-                    console.error("Broadcast send failed:", err);
+    // If a target channelId is provided, send only to that channel
+    if (target?.channelId) {
+        const clients = channels.get(target.channelId);
+        if (clients) {
+            clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    try {
+                        client.send(payload);
+                        recipientCount++;
+                    } catch (err) {
+                        console.error("[Admin::Broadcast] Channel broadcast send failed:", err);
+                    }
                 }
-            }
+            });
+        }
+    } else {
+        // Send to every client in every channel
+        channels.forEach((clients) => {
+            clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    try {
+                        client.send(payload);
+                        recipientCount++;
+                    } catch (err) {
+                        console.error("[Admin::Broadcast] Global broadcast send failed:", err);
+                    }
+                }
+            });
         });
-    });
+    }
 
     res.json({
         status: "success",
         stats: {
             totalRecipients: recipientCount,
-            totalChannels: channelCount
+            totalChannels: channelCount,
+            targeted: !!target // Returns true if a target object was used
         }
     });
 });
