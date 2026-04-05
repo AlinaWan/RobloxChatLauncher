@@ -4,9 +4,6 @@ namespace RobloxChatLauncher.Utils
 {
     /// <summary>
     ///     Monitors a specified Windows registry key for changes and raises an event when a change is detected.
-    ///     This class exists to fix aggressive bootstrappers like Fishstrap from hijacking our registry key
-    ///     and breaking Roblox Chat Launcher. By monitoring the registry key, we can detect when it has been
-    ///     changed and re-register the launcher.
     /// </summary>
     public class RegistryMonitor : IDisposable
     {
@@ -35,8 +32,11 @@ namespace RobloxChatLauncher.Utils
             _cts = new CancellationTokenSource();
             CancellationToken token = _cts.Token;
 
-            _ = Task.Run(async () =>
+            _ = Task.Run(() =>
             {
+                using AutoResetEvent regEvent = new(false);
+                var waitHandles = new WaitHandle[] { regEvent, token.WaitHandle };
+
                 try
                 {
                     while (!token.IsCancellationRequested)
@@ -45,20 +45,23 @@ namespace RobloxChatLauncher.Utils
                             _key.Handle,
                             _watchSubtree,
                             NativeMethods.RegChangeNotifyFilter.Value,
-                            IntPtr.Zero,
-                            false);
+                            regEvent.SafeWaitHandle.DangerousGetHandle(),
+                            true); // true = async
 
-                        if (token.IsCancellationRequested)
-                            break;
+                        // Wait for either registry change or cancellation
+                        int signaled = WaitHandle.WaitAny(waitHandles);
+                        if (signaled == 1) // token triggered
+                            break; // Handles OperationCanceledException
 
                         RegistryChanged?.Invoke();
 
-                        await Task.Delay(_debounceMilliseconds, token);
+                        if (_debounceMilliseconds > 0)
+                            Thread.Sleep(_debounceMilliseconds);
                     }
                 }
-                catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException)
+                catch (ObjectDisposedException)
                 {
-                    // Expected when cancellation is requested, ignore
+                    // Ignore disposed handles
                 }
             }, token);
         }

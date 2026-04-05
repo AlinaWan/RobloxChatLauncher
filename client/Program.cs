@@ -94,6 +94,7 @@ class Program
         // This will resolve either a bootstrapper or the vanilla client
         var robloxClient = RobloxLocator.ResolveRobloxPlayer();
 
+        // Roblox Chat Launcher should always be first in the chain of launchers since we launch the client but they don't launch us
         if (robloxClient != null)
         {
             var key = Registry.ClassesRoot.OpenSubKey(@"roblox-player\shell\open\command");
@@ -103,6 +104,7 @@ class Program
                 registryMonitor.RegistryChanged += () =>
                 {
                     RobloxRegistryUtil.Register();
+                    Debug.WriteLine("[RegistryMonitor] Registry change event raised and repaired.");
                 };
                 registryMonitor.Start();
             }
@@ -127,28 +129,13 @@ class Program
         Thread chatThread = new Thread(() =>
         {
             // Pass isForceRun here to ignore the 3-second start time rule
-            Process? robloxGame = WaitForRobloxProcess(60, isForceRun);
+            Process? robloxGame = WaitForRobloxProcess(120, isForceRun); // If another instance launches while we're waiting, mutex logic will prevent doubles
 
             if (robloxGame == null && isForceRun)
             {
                 var procs = Process.GetProcessesByName("RobloxPlayerBeta");
                 if (procs.Length > 0)
                     robloxGame = procs[0];
-            }
-
-            if (robloxGame != null)
-            {
-                // Start a background timer to dispose the monitor a few seconds after finding the process
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(10000);
-                    registryMonitor?.Dispose();
-                    registryMonitor = null;
-                });
-
-                chatForm = new ChatForm(robloxGame, isForceRun);
-                keyboardHandler = new ChatKeyboardHandler(chatForm);
-                Application.Run(chatForm);
             }
         });
 
