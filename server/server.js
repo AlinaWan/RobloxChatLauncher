@@ -24,7 +24,7 @@ const swaggerOptions = {
             title: 'Roblox Chat Launcher API',
             version: '1.0.0'
         },
-        servers: [{ url: 'https://RobloxChatLauncer.onrender.com' }],
+        servers: [{ url: 'https://RobloxChatLauncher.onrender.com' }],
         components: {
             securitySchemes: {
                 AdminAuth: {
