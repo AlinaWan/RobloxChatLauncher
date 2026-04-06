@@ -17,7 +17,14 @@
 [![Lua](https://img.shields.io/badge/Lua-%232C2D72.svg?logo=lua&logoColor=white)](#)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)](#)
 [![Postgres](https://img.shields.io/badge/Postgres-%23316192.svg?logo=postgresql&logoColor=white)](#)
+[![Swagger](https://img.shields.io/badge/OpenAPI-85EA2D?logo=openapi-initiative&logoColor=white)](#)
 [![The best solution](https://img.shields.io/badge/if(hasBugs)-%7BDont();%7D-brightgreen)](#)
+
+</div>
+
+<div align="center">
+
+[![Swagger UI](https://img.shields.io/badge/Swagger_UI-Documentation-85EA2D?style=for-the-badge&logo=openapi-initiative&logoColor=white)](https://RobloxChatLauncher.onrender.com/api-docs)
 
 </div>
 
