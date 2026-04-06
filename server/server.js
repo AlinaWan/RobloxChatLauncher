@@ -54,9 +54,6 @@ const swaggerOptions = {
     apis: ['./server.js'],
 };
 
-const swaggerDocs = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
 // Allowed mail types for the mail push endpoint
 const ALLOWED_MAIL_TYPES = new Set([
     "Emote",
@@ -70,6 +67,10 @@ app.set('trust proxy', 1); // trust only the first proxy hop (Render)
 // Middleware to parse plain text bodies (sent by C# client)
 // Limit messages to 1kb (more than enough for a chat message)
 app.use(express.text({ limit: Constants.TEXT_LIMIT_BYTES }));
+
+// ----- Swagger Setup -----
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // ----- PostgreSQL Setup -----
 (async () => {
