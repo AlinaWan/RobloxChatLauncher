@@ -1,0 +1,5 @@
+changelog:
+  categories:
+    - title: "Pull Requests"
+      labels:
+        - "*"
