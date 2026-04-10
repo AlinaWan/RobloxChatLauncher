@@ -152,6 +152,23 @@ jobs:
          npx --yes -p conventional-changelog@7.2.0 -p conventional-changelog-conventionalcommits conventional-changelog -p conventionalcommits -r 1
 
       # ---------------------------
+      # Generate GitHub Release Notes
+      # ---------------------------
+      - name: Generate GitHub Release Notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $responseJson = gh api `
+            --method POST `
+            -H "Accept: application/vnd.github+json" `
+            /repos/${{ github.repository }}/releases/generate-notes `
+            -f tag_name="${{ github.event.inputs.tag_name }}" | ConvertFrom-Json
+
+          $releaseBody = $responseJson.body
+          $releaseBody | Out-File -FilePath "GITHUB_NOTES.md" -Encoding utf8
+
+      # ---------------------------
       # Compose final release notes
       # ---------------------------
       - name: Compose final release notes
@@ -175,11 +192,24 @@ jobs:
           # Find '## [](' and replace with a header
           $updatedChangelog = $updatedChangelog -replace '## \[\]\(', '## [What''s Changed]('
           
-          # Finally compose final release notes
+          # Compose before adding GitHub Release Notes
           $updatedChangelog | Out-File -FilePath $releaseFile -Append -Encoding utf8
-
-          # Add a horizontal rule at the very end so GitHub's section is separated
+          
           "`n---`n" | Out-File -FilePath $releaseFile -Append -Encoding utf8
+          
+          # Find '## What's Changed' in GitHub notes and replace with custom header
+          $githubNotes = Get-Content -Path "GITHUB_NOTES.md" -Raw
+          $githubNotes = $githubNotes -replace '## What''s Changed', '## Pull Requests'
+
+          # Final composure of release notes
+          $githubNotes | Out-File -FilePath $releaseFile -Append -Encoding utf8
+          
+          # Now the release notes will look like this:
+          # <Custom Release Notes>
+          # ---
+          # <Conventional Changelog>
+          # ---
+          # <GitHub's auto-generated release notes>
 
       # ---------------------------
       # Create GitHub Release
@@ -192,13 +222,7 @@ jobs:
           prerelease: ${{ github.event.inputs.prerelease }}
           # Add the custom message at the top
           body_path: RELEASE_BODY.md
-          generate_release_notes: true # This appends the "What's Changed" section below the body
-          # Now the release notes will look like this:
-          # <Custom Release Notes>
-          # ---
-          # <Conventional Changelog>
-          # ---
-          # <GitHub's auto-generated release notes>
+          generate_release_notes: false
           files: |
             installer/RobloxChatLauncherInstaller*.exe
             installer/RobloxChatLauncherInstaller.exe.sha256
