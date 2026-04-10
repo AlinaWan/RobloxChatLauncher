@@ -63,7 +63,7 @@ jobs:
           
           # Check if the line exists before trying to change it
           if (-not ($content -match "^AppVersion=")) {
-              Write-Error "Ugh, I couldn't find 'AppVersion=' in $path. Can you check it for me babe? 🎀"
+              Write-Error "Couldn't find 'AppVersion=' in $path."
               exit 1
           }
 
@@ -71,7 +71,7 @@ jobs:
           $content -replace "^#define AppVersion.*", "#define AppVersion `"$tag`"" | 
             Set-Content $path -Encoding UTF8
           
-          Write-Host "Successfully updated AppVersion to $tag in $path 💖"
+          Write-Host "Successfully updated AppVersion to $tag in $path."
 
       # ---------------------------
       # Setup .NET SDK 10.0
@@ -80,17 +80,18 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
+          cache: false
 
       # ---------------------------
       # Build & validate app
       # ---------------------------
-      - name: Restore dependencies
+      - name: Clear NuGet cache
         working-directory: ./client
-        run: dotnet restore
+        run: dotnet nuget locals all --clear
 
       - name: Publish app (Release)
         working-directory: ./client
-        run: dotnet publish -c Release
+        run: dotnet publish -c Release --no-cache --disable-build-servers --force /p:ContinuousIntegrationBuild=true
 
       # ---------------------------
       # Build installer
@@ -110,7 +111,7 @@ jobs:
         run: |
           $installer = Get-ChildItem RobloxChatLauncherInstaller*.exe | Select-Object -First 1
           if (-not $installer) {
-            Write-Error "Installer executable not found. Mind checking what happened babe? 🎀"
+            Write-Error "Installer executable not found."
             exit 1
           }
 
@@ -151,7 +152,7 @@ jobs:
          npx --yes -p conventional-changelog@7.2.0 -p conventional-changelog-conventionalcommits conventional-changelog -p conventionalcommits -r 1
 
       # ---------------------------
-      # Compose final release notes (PowerShell)
+      # Compose final release notes
       # ---------------------------
       - name: Compose final release notes
         shell: pwsh
@@ -171,6 +172,8 @@ jobs:
           # Read Changelog, Replace the '...v)' with the actual tag
           $changelog = Get-Content -Path "CHANGELOG.md" -Raw
           $updatedChangelog = $changelog -replace '\.\.\.v\)', "...$($tagName))"
+          # Find '## [](' and replace with a header
+          $updatedChangelog = $updatedChangelog -replace '## \[\]\(', '## [What''s Changed]('
           
           # Finally compose final release notes
           $updatedChangelog | Out-File -FilePath $releaseFile -Append -Encoding utf8
