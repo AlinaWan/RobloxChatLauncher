@@ -17,6 +17,12 @@ setInterval(() => {
 
 const nameCache = new Map(); // Keep names in memory to avoid API spam
 
+// Helper to vaidate if a string is a valid UUID
+function isValidUuidV4(uuid) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
+}
+
 async function generateCode(req, res) {
     const { robloxUsername } = req.body;
     if (!robloxUsername) return res.status(400).send("Username required");
@@ -43,8 +49,10 @@ async function generateCode(req, res) {
 
 async function verifyProfile(req, res) {
     const { robloxId, hwid } = req.body;
-    const entry = pendingVerifications.get(robloxId);
+    
+    if (!hwid || !isValidUuidV4(hwid)) return res.status(400).send("Invalid HWID format. Must be a valid UUID v4.");
 
+    const entry = pendingVerifications.get(robloxId);
     if (!entry) return res.status(400).send("No pending verification or code expired.");
 
     const expectedCode = entry.code;
