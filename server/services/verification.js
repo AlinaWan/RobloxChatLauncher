@@ -1,7 +1,19 @@
 const axios = require('axios');
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 const Constants = require('../config/constants');
 const { pool } = require('../db/postgresPool');
+
+// Courtesy of the EFF Large Wordlist for Passphrases
+// Source: https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
+const WORDLIST_PATH = path.join(__dirname, '../data/eff_large_wordlist.txt');
+
+const WORDS = fs.readFileSync(WORDLIST_PATH, 'utf8')
+    .split(/\r?\n/)
+    .map(line => line.split('\t')[1]) // take second column
+    .filter(Boolean);
 
 // --- Pending verifications ---
 const pendingVerifications = new Map();
@@ -16,6 +28,15 @@ setInterval(() => {
 }, 60 * 1000); // run every minute
 
 const nameCache = new Map(); // Keep names in memory to avoid API spam
+// Structure: { username: string, expiresAt: number }
+
+// Periodic cleanup for expired name cache entries
+setInterval(() => {
+    const now = Date.now();
+    for (const [userId, entry] of nameCache.entries()) {
+        if (entry.expiresAt <= now) nameCache.delete(userId);
+    }
+}, 10 * 60 * 1000); // run every 10 minutes
 
 // Helper to vaidate if a string is a valid UUID
 function isValidUuidV4(uuid) {
@@ -36,7 +57,9 @@ async function generateCode(req, res) {
         if (!userRes.data.data.length) return res.status(404).send("User not found");
 
         const robloxId = userRes.data.data[0].id;
-        const code = `RCL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const code = `rcl ${Array.from({ length: 6 }, () =>
+            WORDS[crypto.randomInt(0, WORDS.length)].toLowerCase()
+        ).join(' ')}`;
 
         // Store both code and expiration timestamp
         pendingVerifications.set(robloxId, { code, expiresAt: Date.now() + Constants.VERIFICATION_TTL_MS });
@@ -149,7 +172,7 @@ async function getRobloxUsername(userId) {
     try {
         const res = await axios.get(`https://users.roblox.com/v1/users/${userId}`);
         const username = res.data.name; // Use .displayName if you prefer their nickname
-        nameCache.set(userId, username);
+        nameCache.set(userId, { username, expiresAt: Date.now() + Constants.USERNAME_CACHE_TTL_MS });
         return username;
     } catch (err) {
         return `User:${userId}`; // Fallback if API fails
