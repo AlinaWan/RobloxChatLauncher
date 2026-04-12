@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using System.Diagnostics;
+using Microsoft.Win32;
 
 namespace RobloxChatLauncher.Utils
 {
@@ -56,7 +57,7 @@ namespace RobloxChatLauncher.Utils
                         RegistryChanged?.Invoke();
 
                         if (_debounceMilliseconds > 0)
-                            Thread.Sleep(_debounceMilliseconds);
+                            token.WaitHandle.WaitOne(_debounceMilliseconds);
                     }
                 }
                 catch (ObjectDisposedException)

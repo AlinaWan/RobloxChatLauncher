@@ -137,6 +137,13 @@ class Program
                 if (procs.Length > 0)
                     robloxGame = procs[0];
             }
+
+            if (robloxGame != null)
+            {
+                chatForm = new ChatForm(robloxGame, isForceRun);
+                keyboardHandler = new ChatKeyboardHandler(chatForm);
+                Application.Run(chatForm);
+            }
         });
 
         chatThread.SetApartmentState(ApartmentState.STA);
