@@ -323,7 +323,7 @@
     <value>❌ 由于服务器错误，验证失败。</value>
   </data>
   <data name="VerifyStepsText" xml:space="preserve">
-    <value>1. 复制此验证码: {0}
+    <value>1. 验证码已复制: {0}
 2. 粘贴到 Roblox 个人资料“简介”栏中。
 3. 输入 /confirm 完成。
 您的验证码将在 10 分钟后过期。</value>

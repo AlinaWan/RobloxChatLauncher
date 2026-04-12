@@ -716,7 +716,7 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 1. Copy this code: {0}
+        ///   Looks up a localized string similar to 1. Code copied: {0}
         ///2. Paste it into your Roblox Profile &apos;About&apos; section.
         ///3. Type /confirm to finish.
         ///Your code will expire in 10 minutes..

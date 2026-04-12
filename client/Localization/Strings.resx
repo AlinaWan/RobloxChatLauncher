@@ -323,7 +323,7 @@ Chat '/?' or '/help' for a list of chat commands.</value>
     <value>❌ Verification failed due to a server error.</value>
   </data>
   <data name="VerifyStepsText" xml:space="preserve">
-    <value>1. Copy this code: {0}
+    <value>1. Code copied: {0}
 2. Paste it into your Roblox Profile 'About' section.
 3. Type /confirm to finish.
 Your code will expire in 10 minutes.</value>

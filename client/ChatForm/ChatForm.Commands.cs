@@ -162,7 +162,10 @@ namespace RobloxChatLauncher
                         RichChatBox.AppendSystemMessage(chatBox, string.Format(Strings.FetchingCode, args));
                         var verifyResult = await _verifyService.StartVerification(args);
                         _pendingRobloxId = verifyResult.RobloxId;
-
+                        if (!string.IsNullOrEmpty(verifyResult.Code))
+                        {
+                            Clipboard.SetText(verifyResult.Code);
+                        }
                         RichChatBox.AppendText(chatBox, string.Format(Strings.VerifyStepsText, verifyResult.Code));
                     }
                     return true;
