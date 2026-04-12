@@ -315,3 +315,17 @@ Original Copyright (c) 2022 pizzaboxer
 ---
 
 **Trademark Notice:** "Roblox" is a registered trademark of Roblox Corporation. This project is not, and makes no claims to be, affiliated with or endorsed by Roblox Corporation.
+
+<div align="center">
+
+[![Proton Mail](https://img.shields.io/badge/Proton%20Mail-8A2BFF?style=for-the-badge&logo=proton&logoColor=white)](mailto:RobloxChatLauncher@proton.me)
+[![Discord Server](https://img.shields.io/badge/Discord%20Server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/mhe2bX3dtH)
+[![Subreddit](https://img.shields.io/badge/Subreddit-FF4500?style=for-the-badge&logo=reddit&logoColor=white)](https://www.reddit.com/r/RobloxChatLauncher/)
+[![X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://twitter.com/RBXChatLauncher)
+[![TikTok](https://img.shields.io/badge/TikTok-000000?style=for-the-badge&logo=tiktok&logoColor=white)](https://tiktok.com/@robloxchatlauncher)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/robloxchatlauncher)
+[![Linktree](https://img.shields.io/badge/Linktree-42E661?style=for-the-badge&logo=linktree&logoColor=white)](https://linktr.ee/RobloxChatLauncher)
+<!-- [![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](discord://-/users/1492710394677039225) -->
+<!-- [![Reddit](https://img.shields.io/badge/Reddit-FF4500?style=for-the-badge&logo=reddit&logoColor=white)](https://www.reddit.com/user/RobloxChatLauncher/) -->
+
+</div>
