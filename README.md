@@ -81,7 +81,7 @@ As of January 7, 2026, Roblox has completely removed in-game communication unles
 > L0la L33tz. (2026, February 19). Hackers Expose Age-Verification Software Powering Surveillance Web. The Rage. https://www.therage.co/persona-age-verification/
 > </details>
 
-Furthermore, new age-group filtering often fragments the player base and ruins the cooperative experience. The Roblox Chat Launcher restores this lost social layer with a lightweight Windows overlay that mirrors the native chat experience. By using your keyboard's existing muscle memory and synchronizing directly with the Roblox window, it provides a secure, native-feeling alternative that keeps communication open and co-op gameplay intact without the privacy risks.
+Furthermore, new age-segregation fragments the player base and ruins the cooperative experience. The Roblox Chat Launcher restores this lost social layer with a lightweight Windows overlay that mirrors the native chat experience. By using your keyboard's existing muscle memory and synchronizing directly with the Roblox window, it provides a secure, native-feeling alternative that keeps communication open and co-op gameplay intact without the privacy risks.
 
 <p align="center">
   <img src="assets/readme/perf_spec.png" width="780" alt="Task Manager Performance Comparison">
