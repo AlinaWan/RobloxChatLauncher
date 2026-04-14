@@ -9,9 +9,17 @@
 | --uninstall       | `switch` | Silently restores the URI protocol handler registry key to point to a resolved Roblox client and immediately exits the program. The client is automatically run with this option when uninstalling the program via the "Add or remove programs" menu. | -     |
 
 ## Installer Options
+
+### Installer
 | Option        | Type     | Summary                                                                                                                                    | Param |
 | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
 | /CLEANINSTALL | `switch` | Uninstalls the previously installed version of Roblox Chat Launcher by silently running the uninstaller before installing the new version. | -     |
 | /FORCERUN     | `switch` | Immediately runs the Roblox Chat Launcher client with the --force-run switch after installation.                                           | -     |
 | /CLEARAPPDATA | `switch` | Forcefully removes the Roblox Chat Launcher local app data folder before installation.                                                     | -     |
 | /FORCEPURGE   | `switch` | Forcefully purges the target installation directory before installation without using the uninstaller. **This is a dangerous option.**     | -     |
+
+
+### Uninstaller
+| Option        | Type     | Summary                                                                                                                                                                                          | Param |
+| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
+| /NORESTORE    | `switch` | Prevents the uninstaller from reverting the URI protocol handler registry key back to the original Roblox client. This option is mainly intended for internal use by the `/CLEANINSTALL` switch. | -     |

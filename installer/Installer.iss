@@ -110,6 +110,24 @@ begin
   end;
 end;
 
+// --------------------------------------------------------------------
+// Helper function to check for the presence of the /NORESTORE flag (for uninstallation)
+// --------------------------------------------------------------------
+function IsNoRestoreFlagPresent(): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+  begin
+    if CompareText(ParamStr(I), '/NORESTORE') = 0 then
+    begin
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
 // ---------------------------------------------------------------
 // Helper to remove existing installation
 // ---------------------------------------------------------------
@@ -128,7 +146,7 @@ begin
     
     if FileExists(UninstallExe) then
     begin
-      Exec(UninstallExe, '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      Exec(UninstallExe, '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NORESTORE', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
     end;
   end;
 end;
@@ -384,7 +402,13 @@ begin
   // This triggers at the very beginning of the uninstallation process
   if UninstallStep = usUninstall then
   begin
-    // Points to your executable in the installation directory
+  if IsNoRestoreFlagPresent() then
+    begin
+      Log('Skipping registry restoration due to /NORESTORE flag.');
+      Exit; 
+    end;
+
+    // Points to executable in the installation directory
     AppPath := ExpandConstant('{app}\RobloxChatLauncher.exe');
     
     if FileExists(AppPath) then
