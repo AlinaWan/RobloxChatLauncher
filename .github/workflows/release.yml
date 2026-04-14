@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: "Tag for the release (e.g., v1.0.0) Append '!' to overwrite an existing tag."
+        description: "Tag for the release (e.g., v1.0.0) Append '!' to update an existing release."
         required: true
       release_name:
         description: "Name of the release (defaults to the tag)"
@@ -42,10 +42,10 @@ jobs:
 
           # Check for force character '!' at the end
           if [[ "$INPUT_TAG" == *! ]]; then
-            FORCE_RECREATE=true
+            FORCE_UPDATE=true
             CLEAN_TAG="${INPUT_TAG%!}"
           else
-            FORCE_RECREATE=false
+            FORCE_UPDATE=false
             CLEAN_TAG="$INPUT_TAG"
           fi
 
@@ -57,8 +57,8 @@ jobs:
 
           # Check if the tag already exists
           TAG_EXISTS=$(git tag -l "$CLEAN_TAG")
-          if [ -n "$TAG_EXISTS" ] && [ "$FORCE_RECREATE" = false ]; then
-            echo "::error::Tag $CLEAN_TAG already exists. To overwrite, append '!' to the tag (e.g., $CLEAN_TAG!)"
+          if [ -n "$TAG_EXISTS" ] && [ "$FORCE_UPDATE" = false ]; then
+            echo "::error::Tag $CLEAN_TAG already exists. To update the corresponding release, append '!' to the tag (e.g., $CLEAN_TAG!)"
             exit 1
           fi
 
