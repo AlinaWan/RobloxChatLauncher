@@ -163,7 +163,7 @@ namespace RobloxChatLauncher.Services
             // /CLEANINSTALL uninstalls the previous version before installing the new one
             // /NORESTORE tells installer to not change registry key back to Roblox on uninstall of the old version
             string forceRunArg = relaunch ? "/FORCERUN" : "";
-            string arguments = $"/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOG=\"{logPath}\" {forceRunArg} /CLEANINSTALL /NORESTORE";
+            string arguments = $"/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOG=\"{logPath}\" {forceRunArg} /CLEANINSTALL";
 
             Process.Start(new ProcessStartInfo
             {
