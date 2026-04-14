@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: "Tag for the release (e.g., v1.0.0) Append '!' to update an existing release."
+        description: "Tag for the release (e.g., v1.0.0)"
         required: true
       release_name:
         description: "Name of the release (defaults to the tag)"
@@ -49,6 +49,9 @@ jobs:
             CLEAN_TAG="$INPUT_TAG"
           fi
 
+          # Add leading 'v' if it's missing
+          [[ "$CLEAN_TAG" != v* ]] && CLEAN_TAG="v$CLEAN_TAG"
+
           # Check if the tag is in valid SemVer format (with 'v' prefix as is conventional for tags)
           if ! [[ "$CLEAN_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$ ]]; then
             echo "::error::Invalid tag format: $CLEAN_TAG"
@@ -58,7 +61,7 @@ jobs:
           # Check if the tag already exists
           TAG_EXISTS=$(git tag -l "$CLEAN_TAG")
           if [ -n "$TAG_EXISTS" ] && [ "$FORCE_UPDATE" = false ]; then
-            echo "::error::Tag $CLEAN_TAG already exists. To update the corresponding release, append '!' to the tag (e.g., $CLEAN_TAG!)"
+            echo "::error::Tag $CLEAN_TAG already exists. To update the corresponding release artifacts, append '!' to the tag (e.g., $CLEAN_TAG!)"
             exit 1
           fi
 
