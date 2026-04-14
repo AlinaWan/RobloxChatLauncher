@@ -180,9 +180,7 @@
     <value>再次使用 '/console' 或 '/debug' 关闭</value>
   </data>
   <data name="DownloadingUpdate" xml:space="preserve">
-    <value>正在下载更新 ({0} → {1})...
-关闭应用程序时将自动安装
-输入 '/update' 立即安装。</value>
+    <value>正在下载更新 ({0} → {1})...</value>
   </data>
   <data name="EchoResponse" xml:space="preserve">
     <value>{0}（只有你能看到此消息）</value>
@@ -364,5 +362,9 @@
   </data>
   <data name="UserNotFoundInChannel" xml:space="preserve">
     <value>在此频道中未找到用户 {0}。</value>
+  </data>
+  <data name="ItWillBeInstalled" xml:space="preserve">
+    <value>关闭应用程序时将自动安装
+输入 '/update' 立即安装。</value>
   </data>
 </root>

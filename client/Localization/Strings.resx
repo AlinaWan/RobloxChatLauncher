@@ -180,9 +180,7 @@ And of course, credits to you 💖</value>
     <value>Use '/console' or '/debug' again to close</value>
   </data>
   <data name="DownloadingUpdate" xml:space="preserve">
-    <value>Downloading update ({0} → {1})...
-It will be installed when you close the app.
-Chat '/update' to install it now.</value>
+    <value>Downloading update ({0} → {1})...</value>
   </data>
   <data name="EchoResponse" xml:space="preserve">
     <value>{0} (Only you can see this message.)</value>
@@ -364,5 +362,9 @@ Your code will expire in 10 minutes.</value>
   </data>
   <data name="UserNotFoundInChannel" xml:space="preserve">
     <value>User {0} not found in this channel.</value>
+  </data>
+  <data name="ItWillBeInstalled" xml:space="preserve">
+    <value>It will be installed when you close the app.
+Chat '/update' to install it now.</value>
   </data>
 </root>

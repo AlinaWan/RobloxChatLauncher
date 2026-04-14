@@ -246,9 +246,7 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Downloading update ({0} → {1})...
-        ///It will be installed when you close the app.
-        ///Chat &apos;/update&apos; to install it now..
+        ///   Looks up a localized string similar to Downloading update ({0} → {1})....
         /// </summary>
         public static string DownloadingUpdate {
             get {
@@ -343,6 +341,16 @@ namespace RobloxChatLauncher.Localization {
         public static string InstallingUpdate {
             get {
                 return ResourceManager.GetString("InstallingUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to It will be installed when you close the app.
+        ///Chat &apos;/update&apos; to install it now..
+        /// </summary>
+        public static string ItWillBeInstalled {
+            get {
+                return ResourceManager.GetString("ItWillBeInstalled", resourceCulture);
             }
         }
         

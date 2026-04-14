@@ -113,6 +113,10 @@ namespace RobloxChatLauncher.Services
                     if (!File.Exists(tempPath))
                     {
                         logCallback?.Invoke($"{string.Format(Strings.DownloadingUpdate, localVersion, remoteVersion)}");
+                        if (mode == UpdateMode.Background)
+                        {
+                            logCallback?.Invoke($"{Strings.ItWillBeInstalled}");
+                        }
 
                         // Download atomically
                         string tempDownload = tempPath + ".download";
