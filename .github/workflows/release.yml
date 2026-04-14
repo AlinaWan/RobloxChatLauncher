@@ -49,8 +49,8 @@ jobs:
             CLEAN_TAG="$INPUT_TAG"
           fi
 
-          # Add leading 'v' if it's missing
-          [[ "$CLEAN_TAG" != v* ]] && CLEAN_TAG="v$CLEAN_TAG"
+          # Normalize leading 'v'
+          CLEAN_TAG="v${CLEAN_TAG#?([vV])}"
 
           # Check if the tag is in valid SemVer format (with 'v' prefix as is conventional for tags)
           if ! [[ "$CLEAN_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$ ]]; then
