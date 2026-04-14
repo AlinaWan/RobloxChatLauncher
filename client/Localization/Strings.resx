@@ -180,7 +180,9 @@ And of course, credits to you 💖</value>
     <value>Use '/console' or '/debug' again to close</value>
   </data>
   <data name="DownloadingUpdate" xml:space="preserve">
-    <value>Downloading update ({0} → {1})...</value>
+    <value>Downloading update ({0} → {1})...
+It will be installed when you close the app.
+Chat '/update' to install it now.</value>
   </data>
   <data name="EchoResponse" xml:space="preserve">
     <value>{0} (Only you can see this message.)</value>
@@ -277,7 +279,6 @@ And of course, credits to you 💖</value>
   </data>
   <data name="StartupText" xml:space="preserve">
     <value>Made with ❤︎ by Riri and Contributors
-Chat '/update' to check for updates.
 Chat '/?' or '/help' for a list of chat commands.</value>
   </data>
   <data name="SwitchingServer" xml:space="preserve">

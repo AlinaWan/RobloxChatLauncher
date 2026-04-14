@@ -20,5 +20,8 @@
     <Setting Name="MessageFilterPreference" Type="System.String" Scope="User">
       <Value Profile="(Default)">default</Value>
     </Setting>
+    <Setting Name="LastUpdateCheckUTC" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)">0069-04-20</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
