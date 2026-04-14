@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
-using System.Net.Http.Json;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
+using RobloxChatLauncher.Core;
+using RobloxChatLauncher.Localization;
 using Semver;
 
-using RobloxChatLauncher.Localization;
-using RobloxChatLauncher.Core;
+using System.Diagnostics;
+using System.Net.Http.Json;
 
 namespace RobloxChatLauncher.Services
 {
@@ -41,6 +41,7 @@ namespace RobloxChatLauncher.Services
                     if (mode == UpdateMode.Manual)
                     {
                         RunInstaller(PendingUpdatePath, relaunch: true);
+                        PendingUpdatePath = string.Empty;
                     }
                     return;
                 }
@@ -60,10 +61,6 @@ namespace RobloxChatLauncher.Services
 
                 var localRaw = subKey.GetValue("DisplayVersion")?.ToString() ?? "0.0.0";
                 var localVersion = SemVersion.Parse(localRaw, SemVersionStyles.Any);
-
-                // Fetch Release from GitHub
-                client.DefaultRequestHeaders.UserAgent.Clear();
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("RobloxChatLauncher-Updater");
 
                 GitHubRelease targetRelease;
                 try
@@ -104,26 +101,23 @@ namespace RobloxChatLauncher.Services
                     var asset = targetRelease.Assets.FirstOrDefault(a => a.Name.EndsWith("Installer.exe", StringComparison.OrdinalIgnoreCase));
                     if (asset == null)
                         return;
-                    
+
                     // EXTREMELY IMPORTANT: File name MUST be unique to avoid conflicts with previous downloads
                     string uniqueName = $"{Guid.NewGuid()}_{asset.Name}";
                     string tempPath = Path.Combine(Path.GetTempPath(), uniqueName);
 
                     // Check if the file already exists on disk from a previous background check
-                    if (!File.Exists(tempPath))
+                    logCallback?.Invoke($"{string.Format(Strings.DownloadingUpdate, localVersion, remoteVersion)}");
+                    if (mode == UpdateMode.Background)
                     {
-                        logCallback?.Invoke($"{string.Format(Strings.DownloadingUpdate, localVersion, remoteVersion)}");
-                        if (mode == UpdateMode.Background)
-                        {
-                            logCallback?.Invoke($"{Strings.ItWillBeInstalled}");
-                        }
-
-                        // Download atomically
-                        string tempDownload = tempPath + ".download";
-                        var data = await client.GetByteArrayAsync(asset.DownloadUrl);
-                        await File.WriteAllBytesAsync(tempDownload, data);
-                        File.Move(tempDownload, tempPath, true);
+                        logCallback?.Invoke($"{Strings.ItWillBeInstalled}");
                     }
+
+                    // Download atomically
+                    string tempDownload = tempPath + ".download";
+                    var data = await client.GetByteArrayAsync(asset.DownloadUrl);
+                    await File.WriteAllBytesAsync(tempDownload, data);
+                    File.Move(tempDownload, tempPath, true);
 
                     PendingUpdatePath = tempPath;
 
@@ -132,6 +126,7 @@ namespace RobloxChatLauncher.Services
                     {
                         logCallback?.Invoke($"{Strings.InstallingUpdate}");
                         RunInstaller(PendingUpdatePath, relaunch: true);
+                        PendingUpdatePath = string.Empty; // Clear pending path since we're installing now
                     }
                 }
                 else if (mode == UpdateMode.Manual)
@@ -162,7 +157,7 @@ namespace RobloxChatLauncher.Services
             // Pass the /FORCERUN flag to restart the app after installation and attach to the current Roblox process
             // /CLEANINSTALL uninstalls the previous version before installing the new one
             // /NORESTORE tells installer to not change registry key back to Roblox on uninstall of the old version
-            string forceRunArg = relaunch ? "/FORCERUN" : "";
+            string forceRunArg = relaunch ? "/FORCERUN" : string.Empty;
             string arguments = $"/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOG=\"{logPath}\" {forceRunArg} /CLEANINSTALL";
 
             Process.Start(new ProcessStartInfo
@@ -179,7 +174,7 @@ namespace RobloxChatLauncher.Services
         private class GitHubRelease
         {
             [System.Text.Json.Serialization.JsonPropertyName("tag_name")]
-            public string TagName { get; set; } = "";
+            public string TagName { get; set; } = string.Empty;
 
             [System.Text.Json.Serialization.JsonPropertyName("assets")]
             public List<GitHubAsset> Assets { get; set; } = new();
@@ -187,10 +182,10 @@ namespace RobloxChatLauncher.Services
         private class GitHubAsset
         {
             [System.Text.Json.Serialization.JsonPropertyName("name")]
-            public string Name { get; set; } = "";
+            public string Name { get; set; } = string.Empty;
 
             [System.Text.Json.Serialization.JsonPropertyName("browser_download_url")]
-            public string DownloadUrl { get; set; } = "";
+            public string DownloadUrl { get; set; } = string.Empty;
         }
     }
 }

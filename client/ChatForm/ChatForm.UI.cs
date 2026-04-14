@@ -391,7 +391,8 @@ namespace RobloxChatLauncher
 
             // --- End Roblox Log Monitor ---
 
-            // Update checker. We install in OnFormClosed
+            // Update checker. We install in OnFormClosed or if the user types /update
+            // This should run exactly once on form load
             DateTime lastCheck = Properties.Settings1.Default.LastUpdateCheckUTC;
             if ((DateTime.UtcNow - lastCheck).TotalHours >= 1) // Only check for updates if it's been more than an hour since the last check
             {
