@@ -4,8 +4,10 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 using RobloxChatLauncher.Localization;
+using RobloxChatLauncher.Services;
 using RobloxChatLauncher.UI;
 using RobloxChatLauncher.Utils;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace RobloxChatLauncher
 {
@@ -387,13 +389,31 @@ namespace RobloxChatLauncher
             // Initial check: If we can't find a JobID yet, wait for the log monitor to catch it
             channelId = "global";
 
+            // --- End Roblox Log Monitor ---
+
+            // Update checker. We install in OnFormClosed
+            DateTime lastCheck = Properties.Settings1.Default.LastUpdateCheckUTC;
+            if ((DateTime.UtcNow - lastCheck).TotalHours >= 1) // Only check for updates if it's been more than an hour since the last check
+            {
+                _ = Task.Run(async () =>
+                {
+                    await UpdateService.CheckAndDownloadUpdate(UpdateMode.Background, true, (status) => // true for includePrerelease since we don't have any stable releases yet
+                                                                                                        // this will be changed to false when we have stable releases
+                    {
+                        this.Invoke(new Action(() => RichChatBox.AppendText(chatBox, status)));
+                    });
+
+                    // Update the timestamp
+                    Properties.Settings1.Default.LastUpdateCheckUTC = DateTime.UtcNow;
+                    Properties.Settings1.Default.Save();
+                });
+            }
+
             RichChatBox.AppendText(chatBox, Strings.StartupText);
 
 #if DEBUG
             RichChatBox.ShowcasePreview(chatBox);
 #endif
-
-            // --- End Roblox Log Monitor ---
         }
 
         private void RobloxProcess_Exited(object sender, EventArgs e)

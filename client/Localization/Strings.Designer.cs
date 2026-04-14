@@ -246,7 +246,9 @@ namespace RobloxChatLauncher.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Downloading update ({0} → {1})....
+        ///   Looks up a localized string similar to Downloading update ({0} → {1})...
+        ///It will be installed when you close the app.
+        ///Chat &apos;/update&apos; to install it now..
         /// </summary>
         public static string DownloadingUpdate {
             get {
@@ -571,7 +573,6 @@ namespace RobloxChatLauncher.Localization {
         
         /// <summary>
         ///   Looks up a localized string similar to Made with ❤︎ by Riri and Contributors
-        ///Chat &apos;/update&apos; to check for updates.
         ///Chat &apos;/?&apos; or &apos;/help&apos; for a list of chat commands..
         /// </summary>
         public static string StartupText {

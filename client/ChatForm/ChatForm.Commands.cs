@@ -108,7 +108,7 @@ namespace RobloxChatLauncher
 
                         // We use Task.Run so the UI doesn't freeze while downloading
                         await Task.Run(async () => {
-                            await UpdateService.CheckAndDownloadUpdate(includePrerelease, (status) => {
+                            await UpdateService.CheckAndDownloadUpdate(UpdateMode.Manual, includePrerelease, (status) => {
                                 // This invokes back to the UI thread to update the chatBox safely
                                 this.Invoke(new Action(() => RichChatBox.AppendSystemMessage(chatBox, status)));
                             });

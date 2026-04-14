@@ -581,6 +581,12 @@ namespace RobloxChatLauncher
             keyboardHandler = null;
 
             base.OnFormClosed(e);
+
+            // If a background update was downloaded, install it now that the app is closing
+            if (!string.IsNullOrEmpty(UpdateService.PendingUpdatePath))
+            {
+                UpdateService.RunInstaller(UpdateService.PendingUpdatePath, relaunch: false);
+            }
         }
     }
 }

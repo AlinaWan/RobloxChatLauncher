@@ -180,7 +180,9 @@
     <value>再次使用 '/console' 或 '/debug' 关闭</value>
   </data>
   <data name="DownloadingUpdate" xml:space="preserve">
-    <value>正在下载更新 ({0} → {1})...</value>
+    <value>正在下载更新 ({0} → {1})...
+关闭应用程序时将自动安装
+输入 '/update' 立即安装。</value>
   </data>
   <data name="EchoResponse" xml:space="preserve">
     <value>{0}（只有你能看到此消息）</value>
@@ -277,7 +279,6 @@
   </data>
   <data name="StartupText" xml:space="preserve">
     <value>由 Riri 及 Contributors 用 ❤︎ 打造
-输入 '/update' 以检查更新。
 输入 '/?' 或 '/help' 以查看聊天命令列表。</value>
   </data>
   <data name="SwitchingServer" xml:space="preserve">
