@@ -15,7 +15,7 @@ namespace RobloxChatLauncher.Services
 
 #if DEBUG
                 Stopwatch sw = Stopwatch.StartNew();
-                Debug.WriteLine($"[PoW] Starting solver. Seed: {seed}, Difficulty: {difficulty}");
+                Console.WriteLine($"[PoW] Starting solver. Seed: {seed}, Difficulty: {difficulty}");
 #endif
 
                 using (SHA256 sha256 = SHA256.Create())
@@ -34,10 +34,10 @@ namespace RobloxChatLauncher.Services
                         {
 #if DEBUG
                             sw.Stop();
-                            Debug.WriteLine($"[PoW] Solution found in {nonce:N0} attempts.");
-                            Debug.WriteLine($"[PoW] Time elapsed: {sw.ElapsedMilliseconds}ms.");
-                            Debug.WriteLine($"[PoW] Final nonce:  {nonce}");
-                            Debug.WriteLine($"[PoW] Result hash:  {hashString}");
+                            Console.WriteLine($"[PoW] Solution found in {nonce:N0} attempts.");
+                            Console.WriteLine($"[PoW] Time elapsed: {sw.ElapsedMilliseconds}ms.");
+                            Console.WriteLine($"[PoW] Final nonce:  {nonce}");
+                            Console.WriteLine($"[PoW] Result hash:  {hashString}");
 #endif
                             return nonce;
                         }
