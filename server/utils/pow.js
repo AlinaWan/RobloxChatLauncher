@@ -10,7 +10,7 @@ class PoW {
         this.issuedChallenges = new Map(); // seed -> { expiresAt, difficulty }
 
         // Traffic Tracking
-        this.requestHistory = []; // Timestamps of issued challenges
+        this.requestHistory = new Map(); // ip -> timestamps[]
 
         setInterval(() => {
             const now = Date.now();
@@ -20,37 +20,59 @@ class PoW {
                 }
             }
         }, 60000).unref();
+
+        setInterval(() => {
+            const now = Date.now();
+            for (const [ip, history] of this.requestHistory.entries()) {
+                const filtered = history.filter(ts => now - ts < 60000);
+                if (filtered.length === 0) {
+                    this.requestHistory.delete(ip);
+                } else {
+                    this.requestHistory.set(ip, filtered);
+                }
+            }
+        }, 60000).unref();
     }
 
     // Calculate difficulty based on requests in the last 60 seconds
-    getDynamicDifficulty() {
+    getDynamicDifficulty(ip) {
         const now = Date.now();
-        // Clean up history older than 1 minute
-        this.requestHistory = this.requestHistory.filter(ts => now - ts < 60000);
 
-        const rpm = this.requestHistory.length;
+        if (!this.requestHistory.has(ip))
+            this.requestHistory.set(ip, []);
+
+        const history = this.requestHistory.get(ip);
+
+        // Clean up history older than 1 minute
+        const filtered = history.filter(ts => now - ts < 60000);
+        this.requestHistory.set(ip, filtered);
+
+        const rpm = filtered.length;
 
         // Increase difficulty every x requests/min
         const boost = Math.floor(rpm / Constants.POW_THRESHOLD_STEP);
         return Math.min(this.baseDifficulty + boost, this.maxDifficulty);
     }
 
-    generateChallenge() {
+    generateChallenge(ip) {
         const seed = crypto.randomBytes(16).toString('hex');
         const expiresAt = Date.now() + this.ttlMs;
 
-        // Record this request for traffic tracking
-        this.requestHistory.push(Date.now());
+        if (!this.requestHistory.has(ip))
+            this.requestHistory.set(ip, []);
 
-        const currentDiff = this.getDynamicDifficulty();
+        // Record this request for traffic tracking
+        this.requestHistory.get(ip).push(Date.now());
+
+        const difficulty = this.getDynamicDifficulty(ip);
 
         // Store the difficulty used for THIS specific seed so verification works
         this.issuedChallenges.set(seed, {
             expiresAt,
-            difficulty: currentDiff
+            difficulty
         });
 
-        return { seed, difficulty: currentDiff };
+        return { seed, difficulty };
     }
 
     verify(seed, nonce) {

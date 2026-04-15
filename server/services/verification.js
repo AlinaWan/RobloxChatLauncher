@@ -40,7 +40,8 @@ setInterval(() => {
 }, 10 * 60 * 1000); // run every 10 minutes
 
 async function getChallenge(req, res) {
-    const challenge = pow.generateChallenge();
+    const ip = req.ip;
+    const challenge = pow.generateChallenge(ip);
     res.json(challenge);
 }
 
