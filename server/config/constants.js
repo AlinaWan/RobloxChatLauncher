@@ -6,6 +6,8 @@ const config = {
     TEXT_LIMIT_BYTES: 1024,
     WEBSOCKET_LIMIT_BYTES: 1024,
     HEARTBEAT_INTERVAL: 30_000,
+
+    POW_THRESHOLD_STEP: 50, // Request per minute step to increase PoW difficulty
 };
 
 module.exports = config;
