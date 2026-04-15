@@ -6,6 +6,18 @@ Last Updated: March 15, 2026
 This Privacy Policy explains how this service processes information when users send messages through the application.
 The service is designed with privacy-by-design principles and minimizes the collection and retention of personal data.
 
+i. TL;DR
+    We take steps to limit the data we can see, and aim to ensure only the minimum amount of data required for standard operations is collected.
+    We CAN see the following information in our logs & database:
+        - ✓ Your messages, which are never stored outside of logs and are automatically deleted after 7 days.
+        - ✓ The channel your messages were sent on.
+        - ✓ If you choose to verify your account, your Roblox User ID and Machine GUID in our database tables.
+    We CANNOT see the following information in our logs:
+        - ✗ Your public IP address or physical location.
+        - ✗ Your Roblox User ID or Username associated with your messages.
+    Our hosting providers may have their own privacy policies, which you are encouraged to read.
+    This section is not exhaustive. Please read below for the full Policy.
+
 1. Data Transmission & IP Addresses
     To facilitate standard internet communication, your IP address is visible to our hosting provider (Render) to route messages back to your device.
         Application Invisibility: Our server application is designed so that it does not see, log, or store your public IP address, even in a hashed
