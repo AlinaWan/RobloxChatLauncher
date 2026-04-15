@@ -210,5 +210,6 @@ module.exports = {
     unverifyUser,
     checkLogin,
     upsertUser,
-    removeUser
+    removeUser,
+    getChallenge
 };
