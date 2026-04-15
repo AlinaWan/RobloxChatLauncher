@@ -38,6 +38,8 @@ jobs:
       - name: Validate tag
         id: check-tag
         run: |
+          shopt -s extglob
+          
           INPUT_TAG="${{ github.event.inputs.tag_name }}"
 
           # Check for force character '!' at the end
