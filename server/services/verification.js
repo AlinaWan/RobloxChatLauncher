@@ -5,6 +5,7 @@ const path = require('path');
 
 const Constants = require('../config/constants');
 const { pool } = require('../db/postgresPool');
+const pow = require('../utils/pow');
 
 // Courtesy of the EFF Large Wordlist for Passphrases
 // Source: https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
@@ -38,6 +39,11 @@ setInterval(() => {
     }
 }, 10 * 60 * 1000); // run every 10 minutes
 
+async function getChallenge(req, res) {
+    const challenge = pow.generateChallenge();
+    res.json(challenge);
+}
+
 // Helper to vaidate if a string is a valid UUID
 function isValidUuidV4(uuid) {
     const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -45,7 +51,12 @@ function isValidUuidV4(uuid) {
 }
 
 async function generateCode(req, res) {
-    const { robloxUsername } = req.body;
+    const { robloxUsername, seed, nonce } = req.body;
+
+    if (!seed || !nonce || !pow.verify(seed, nonce)) {
+        return res.status(401).send("Invalid or missing Proof of Work.");
+    }
+
     if (!robloxUsername) return res.status(400).send("Username required");
 
     try {

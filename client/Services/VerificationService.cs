@@ -49,6 +49,16 @@ namespace RobloxChatLauncher.Services
             }
         }
 
+        private class ChallengeResponse
+        {
+            [JsonPropertyName("seed")] public string Seed { get; set; } = string.Empty;
+            [JsonPropertyName("difficulty")]
+            public int Difficulty
+            {
+                get; set;
+            }
+        }
+
         public static string GetMachineId()
         {
             using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography"))
@@ -62,17 +72,38 @@ namespace RobloxChatLauncher.Services
             }
         }
 
+        private async Task<ChallengeResponse> GetChallenge()
+        {
+            var response = await ChatForm.Client.GetAsync($"https://{Constants.BASE_URL}/api/v1/verify/challenge");
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<ChallengeResponse>(json);
+        }
+
         public async Task<(string Code, long RobloxId)> StartVerification(string username)
         {
+            var challenge = await GetChallenge();
+            if (challenge == null)
+                throw new Exception("Failed to get Proof of Work challenge");
+
+            long nonce = await PoWSolver.SolveAsync(challenge.Seed, challenge.Difficulty);
+
             var payload = new
             {
-                robloxUsername = username
+                robloxUsername = username,
+                seed = challenge.Seed,
+                nonce = nonce
             };
             var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
             var response = await ChatForm.Client.PostAsync($"https://{Constants.BASE_URL}/api/v1/verify/generate", content);
-            var json = await response.Content.ReadAsStringAsync();
 
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorBody = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Server rejected request ({response.StatusCode}): {errorBody}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
             // Deserialize into our helper class
             var result = JsonSerializer.Deserialize<VerificationResponse>(json);
             

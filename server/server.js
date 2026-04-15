@@ -891,12 +891,40 @@ app.post(
 // --------------------------------------
 // ----- The Verification Endpoints -----
 // --------------------------------------
+
+/**
+ * @openapi
+ * /api/v1/verify/challenge:
+ *  get:
+ *    summary: Request a Proof of Work challenge
+ *    description: Provides a unique seed and difficulty level. The client must solve this challenge before calling the generate endpoint to prevent automated spam.
+ *    tags: [Public]
+ *    responses:
+ *      200:
+ *        description: Challenge generated successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                seed:
+ *                  type: string
+ *                  example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+ *                difficulty:
+ *                  type: integer
+ *                  example: 4
+ *      500:
+ *        description: Server error while generating challenge
+ */
+app.get('/api/v1/verify/challenge', getChallenge);
 /**
  * @openapi
  * /api/v1/verify/generate:
  *   post:
  *     summary: Generate a verification code for a Roblox username
- *     description: Creates a temporary verification code that the user must place in their Roblox profile description to verify ownership.
+ *     description: >
+ *       Creates a temporary verification code that the user must place in their Roblox profile description to verify ownership.
+ *       Requires a valid Proof of Work solution (seed and nonce) obtained from the challenge endpoint.
  *     tags: [Public]
  *     requestBody:
  *       required: true
@@ -906,10 +934,18 @@ app.post(
  *             type: object
  *             required:
  *               - robloxUsername
+ *               - seed
+ *               - nonce
  *             properties:
  *               robloxUsername:
  *                 type: string
  *                 example: "Riri"
+ *               seed:
+ *                 type: string
+ *                 example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+ *               nonce:
+ *                 type: integer
+ *                 example: 12345
  *     responses:
  *       200:
  *         description: Verification code generated successfully
@@ -920,12 +956,14 @@ app.post(
  *               properties:
  *                 code:
  *                   type: string
- *                   example: "RCL-AB12CD"
+ *                   example: "rcl cottage condone envision lanky outboard walnut"
  *                 robloxId:
  *                   type: integer
  *                   example: 12345678
  *       400:
  *         description: Missing username
+ *       401:
+ *        description: Invalid or missing Proof of Work solution
  *       404:
  *         description: Roblox user not found
  *       500:
