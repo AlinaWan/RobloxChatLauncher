@@ -34,4 +34,4 @@ class PoW {
     }
 }
 
-module.exports = new PoW(4);
+module.exports = new PoW(5);
