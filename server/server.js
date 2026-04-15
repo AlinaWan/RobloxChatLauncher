@@ -1367,6 +1367,14 @@ function broadcastToChannel(channelId, data) {
     }
 }
 
+process.on("SIGTERM", () => {
+    clearInterval(interval);
+    wss.clients.forEach(ws => {
+        ws.close(1001, "Going Away");
+    });
+    wss.close();
+});
+
 // Health check endpoint (Good practice for Render)
 /**
  * @openapi
