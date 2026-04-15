@@ -38,8 +38,6 @@ jobs:
       - name: Validate tag
         id: check-tag
         run: |
-          shopt -s extglob
-          
           INPUT_TAG="${{ github.event.inputs.tag_name }}"
 
           # Check for force character '!' at the end
@@ -52,7 +50,8 @@ jobs:
           fi
 
           # Normalize leading 'v'
-          CLEAN_TAG="v${CLEAN_TAG#?([vV])}"
+          CLEAN_TAG="${CLEAN_TAG#[vV]}"
+          CLEAN_TAG="v$CLEAN_TAG"
 
           # Check if the tag is in valid SemVer format (with 'v' prefix as is conventional for tags)
           if ! [[ "$CLEAN_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$ ]]; then
