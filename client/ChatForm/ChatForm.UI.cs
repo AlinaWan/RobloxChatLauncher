@@ -391,6 +391,13 @@ namespace RobloxChatLauncher
 
             // --- End Roblox Log Monitor ---
 
+            RichChatBox.AppendText(chatBox, Strings.StartupText);
+
+#if DEBUG
+            RichChatBox.ShowcasePreview(chatBox);
+#endif
+
+#if !DEBUG
             // Update checker. We install in OnFormClosed or if the user types /update
             // This should run exactly once on form load
             DateTime lastCheck = Properties.Settings1.Default.LastUpdateCheckUTC;
@@ -409,11 +416,6 @@ namespace RobloxChatLauncher
                     Properties.Settings1.Default.Save();
                 });
             }
-
-            RichChatBox.AppendText(chatBox, Strings.StartupText);
-
-#if DEBUG
-            RichChatBox.ShowcasePreview(chatBox);
 #endif
         }
 
