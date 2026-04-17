@@ -1,0 +1,74 @@
+name: Bump Dependencies in Installer
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  schedule:
+    - cron: "0 5 * * 1" # Every Monday at 5:00 AM UTC
+  workflow_dispatch:
+
+jobs:
+  bump-dependencies:
+    runs-on: ubuntu-slim
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Get current .NET Runtime version from file
+      id: current
+      run: |
+        CURRENT_VER=$(grep -o "runtime-desktop-[0-9.]*-windows-x64-installer" installer/Installer.iss | \
+                      sed 's/runtime-desktop-\(.*\)-windows-x64-installer/\1/')
+        echo "version=$CURRENT_VER" >> $GITHUB_OUTPUT
+
+    - name: Fetch latest .NET Runtime version
+      id: latest
+      run: |
+        VERSION=$(curl -s https://builds.dotnet.microsoft.com/dotnet/release-metadata/releases-index.json | \
+                  jq -r '.["releases-index"][] | select(."channel-version"=="10.0") | ."latest-runtime"')
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Compare Versions
+      id: check
+      run: |
+        CURRENT="${{ steps.current.outputs.version }}"
+        LATEST="${{ steps.latest.outputs.version }}"
+
+        if [ "$CURRENT" != "$LATEST" ] && dpkg --compare-versions "$LATEST" gt "$CURRENT"; then
+          echo "is_newer=true" >> $GITHUB_OUTPUT
+        else
+          echo "is_newer=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Build Desktop Runtime download URL
+      if: steps.check.outputs.is_newer == 'true'
+      id: url
+      run: |
+        URL="https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-${{ steps.latest.outputs.version }}-windows-x64-installer"
+        echo "url=$URL" >> $GITHUB_OUTPUT
+
+    - name: Replace URL in installer
+      if: steps.check.outputs.is_newer == 'true'
+      run: |
+        sed -i "s|DotNet10Url = '.*'|DotNet10Url = '${{ steps.url.outputs.url }}'|g" installer/Installer.iss
+
+    - name: Create Pull Request
+      if: steps.check.outputs.is_newer == 'true'
+      uses: peter-evans/create-pull-request@v8
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "chore(deps): bump .NET Desktop Runtime link from ${{ steps.current.outputs.version }} to ${{ steps.latest.outputs.version }}"
+        committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+        author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+        signoff: true
+        title: "chore(deps): bump .NET Desktop Runtime link from ${{ steps.current.outputs.version }} to ${{ steps.latest.outputs.version }}"
+        body: |
+          Bumps .NET Desktop Runtime link in installer from ${{ steps.current.outputs.version }} to ${{ steps.latest.outputs.version }}.
+        labels: |
+          dependencies
+          github_actions
+        branch: installer/dotnet-runtime
+        delete-branch: true
+        draft: false
