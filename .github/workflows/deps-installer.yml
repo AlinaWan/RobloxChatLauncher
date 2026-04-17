@@ -44,7 +44,7 @@ jobs:
     - name: Replace .NET version in Installer.iss
       if: steps.check.outputs.is_newer == 'true'
       run: |
-        sed -i "s/^#define DotNetVersion .*/#define DotNetVersion \"${{ steps.latest.outputs.version }}\"/" installer/Installer.iss
+        sed -i "s/^\(#define DotNetVersion \)\"[^\"]*\"/\1\"${{ steps.latest.outputs.version }}\"/" installer/Installer.iss
 
     - name: Create Pull Request
       if: steps.check.outputs.is_newer == 'true'

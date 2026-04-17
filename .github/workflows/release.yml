@@ -101,7 +101,7 @@ jobs:
           }
 
           # Perform the replacement and force UTF8
-          $content -replace "^#define AppVersion.*", "#define AppVersion `"$tag`"" | 
+          $content -replace '^#define AppVersion "[^"]*"', "#define AppVersion `"$tag`"" | 
             Set-Content $path -Encoding UTF8
           
           Write-Host "Successfully updated AppVersion to $tag in $path."
