@@ -312,6 +312,10 @@ This README is based on the template by [Bloxstrap](https://github.com/bloxstrap
 
 Original Copyright (c) 2022 pizzaboxer
 
+The bug report template is based on the one by the [.NET Foundation](https://github.com/dotnet/runtime/blob/f76457846ba599745dfd84705ca81730bfb3ec80/.github/ISSUE_TEMPLATE/01_bug_report.yml), used under the [MIT License](https://github.com/dotnet/runtime/blob/f76457846ba599745dfd84705ca81730bfb3ec80/LICENSE.TXT). It has been modified to fit the specific needs of this project.
+
+Original Copyright (c) .NET Foundation and Contributors
+
 ---
 
 **Trademark Notice:** "Roblox" is a registered trademark of Roblox Corporation. This project is not, and makes no claims to be, affiliated with or endorsed by Roblox Corporation.

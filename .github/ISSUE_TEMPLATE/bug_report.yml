@@ -1,0 +1,98 @@
+name: Bug Report
+description: Create a report to help us improve
+labels: [needs triage, bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We welcome bug reports! This template will help us gather the information we need to start the triage process.
+        
+        This bug report template is based on the one by the [.NET Foundation](https://github.com/dotnet/runtime/blob/f76457846ba599745dfd84705ca81730bfb3ec80/.github/ISSUE_TEMPLATE/01_bug_report.yml), used under the [MIT License](https://github.com/dotnet/runtime/blob/f76457846ba599745dfd84705ca81730bfb3ec80/LICENSE.TXT). It has been modified to fit the specific needs of this project.
+        
+        Original Copyright (c) .NET Foundation and Contributors.
+  - type: textarea
+    id: background
+    attributes:
+      label: Description
+      description: Please share a clear and concise description of the problem.
+      placeholder: Description
+    validations:
+      required: true
+  - type: textarea
+    id: repro-steps
+    attributes:
+      label: Reproduction Steps
+      description: |
+        Please include minimal steps to reproduce the problem if possible. If possible include text as text rather than screenshots (so it shows up in searches).
+      placeholder: Minimal Reproduction
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: |
+        Provide a description of the expected behavior.
+      placeholder: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual behavior
+      description: |
+        Provide a description of the actual behavior observed. If applicable please include any error messages, exception stacktraces or memory dumps.
+      placeholder: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: regression
+    attributes:
+      label: Regression?
+      description: |
+        Did this work in a previous build or release of Roblox Chat Launcher? If you can try a previous release or build to find out, that can help us narrow down the problem. If you don't know, that's OK.
+      placeholder: Regression?
+    validations:
+      required: false
+  - type: textarea
+    id: known-workarounds
+    attributes:
+      label: Known Workarounds
+      description: |
+        Please provide a description of any known workarounds.
+      placeholder: Known Workarounds
+    validations:
+      required: false
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration
+      description: |
+        Please provide more information on your app configuration:
+          * Which version of Roblox Chat Launcher are you using?
+          * Are you running the app from source or from a release build?
+          * Which version of .NET is the app running on?
+          * What OS and version, and what distro if applicable?
+          * What is the architecture (x64, x86, ARM, ARM64)?
+          * Do you know whether it is specific to that configuration?
+      placeholder: Configuration
+    validations:
+      required: false
+  - type: textarea
+    id: other-info
+    attributes:
+      label: Other information
+      description: |
+        If you have an idea where the problem might lie, let us know that here. Please include any pointers to code, relevant changes, or related issues you know of. To link a file from GitHub, click the line number and press **^⇧<** to create a permalink, then paste that link here.
+      placeholder: Other information
+    validations:
+      required: false
+  - type: checkboxes
+    id: pre-submission-checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate.
+          required: true
+        - label: I confirm that I am using the latest version of Roblox Chat Launcher.
+          required: true
