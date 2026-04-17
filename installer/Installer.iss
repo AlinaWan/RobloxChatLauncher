@@ -1,4 +1,6 @@
 #define AppVersion "1.0.0" ; Do not manually update this version; it is auto-updated by release workflow
+#define DotNetVersion "10.0.6" ; Do not change this variable name; the dependency checker relies on it for auto bump
+#define DotNet10Url "https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-" + DotNetVersion + "-windows-x64-installer"
 #define Root ".."
 
 [Setup]
@@ -170,7 +172,7 @@ end;
 // .NET Desktop Runtime installation check and installer
 // -----------------------------------------------------
 const
-  DotNet10Url = 'https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-10.0.6-windows-x64-installer';
+  DotNet10Url = '{#DotNet10Url}';
 
 function IsDotNet10Installed(): Boolean;
 var

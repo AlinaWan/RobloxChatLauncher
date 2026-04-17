@@ -16,21 +16,20 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: Get current .NET Runtime version from file
+    - name: Get current .NET version from Installer.iss
       id: current
       run: |
-        CURRENT_VER=$(grep -o "runtime-desktop-[0-9.]*-windows-x64-installer" installer/Installer.iss | \
-                      sed 's/runtime-desktop-\(.*\)-windows-x64-installer/\1/')
+        CURRENT_VER=$(sed -n 's/^#define DotNetVersion "\([^"]*\)"/\1/p' installer/Installer.iss)
         echo "version=$CURRENT_VER" >> $GITHUB_OUTPUT
 
-    - name: Fetch latest .NET Runtime version
+    - name: Fetch latest .NET 10.0 Runtime version
       id: latest
       run: |
         VERSION=$(curl -s https://builds.dotnet.microsoft.com/dotnet/release-metadata/releases-index.json | \
                   jq -r '.["releases-index"][] | select(."channel-version"=="10.0") | ."latest-runtime"')
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    - name: Compare Versions
+    - name: Compare local and latest versions
       id: check
       run: |
         CURRENT="${{ steps.current.outputs.version }}"
@@ -42,17 +41,10 @@ jobs:
           echo "is_newer=false" >> $GITHUB_OUTPUT
         fi
 
-    - name: Build Desktop Runtime download URL
-      if: steps.check.outputs.is_newer == 'true'
-      id: url
-      run: |
-        URL="https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-${{ steps.latest.outputs.version }}-windows-x64-installer"
-        echo "url=$URL" >> $GITHUB_OUTPUT
-
-    - name: Replace URL in installer
+    - name: Replace .NET version in Installer.iss
       if: steps.check.outputs.is_newer == 'true'
       run: |
-        sed -i "s|DotNet10Url = '.*'|DotNet10Url = '${{ steps.url.outputs.url }}'|g" installer/Installer.iss
+        sed -i "s/^#define DotNetVersion .*/#define DotNetVersion \"${{ steps.latest.outputs.version }}\"/" installer/Installer.iss
 
     - name: Create Pull Request
       if: steps.check.outputs.is_newer == 'true'
