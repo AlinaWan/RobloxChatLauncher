@@ -170,7 +170,7 @@ end;
 // .NET Desktop Runtime installation check and installer
 // -----------------------------------------------------
 const
-  DotNet10Url = 'https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-10.0.6-windows-x64-installer';
+  DotNet10Url = 'https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-10.0.5-windows-x64-installer';
 
 function IsDotNet10Installed(): Boolean;
 var
