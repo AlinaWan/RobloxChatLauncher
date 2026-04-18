@@ -179,7 +179,7 @@ async function removeUser(hwid) {
 }
 
 async function getRobloxUsername(userId) {
-    if (nameCache.has(userId)) return nameCache.get(userId);
+    if (nameCache.has(userId)) return nameCache.get(userId).username;
 
     try {
         const res = await axios.get(`https://users.roblox.com/v1/users/${userId}`);
@@ -187,7 +187,7 @@ async function getRobloxUsername(userId) {
         nameCache.set(userId, { username, expiresAt: Date.now() + Constants.USERNAME_CACHE_TTL_MS });
         return username;
     } catch (err) {
-        return `User:${userId}`; // Fallback if API fails
+        return `User ${userId}`; // Fallback if API fails
     }
 }
 
