@@ -271,6 +271,101 @@ Use a sandboxed environment for safe testing:
 > * Tiny11 Core is not a replacement for Tiny11; use for testing in a VM only.
 > * Windows Defender is not included in Tiny11 Core. Exercise caution when browsing inside the VM.
 
+## 📦 Compiling from Source
+
+First things first, clone the repository and navigate to the root folder:
+
+```powershell
+git clone https://github.com/AlinaWan/RobloxChatLauncher
+cd RobloxChatLauncher
+```
+
+<!-- Client -->
+<details>
+  <summary>Client (C#)</summary>
+
+### Client (C#)
+  
+#### Prerequisites
+
+* [.NET 10.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-10.0.101-windows-x64-installer)
+
+#### Installation
+
+Navigate to the `client/` folder:
+
+```powershell
+cd client/
+```
+
+Build and run the program:
+
+```powershell
+dotnet run
+```
+  
+</details>
+
+<!-- Server -->
+<details>
+  <summary>Server (Docker)</summary>
+
+### Server (Docker)
+  
+#### Prerequisites
+
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+#### Installation
+
+Navigate to the `server/` folder:
+
+```powershell
+cd server/
+```
+
+Build the Docker image:
+
+```powershell
+docker build -t roblox-chat-launcher .
+```
+
+Run the container:
+
+```powershell
+docker run -p 10000:10000 roblox-chat-launcher
+```
+
+Your server will now be accessible at `http://localhost:10000`.
+
+</details>
+
+<!-- Installer -->
+<details>
+  <summary>Installer (Inno Setup)</summary>
+
+### Installer (Inno Setup)
+  
+#### Prerequisites
+
+* [Inno Setup](https://jrsoftware.org/isdl.php)
+
+#### Installation
+
+Navigate to the `installer/` folder:
+
+```powershell
+cd installer/
+```
+
+Build the installer:
+
+```powershell
+iscc Installer.iss
+```
+
+</details>
+
 ---
 
 ## 💬 Commit Message Guidelines
@@ -302,6 +397,12 @@ All commits **must follow [Conventional Commits v1.0.0](https://www.conventional
 * `chore(scope):` maintenance tasks
 * `docs(scope):` changes or additions to documentation
 
+
+## 💻 Development Guidelines
+
+* Follow existing code style for C# and JavaScript.
+* Keep commits small, descriptive, and scoped.
+
 ---
 
 ## 📥 Installing Roblox Chat Launcher from CLI in a VM
@@ -316,7 +417,7 @@ All commits **must follow [Conventional Commits v1.0.0](https://www.conventional
     prefer conventional methods such as <code>git clone</code> elsewhere.
   </p>
 
-  <h3>📥 One-Line Installation</h3>
+  <h3>One-Line Installation</h3>
   <p>
     Run the following in <b>PowerShell</b> to perform all setup steps automatically, 
     including creating directories, installing .NET (Runtime or SDK), 
@@ -333,70 +434,10 @@ All commits **must follow [Conventional Commits v1.0.0](https://www.conventional
     <li><code>-Branch &lt;branch|tag|commit&gt;</code> – download a specific branch, tag, commit hash, or release tag if -UseReleaseExe</li>
     <li><code>-UseReleaseExe</code> – download the first release .exe instead of source code</li>
   </ul>
-
-  <hr>
-
-<details>
-  <summary>Click to see manual setup steps instead</summary>
-  <br>
-  <p></p>
-  
-<h3>📥 Manual Installation</h3>
-  <h4>1️⃣ Prepare Directories</h4>
-  <p>Open <b>PowerShell (Admin)</b>:</p>
-  <pre><code>mkdir C:\Downloads
-mkdir C:\dotnet
-cd C:\Downloads</code></pre>
-
-  <hr>
-
-  <h4>2️⃣ Install .NET 10</h4>
-  <p>Install .NET Desktop Runtime:</p>
-  <pre><code>Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile C:\dotnet\dotnet-install.ps1
-powershell -ExecutionPolicy Bypass -File C:\dotnet\dotnet-install.ps1 -Runtime windowsdesktop -Channel 10.0
-setx PATH "$env:PATH;C:\dotnet"
-dotnet --list-runtimes</code></pre>
-  <p>You should see a <code>Microsoft.WindowsDesktop.App 10.0.x</code> entry.</p>
-    <p>Or .NET SDK:</p>
-  <pre><code>Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile C:\dotnet\dotnet-install.ps1
-powershell -ExecutionPolicy Bypass -File C:\dotnet\dotnet-install.ps1 -Channel 10.0
-$env:PATH += ";C:\dotnet"
-dotnet --info</code></pre>
-
-  <hr>
-
-  <h4>3️⃣ Download RobloxChatLauncher</h4>
-  <p>Download the repository:</p>
-  <pre><code>Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/refs/heads/main.zip" -OutFile "C:\Downloads\RobloxChatLauncher.zip"
-Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\Downloads\RobloxChatLauncher"</code></pre>
-  
-  <p>Or a specific tag/commit hash:</p>
-  <pre><code>Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/refs/tags/v1.0.0.zip" -OutFile "C:\Downloads\RobloxChatLauncher.zip"
-Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/archive/a1b2c3d.zip" -OutFile "C:\Downloads\RobloxChatLauncher.zip"
-Expand-Archive -Path "C:\Downloads\RobloxChatLauncher.zip" -DestinationPath "C:\Downloads\RobloxChatLauncher"</code></pre>
-
-  <p>Or the RobloxChatLauncherInstaller.exe of a release:</p>
-  <pre><code>Invoke-WebRequest -Uri "https://github.com/AlinaWan/RobloxChatLauncher/releases/download/v1.0.0/RobloxChatLauncherInstaller.exe" -OutFile "C:\Downloads\Installer.exe"</code></pre>
-
-  <hr>
-
-  <p>Verify that all files are available:</p>
-  <pre><code>Get-ChildItem "C:\Downloads\RobloxChatLauncher"</code></pre>
-  
-  <p>Or verify the executable exists:</p>
-  <pre><code>Test-Path "C:\Downloads\RobloxChatLauncherInstaller.exe"</code></pre>
-</details>
-
 </details>
 
 ---
 
-## 💻 Development Guidelines
-
-* Follow existing code style for C# and JavaScript.
-* Keep commits small, descriptive, and scoped.
-
----
 
 ## 📜 Pull Request Checklist
 
